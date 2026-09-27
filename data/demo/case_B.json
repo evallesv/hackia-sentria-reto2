@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "DEMO-B",
+  "currency": "USD",
+  "billing_kind": "INVOICE",
+  "documents": [
+    {
+      "id": "incident",
+      "kind": "INCIDENT_REPORT",
+      "filename": "incident.txt",
+      "sha256": "a47c74f66a72fb9527d7897683bc8f0b8da045edcf50d00b1792b26b47ab081f",
+      "active": true
+    },
+    {
+      "id": "inspection",
+      "kind": "WORKSHOP_REPORT",
+      "filename": "inspection.txt",
+      "sha256": "8cab6a9ca5c441800d67cf769abf83aaf9a66e3769907cd74bc316d5cf48f97e",
+      "active": true
+    },
+    {
+      "id": "billing",
+      "kind": "BILLING_DOCUMENT",
+      "filename": "billing.txt",
+      "sha256": "1cb02f07247b89dc7feb4060ab904361b1a86f13ed40422ca450123b517027c2",
+      "active": true
+    },
+    {
+      "id": "tariff",
+      "kind": "TARIFF",
+      "filename": "tariff.txt",
+      "sha256": "3ad05dac27ff54f52558717827456255cb944bf96538138e183b28637123d909",
+      "active": true
+    }
+  ],
+  "evidence": [
+    {
+      "id": "ev_incident",
+      "document_id": "incident",
+      "location": "línea 1",
+      "text": "SINTÉTICO. Colisión frontal. Daño en parachoques, pintura y alineación frontal."
+    },
+    {
+      "id": "ev_inspection",
+      "document_id": "inspection",
+      "location": "línea 1",
+      "text": "SINTÉTICO. Se confirma daño frontal. Cambiar parachoques, pintar y alinear."
+    },
+    {
+      "id": "ev_paint",
+      "document_id": "billing",
+      "location": "línea 1",
+      "text": "SINTÉTICO. Pintura frontal: 8 HOUR × USD 55.00 = USD 440.00"
+    },
+    {
+      "id": "ev_bumper",
+      "document_id": "billing",
+      "location": "línea 2",
+      "text": "SINTÉTICO. Parachoques frontal: 1 UNIT × USD 1490.00 = USD 1490.00"
+    },
+    {
+      "id": "ev_rate_PAINT",
+      "document_id": "tariff",
+      "location": "registro PAINT",
+      "text": "SINTÉTICO. PAINT: USD 45.00 por HOUR"
+    },
+    {
+      "id": "ev_rate_BUMPER",
+      "document_id": "tariff",
+      "location": "registro BUMPER",
+      "text": "SINTÉTICO. BUMPER: USD 1490.00 por UNIT"
+    }
+  ],
+  "reported_damage_codes": [
+    "FRONT"
+  ],
+  "inspected_damage_codes": [
+    "FRONT"
+  ],
+  "items": [
+    {
+      "id": "paint",
+      "description": "Pintura frontal",
+      "service_code": "PAINT",
+      "damage_code": "FRONT",
+      "unit": "HOUR",
+      "quantity": "8",
+      "unit_price": "55.00",
+      "line_total": "440.00",
+      "evidence_id": "ev_paint"
+    },
+    {
+      "id": "bumper",
+      "description": "Parachoques frontal",
+      "service_code": "BUMPER",
+      "damage_code": "FRONT",
+      "unit": "UNIT",
+      "quantity": "1",
+      "unit_price": "1490.00",
+      "line_total": "1490.00",
+      "evidence_id": "ev_bumper"
+    }
+  ],
+  "tariffs": [
+    {
+      "service_code": "PAINT",
+      "unit": "HOUR",
+      "allowed_rate": "45.00",
+      "evidence_id": "ev_rate_PAINT"
+    },
+    {
+      "service_code": "BUMPER",
+      "unit": "UNIT",
+      "allowed_rate": "1490.00",
+      "evidence_id": "ev_rate_BUMPER"
+    }
+  ],
+  "subtotal": "1930.00",
+  "taxes": "0.00",
+  "total": "1930.00"
+}

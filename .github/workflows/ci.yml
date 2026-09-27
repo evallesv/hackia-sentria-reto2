@@ -1,0 +1,24 @@
+name: Quality gates
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - run: uv sync --locked --all-groups
+      - run: make check
+      - run: uv run python -m scripts.export_contracts
+      - run: git diff --exit-code -- contracts
+      - run: uv export --no-header --frozen --no-dev --no-emit-project --output-file /tmp/requirements.txt
+      - run: diff requirements.txt /tmp/requirements.txt

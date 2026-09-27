@@ -1,0 +1,51 @@
+{
+  "project": "Sentria - Auditor agéntico de facturación de siniestros",
+  "date": "2026-09-27",
+  "stage": "Preparación del repositorio y validación del starter",
+  "team": [
+    {
+      "name": "Eduardo Valle",
+      "linkedin": "https://linkedin.com/in/evallesv"
+    },
+    {
+      "name": "Jose Muñoz",
+      "linkedin": "https://linkedin.com/in/jose-salcedo-442663293"
+    },
+    {
+      "name": "Santiago López",
+      "linkedin": "https://linkedin.com/in/santiago-lopez-software-engineer"
+    }
+  ],
+  "tools": [
+    {
+      "name": "Codex",
+      "status": "En uso en la fase de desarrollo actual",
+      "model": "Astra 6",
+      "purpose": "Analiza las fuentes del reto y asiste en la estructuración de la arquitectura, contratos, código base y plan de implementación.",
+      "application": "Interpreta las especificaciones del reto, genera código modular en Python y documentación técnica, y asiste en la verificación de pruebas locales.",
+      "results": "Provee la base modular en FastAPI, motor de cálculo determinista, fixtures sintéticos A-D, adaptador de Gemini, interfaz guiada, suite de pruebas automatizadas y runbook para Oracle ARM64.",
+      "evidence": "README.md, app/, tests/, docs/implementation-plan.md, docs/verification.md",
+      "limits": "Opera como asistente de desarrollo en entorno local; el equipo humano revisa y valida cada cambio antes de publicarlo."
+    },
+    {
+      "name": "OpenCode",
+      "status": "Seleccionado para desarrollo por tareas modulares",
+      "model": "Muse Spark 1.3",
+      "purpose": "Resuelve tareas modulares de implementación con agentes enfocados en optimización de contexto y bajo costo.",
+      "application": "Cuenta con configuración e instrucciones preparadas para ejecutar las tareas modulares T01 a T08 de forma incremental.",
+      "results": "Estructura el plan de tareas con criterios de aceptación explícitos; no registra consumo de tokens en esta etapa inicial.",
+      "evidence": "opencode.json, AGENTS.md, docs/low-cost-agents.md, docs/tasks/",
+      "limits": "Requiere registrar el consumo real de tokens y la versión exacta del modelo al momento de su ejecución."
+    },
+    {
+      "name": "Gemini API",
+      "status": "Integrado mediante adaptador; simulación local activa",
+      "model": "Gemini 3.8 Flash",
+      "purpose": "Evalúa la consistencia semántica entre documentos del expediente y apoya la extracción asistida de datos.",
+      "application": "Se comunica mediante el SDK oficial con function calling estricto y acotado, valida citas contra documentos activos y opera bajo modo de simulación segura sin exigir claves.",
+      "results": "Mantiene contratos verificados con pruebas automatizadas y respuestas simuladas; no realiza llamadas no autorizadas a la API externa.",
+      "evidence": "app/agent/provider.py, scripts/smoke_gemini.py, tests/test_provider.py",
+      "limits": "No almacena credenciales en el repositorio; requiere configurar la clave de API en variables de entorno locales antes de su activación."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sentria · Auditor de siniestros</title>
+  <link rel="stylesheet" href="/static/style.css"><script defer src="/static/app.js"></script>
+</head>
+<body>
+<header><a class="brand" href="/">sentria<span> / </span></a><span>hackIAthon Panamá · Reto 02</span></header>
+<main>
+  <section class="hero">
+    <p class="eyebrow">ASISTENTE DE AUDITORÍA</p>
+    <h1>Cada cobro,<br>con su evidencia.</h1>
+    <p>Compara facturas del taller con el siniestro y el tarifario. Revisa diferencias explicables antes de tomar una decisión.</p>
+    <div class="notice">{% if mode == 'mock' %}<strong>Modo simulación.</strong> Sin llamadas a IA. La consistencia usa códigos sintéticos.{% else %}<strong>Modo Gemini.</strong> La revisión semántica se solicita al proveedor configurado; los errores se indican en el resultado.{% endif %} Los casos contienen únicamente datos ficticios.</div>
+  </section>
+  <section aria-labelledby="guide-title" class="guide">
+    <h2 id="guide-title">Prueba guiada</h2>
+    <ol><li><b>Elige un expediente.</b> Empieza por B para ver la diferencia de tarifa.</li><li><b>Ejecuta la auditoría.</b> Se comprueban documentos, cobros y consistencia.</li><li><b>Abre los hallazgos.</b> Consulta el cálculo y las fuentes. La decisión final corresponde a una persona.</li></ol>
+  </section>
+  <section aria-labelledby="case-title">
+    <div class="section-heading"><h2 id="case-title">Expedientes de prueba</h2><span>01 / Selección</span></div>
+    <div class="cases">
+      {% for id, label in cases.items() %}<button class="case" data-case="{{ id }}" aria-pressed="{{ 'true' if id == 'B' else 'false' }}"><span>{{ id }}</span><b>{{ label }}</b><small>Expediente DEMO-{{ id }}</small></button>{% endfor %}
+    </div>
+    <div class="actions"><button id="run" class="primary">Auditar expediente B →</button><a id="input-link" href="/api/demo/B" target="_blank" rel="noopener">Consultar datos de entrada ↗</a></div>
+    <p class="caption">Esta base recibe expedientes JSON normalizados. La carga y extracción de PDF/XLSX está pendiente en el plan de implementación.</p>
+  </section>
+  <p id="progress" role="status" aria-live="polite"></p>
+  <section id="result" hidden aria-labelledby="result-title">
+    <div class="section-heading"><h2 id="result-title">Resultado de auditoría</h2><span>02 / Revisión</span></div>
+    <div id="status" class="status"></div>
+    <div class="metrics"><div><small>Importe facturado</small><strong id="billed"></strong></div><div><small>Diferencia potencial · sin impuestos</small><strong id="difference"></strong></div><div><small>Subtotal de referencia</small><strong id="reference"></strong></div></div>
+    <p class="caption">La diferencia agrupa posibles ajustes sin duplicar impactos por línea. El subtotal de referencia no es una autorización de pago; las reparaciones sin respaldo requieren revisión y no se restan automáticamente.</p>
+    <div id="findings"></div>
+    <details><summary>Ver recorrido de la auditoría</summary><ol id="trace"></ol><p id="versions" class="caption"></p></details>
+    <button id="download" class="secondary">Descargar reporte JSON</button>
+  </section>
+</main>
+<footer>Sentria · Eduardo Valle / Jose Muñoz / Santiago López <a href="/docs">API de desarrollo ↗</a></footer>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "reviewed_on": "2026-09-27",
+  "timezone": "America/Panama",
+  "sources": [
+    {
+      "id": "plan-mvp",
+      "kind": "user-provided",
+      "source": "Plan detallado MVP - AI Claims Audit Assistant.md",
+      "reviewed_scope": "Secciones 1-28",
+      "sha256": "46ddcf8d0ba126975257faacaa00a68b06faecdaabf5541bf6c5bd22b927bee9",
+      "bytes": 17602
+    },
+    {
+      "id": "reto2",
+      "kind": "user-provided",
+      "source": "hackIAthon-retos-filtro (1).pdf",
+      "reviewed_scope": "Pagina 1, introduccion y reto 2",
+      "sha256": "e30ca7f8840525a180c151a5b9c210519cf87e3083e70c40d654bd0c26e6e0eb",
+      "bytes": 89002
+    },
+    {
+      "id": "bases-panama",
+      "kind": "official",
+      "source": "https://hackiathon.dev/wp-content/uploads/2026/08/hackIAthon-Panama-Bases-y-Entregables.pdf",
+      "reviewed_scope": "Paginas 1-4, secciones 1-9",
+      "sha256": "b0c2bc2c6135645d51ba85e5caba31071b92d05398ca9e2fb65fc91fd5f3cd99",
+      "bytes": 113566
+    },
+    {
+      "id": "privacidad",
+      "kind": "official",
+      "source": "https://hackiathon.dev/aviso-de-la-politica-de-tratamiento-de-datos-personales/",
+      "reviewed_scope": "Aviso completo, HTML recuperado el 27/09/2026",
+      "sha256": "53814ca517465d4c2aa1d2f0faa512c9ebc79ba35c629a9e58d0bd4fdcf77ea5",
+      "bytes": 88704
+    }
+  ]
+}

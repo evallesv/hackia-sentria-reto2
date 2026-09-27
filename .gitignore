@@ -216,3 +216,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Sentria: expedientes reales, secretos y salidas locales
+.env.*
+!.env.example
+storage/
+tmp/
+output/
+*.sqlite*
+.DS_Store

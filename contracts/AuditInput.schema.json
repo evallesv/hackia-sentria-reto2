@@ -1,0 +1,354 @@
+{
+  "$defs": {
+    "Document": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/DocumentKind"
+        },
+        "filename": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Filename",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "active": {
+          "default": true,
+          "title": "Active",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "filename",
+        "sha256"
+      ],
+      "title": "Document",
+      "type": "object"
+    },
+    "DocumentKind": {
+      "enum": [
+        "INCIDENT_REPORT",
+        "WORKSHOP_REPORT",
+        "BILLING_DOCUMENT",
+        "TARIFF"
+      ],
+      "title": "DocumentKind",
+      "type": "string"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "document_id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Document Id",
+          "type": "string"
+        },
+        "location": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Location",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "document_id",
+        "location",
+        "text"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "Item": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "service_code": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Service Code",
+          "type": "string"
+        },
+        "damage_code": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Damage Code",
+          "type": "string"
+        },
+        "unit": {
+          "enum": [
+            "HOUR",
+            "UNIT"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "quantity": {
+          "anyOf": [
+            {
+              "decimal_places": 4,
+              "gt": 0,
+              "le": 10000,
+              "max_digits": 10,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Quantity"
+        },
+        "unit_price": {
+          "anyOf": [
+            {
+              "decimal_places": 2,
+              "ge": 0,
+              "max_digits": 12,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Unit Price"
+        },
+        "line_total": {
+          "anyOf": [
+            {
+              "decimal_places": 2,
+              "ge": 0,
+              "max_digits": 12,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Line Total"
+        },
+        "evidence_id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Evidence Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "service_code",
+        "damage_code",
+        "unit",
+        "quantity",
+        "unit_price",
+        "line_total",
+        "evidence_id"
+      ],
+      "title": "Item",
+      "type": "object"
+    },
+    "Tariff": {
+      "additionalProperties": false,
+      "properties": {
+        "service_code": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Service Code",
+          "type": "string"
+        },
+        "unit": {
+          "enum": [
+            "HOUR",
+            "UNIT"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "allowed_rate": {
+          "decimal_places": 2,
+          "ge": 0,
+          "max_digits": 12,
+          "title": "Allowed Rate",
+          "type": "string"
+        },
+        "evidence_id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Evidence Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "service_code",
+        "unit",
+        "allowed_rate",
+        "evidence_id"
+      ],
+      "title": "Tariff",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "claim_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "currency": {
+      "const": "USD",
+      "default": "USD",
+      "title": "Currency",
+      "type": "string"
+    },
+    "billing_kind": {
+      "default": "INVOICE",
+      "enum": [
+        "INVOICE",
+        "QUOTE"
+      ],
+      "title": "Billing Kind",
+      "type": "string"
+    },
+    "documents": {
+      "items": {
+        "$ref": "#/$defs/Document"
+      },
+      "maxItems": 20,
+      "title": "Documents",
+      "type": "array"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/Evidence"
+      },
+      "maxItems": 250,
+      "title": "Evidence",
+      "type": "array"
+    },
+    "reported_damage_codes": {
+      "items": {
+        "pattern": "^[A-Za-z0-9_-]{1,64}$",
+        "type": "string"
+      },
+      "maxItems": 50,
+      "title": "Reported Damage Codes",
+      "type": "array"
+    },
+    "inspected_damage_codes": {
+      "items": {
+        "pattern": "^[A-Za-z0-9_-]{1,64}$",
+        "type": "string"
+      },
+      "maxItems": 50,
+      "title": "Inspected Damage Codes",
+      "type": "array"
+    },
+    "items": {
+      "items": {
+        "$ref": "#/$defs/Item"
+      },
+      "maxItems": 100,
+      "title": "Items",
+      "type": "array"
+    },
+    "tariffs": {
+      "items": {
+        "$ref": "#/$defs/Tariff"
+      },
+      "maxItems": 100,
+      "title": "Tariffs",
+      "type": "array"
+    },
+    "subtotal": {
+      "anyOf": [
+        {
+          "decimal_places": 2,
+          "ge": 0,
+          "max_digits": 12,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Subtotal"
+    },
+    "taxes": {
+      "anyOf": [
+        {
+          "decimal_places": 2,
+          "ge": 0,
+          "max_digits": 12,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Taxes"
+    },
+    "total": {
+      "anyOf": [
+        {
+          "decimal_places": 2,
+          "ge": 0,
+          "max_digits": 12,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Total"
+    }
+  },
+  "required": [
+    "claim_id",
+    "documents",
+    "evidence",
+    "reported_damage_codes",
+    "inspected_damage_codes",
+    "items",
+    "tariffs",
+    "subtotal",
+    "taxes",
+    "total"
+  ],
+  "title": "AuditInput",
+  "type": "object"
+}

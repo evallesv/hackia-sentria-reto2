@@ -1,0 +1,63 @@
+{
+  "$defs": {
+    "Assessment": {
+      "additionalProperties": false,
+      "properties": {
+        "item_id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Item Id",
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "supported",
+            "unsupported",
+            "uncertain"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "reason": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Evidence Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "item_id",
+        "decision",
+        "reason",
+        "evidence_ids"
+      ],
+      "title": "Assessment",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "assessments": {
+      "items": {
+        "$ref": "#/$defs/Assessment"
+      },
+      "maxItems": 100,
+      "title": "Assessments",
+      "type": "array"
+    }
+  },
+  "required": [
+    "assessments"
+  ],
+  "title": "SemanticReview",
+  "type": "object"
+}
