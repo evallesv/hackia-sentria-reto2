@@ -273,6 +273,7 @@ def load_preset_case(
     claim_storage = service.storage_dir / claim_id
     claim_storage.mkdir(parents=True, exist_ok=True)
 
+    doc_id_map = {d.id: f"{claim_id}_{d.id}" for d in case_data.documents}
     for d in case_data.documents:
         fake_content = (
             f"CONTENIDO SINTÉTICO DEL EXPEDIENTE {claim_id}\n"
@@ -285,7 +286,7 @@ def load_preset_case(
             target_path.write_bytes(fake_content)
 
         stored_doc = StoredDocument(
-            id=d.id,
+            id=doc_id_map[d.id],
             claim_id=claim_id,
             kind=d.kind,
             mime="application/pdf"
@@ -323,6 +324,15 @@ def load_preset_case(
         )
         for tf in case_data.tariffs
     ]
+    remapped_evidence = [
+        Evidence(
+            id=e.id,
+            document_id=doc_id_map.get(e.document_id, e.document_id),
+            location=e.location,
+            text=e.text,
+        )
+        for e in case_data.evidence
+    ]
 
     snapshot = ExtractionSnapshot(
         claim_id=claim_id,
@@ -336,7 +346,7 @@ def load_preset_case(
         subtotal=case_data.subtotal,
         taxes=case_data.taxes,
         total=case_data.total,
-        evidence=case_data.evidence,
+        evidence=remapped_evidence,
         review_notes=[],
     )
 

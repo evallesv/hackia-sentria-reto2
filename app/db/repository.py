@@ -135,19 +135,33 @@ class SqlAlchemyClaimRepository:
             if not c:
                 raise HTTPException(404, f"Expediente '{claim_id}' no encontrado")
 
-            doc_model = StoredDocumentModel(
-                id=doc.id,
-                claim_id=doc.claim_id,
-                kind=doc.kind.value,
-                mime=doc.mime,
-                byte_count=doc.byte_count,
-                sha256=doc.sha256,
-                filename=doc.filename,
-                version=doc.version,
-                active=doc.active,
-                internal_path=str(internal_path),
-            )
-            session.add(doc_model)
+            existing = session.execute(
+                select(StoredDocumentModel).where(StoredDocumentModel.id == doc.id)
+            ).scalar_one_or_none()
+            if existing:
+                existing.claim_id = doc.claim_id
+                existing.kind = doc.kind.value
+                existing.mime = doc.mime
+                existing.byte_count = doc.byte_count
+                existing.sha256 = doc.sha256
+                existing.filename = doc.filename
+                existing.version = doc.version
+                existing.active = doc.active
+                existing.internal_path = str(internal_path)
+            else:
+                doc_model = StoredDocumentModel(
+                    id=doc.id,
+                    claim_id=doc.claim_id,
+                    kind=doc.kind.value,
+                    mime=doc.mime,
+                    byte_count=doc.byte_count,
+                    sha256=doc.sha256,
+                    filename=doc.filename,
+                    version=doc.version,
+                    active=doc.active,
+                    internal_path=str(internal_path),
+                )
+                session.add(doc_model)
             session.commit()
             return doc
 
