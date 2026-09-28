@@ -79,8 +79,17 @@ El sistema está construido como un monolito modular moderno en **Python 3.13** 
 
 ### Opción 1: Probar en Producción (Recomendada)
 Accede directamente a la plataforma en vivo: **[https://sentria.fly.dev](https://sentria.fly.dev)**
+El navegador solicitará las credenciales compartidas del jurado:
+
+- **Usuario:** `jurado`
+- **Contraseña:** `Sentria-Reto2-2026!`
+
+El acceso protege la interfaz, la API y las descargas de documentos. `/healthz` permanece público para monitoreo.
+Estas credenciales son públicas para facilitar la evaluación con datos sintéticos; para uso privado, configura otra contraseña mediante `DEMO_PASSWORD`.
+
 1. **Auditoría Rápida:** Selecciona cualquiera de los casos preparados (**A**, **B**, **C** o **D**) y haz clic en **«Auditar expediente inmediatamente →»**.
 2. **Gestión y Extracción Documental:** Haz clic en **«Inspeccionar documentos del caso ↓»** o desplázate a la sección **02 / Documentación y Extracción** para:
+   * Para cargar tus propios archivos sintéticos, pulsa **«Crear expediente y subir documentos»**. Se abrirá el formulario de carga y la guía de extracción y auditoría.
    * Subir nuevos documentos digitales (Factura PDF, Declaración PDF, Inspección PDF y Tarifario XLSX).
    * Extraer ítems de cobro y tarifas con sus citas textuales de evidencia (página y texto original).
    * Confirmar la normalización y auditar en tiempo real sobre el expediente activo.
@@ -95,7 +104,7 @@ git clone https://github.com/evallesv/hackia-sentria-reto2.git
 cd hackia-sentria-reto2
 uv sync --locked --all-groups
 
-# 2. Ejecutar la suite completa de calidad (lint, formato, 64 pruebas y evaluación A-D)
+# 2. Ejecutar la suite completa de calidad (lint, formato, 81 pruebas y evaluación A-D)
 make check
 
 # 3. Iniciar el servidor local

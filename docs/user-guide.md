@@ -18,6 +18,7 @@ El analista cuenta con dos formas de operar la herramienta:
 
 ### Opción A: Evaluación Inmediata de Casos Tipo
 1. Accede a la plataforma web (en vivo en [https://sentria.fly.dev](https://sentria.fly.dev) o en local en `http://127.0.0.1:8000`).
+   En la demo pública, introduce el usuario `jurado` y la contraseña `Sentria-Reto2-2026!` cuando el navegador los solicite.
 2. En la sección **01 / Selección Rápida**, haz clic sobre cualquiera de los casos preparados:
    - **Caso A (Sin discrepancias):** Caso control donde los precios cumplen el tarifario y los daños corresponden al choque.
    - **Caso B (Sobrecosto tarifario):** Factura que cobra pintura a $55.00/h cuando el convenio fija $45.00/h.
@@ -28,9 +29,9 @@ El analista cuenta con dos formas de operar la herramienta:
 ---
 
 ### Opción B: Gestión y Carga Documental Interactiva
-1. En la sección **02 / Documentación y Extracción**:
-   - Puedes usar el identificador de expediente propuesto o pulsar **«Generar ID nuevo»**.
-   - También puedes pulsar **«Cargar caso de prueba sintético»** para precargar los documentos de cualquiera de los casos de prueba A, B, C o D.
+1. Pulsa **«Crear expediente y subir documentos»** junto al identificador del expediente.
+   Se generará un expediente nuevo y se abrirán el formulario de carga y los controles de extracción y auditoría.
+   Para volver a un caso preparado, selecciona A, B, C o D.
 2. **Carga de Archivos Digitales:**
    - Selecciona el rol contractual del archivo en el menú desplegable:
      - **Factura de cobro (PDF):** Factura o cotización emitida por el taller.

@@ -6,6 +6,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from app.access import DemoAccess
 from app.agent.provider import GeminiProvider, MockProvider
 from app.api.documents import router as documents_router
 from app.config import Settings
@@ -71,6 +72,8 @@ class RequestLimit:
 
 def create_app(settings: Settings | None = None):
     s = settings or Settings()
+    if s.demo_auth_enabled and not s.demo_password.get_secret_value():
+        raise ValueError("DEMO_PASSWORD es obligatorio cuando DEMO_AUTH_ENABLED=true")
     api = FastAPI(title="Auditor de siniestros · Equipo Sentria", version="0.1.0")
     api.add_middleware(
         RequestLimit,
@@ -128,6 +131,13 @@ def create_app(settings: Settings | None = None):
                 "frame-ancestors 'none'; form-action 'self'; base-uri 'self'"
             )
         return response
+
+    if s.demo_auth_enabled:
+        api.add_middleware(
+            DemoAccess,
+            username=s.demo_username,
+            password=s.demo_password.get_secret_value(),
+        )
 
     @api.get("/healthz")
     def health():

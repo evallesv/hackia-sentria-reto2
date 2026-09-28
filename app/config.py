@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     gemini_api_key: SecretStr = SecretStr("")
     gemini_model: str = ""
     enable_custom_input: bool = False
+    demo_auth_enabled: bool = False
+    demo_username: str = Field(default="jurado", min_length=1, max_length=100)
+    demo_password: SecretStr = SecretStr("")
     max_request_bytes: int = Field(default=262144, ge=1024, le=1048576)
     max_upload_bytes: int = Field(default=10 * 1024 * 1024, ge=1024, le=50 * 1024 * 1024)
     upload_dir: str = "storage/uploads"

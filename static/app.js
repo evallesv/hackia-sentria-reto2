@@ -77,6 +77,8 @@ document.querySelectorAll('[data-case]').forEach(button => {
     if (claimInput) claimInput.value = activeClaimId;
     loadPresetIntoWorkbench(selectedCase);
     byId('run').textContent = `⚡ Auditar expediente ${selectedCase} inmediatamente →`;
+    byId('run').hidden = false;
+    byId('input-link').hidden = false;
     byId('input-link').href = `/api/demo/${selectedCase}`;
     byId('result').hidden = true;
     byId('progress').textContent = '';
@@ -194,7 +196,7 @@ function renderAuditResult(auditResult) {
     });
   }
 
-  byId('versions').textContent = `${auditResult.rule_version} · ${auditResult.prompt_version} · ${auditResult.mode} · ${auditResult.duration_ms} ms. Modelo: ${auditResult.model || 'simulado'}. Tokens: ${auditResult.input_tokens || 0} entrada / ${auditResult.output_tokens || 0} salida.`;
+  byId('versions').textContent = `${auditResult.rule_version} · ${auditResult.prompt_version} · ${auditResult.mode} · ${auditResult.duration_ms} ms. Modelo: ${auditResult.model || 'simulado'}.`;
   byId('result').hidden = false;
   byId('result').scrollIntoView({behavior: 'smooth'});
 }
@@ -239,6 +241,7 @@ async function refreshClaimDocuments(claimId) {
   const roles = ['BILLING_DOCUMENT', 'INCIDENT_REPORT', 'WORKSHOP_REPORT', 'TARIFF'];
   try {
     const res = await fetch(`/api/claims/${claimId}/documents`);
+    if (activeClaimId !== claimId) return;
     if (!res.ok) {
       roles.forEach(role => {
         const statusEl = byId(`status-${role}`);
@@ -300,6 +303,7 @@ async function refreshClaimDocuments(claimId) {
 // Renderizar snapshot de extracción
 function renderSnapshot(snapshot) {
   currentSnapshot = snapshot;
+  byId('wb-confirm-audit-btn').disabled = !(snapshot.items && snapshot.items.length);
   const metaEl = byId('wb-snapshot-meta');
   if (metaEl) {
     const totalItems = snapshot.items ? snapshot.items.length : 0;
@@ -431,6 +435,7 @@ async function loadPresetIntoWorkbench(caseId) {
   selectedCase = caseId;
   const claimInput = byId('claim-id-input');
   activeClaimId = `CLM-2026-DEMO-${caseId}`;
+  const presetClaimId = activeClaimId;
   if (claimInput) claimInput.value = activeClaimId;
 
   document.querySelectorAll('.preset-btn').forEach(btn => {
@@ -445,12 +450,14 @@ async function loadPresetIntoWorkbench(caseId) {
 
   try {
     const res = await fetch(`/api/claims/${activeClaimId}/preset/${caseId}`, {method: 'POST'});
+    if (activeClaimId !== presetClaimId) return;
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.detail || 'Error al cargar caso predefinido');
     }
     const snapshot = await res.json();
     await refreshClaimDocuments(activeClaimId);
+    if (activeClaimId !== presetClaimId) return;
     renderSnapshot(snapshot);
     if (extractStatus) {
       extractStatus.textContent = `✓ Caso ${caseId} cargado con documentos oficiales (PDF / XLSX), evidencias y tarifas.`;
@@ -476,11 +483,24 @@ if (btnNewClaim) {
   btnNewClaim.addEventListener('click', () => {
     const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
     activeClaimId = `CLM-2026-${randomSuffix}`;
+    selectedCase = null;
+    renderSnapshot({items: [], tariffs: [], reported_damage_codes: [], inspected_damage_codes: []});
+    currentSnapshot = null;
+    lastAuditResult = null;
+    document.querySelectorAll('[data-case]').forEach(b => b.setAttribute('aria-pressed', 'false'));
     byId('claim-id-input').value = activeClaimId;
-    byId('wb-extraction-viewer').hidden = true;
+    byId('result').hidden = true;
+    byId('wb-extraction-viewer').hidden = false;
+    byId('wb-upload-panel').hidden = false;
+    byId('toggle-upload-btn').textContent = '✕ Ocultar formulario';
+    byId('toggle-data-btn').textContent = 'Ocultar datos extraídos ↑';
+    byId('run').hidden = true;
+    byId('input-link').hidden = true;
+    byId('progress').textContent = '1. Sube los cuatro documentos. 2. Extrae la evidencia. 3. Confirma y audita.';
     byId('wb-upload-feedback').textContent = '';
     byId('wb-extract-status').textContent = `Nuevo expediente ${activeClaimId} iniciado. Sube tus documentos.`;
     refreshClaimDocuments(activeClaimId);
+    byId('wb-doc-file').focus();
   });
 }
 

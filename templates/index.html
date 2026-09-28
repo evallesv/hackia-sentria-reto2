@@ -31,9 +31,12 @@
         <div class="claim-badge-box">
           <label for="claim-id-input">ID Expediente:</label>
           <input type="text" id="claim-id-input" value="CLM-2026-DEMO-B" maxlength="32">
-          <button id="btn-new-claim" class="secondary btn-sm" type="button">Nuevo ID</button>
+          <button id="btn-new-claim" class="secondary btn-sm" type="button">Crear expediente y subir documentos</button>
         </div>
       </div>
+
+      <p class="caption">Para probar con tus propios archivos sintéticos, pulsa «Crear expediente y subir documentos».
+        Se abrirá el formulario para cargar factura, siniestro, inspección y tarifario.</p>
 
       <!-- Selector de Casos de Referencia -->
       <div class="cases-selector">
@@ -199,8 +202,8 @@
         </div>
 
         <div class="wb-extract-actions">
-          <button id="wb-extract-btn" class="secondary btn-sm" type="button">⚡ Re-extraer evidencia de archivos
-            activos</button>
+          <button id="wb-extract-btn" class="secondary btn-sm" type="button">Extraer evidencia de archivos activos</button>
+          <button id="wb-confirm-audit-btn" class="primary" type="button" disabled>Confirmar normalización y auditar expediente en vivo →</button>
           <span id="wb-extract-status" role="status" aria-live="polite"></span>
         </div>
       </div>
