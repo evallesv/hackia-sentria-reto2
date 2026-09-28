@@ -37,11 +37,11 @@ flowchart LR
 |---|---|---|
 | 0:00-0:30 | Equipo ejecuta demo y make check; selecciona modelo disponible; confirma alcance/roles | Baseline repetible; fuentes y fecha revisadas |
 | 0:30-2:00 | T01 intake + T03 DB + T04 reglas en archivos separados | Contrato 1.1 acordado, archivos rechazados/aceptados, migración y reglas |
-| 2:00-4:00 | T02 extracción; T06 UI con fixtures; integrar repositorios | Datos con fuente por campo y edición humana |
-| 4:00-5:30 | T05 Gemini real; UI deja mocks solo en modo demo | Revisión real, fallback de error y límites comprobados |
+| 2:00-4:00 | T02 extracción; T06 UI con casos de prueba; integrar repositorios | Datos con fuente por campo y edición humana |
+| 4:00-5:30 | T05 Gemini real; UI deja modo simulado solo en demo | Revisión real, manejo de errores y límites comprobados |
 | 5:30-7:00 | T07 corpus reservado, E2E, correcciones e imagen final | Cero falsos candidatos críticos; A-D desde documentos |
 | 7:00-8:00 | Despliegue en Fly.io, prueba desde navegador externo, T08 | URL HTTPS, repo visible, PDF actualizado |
-| 8:00-10:00 | Reserva para SDK, OCR no incluido, DNS, extracción defectuosa | Resolver P0; no ampliar a P2 |
+| 8:00-10:00 | Reserva para SDK, OCR no incluido, DNS, extracción defectuosa | Resolver elementos prioritarios; no ampliar alcance |
 
 ## Tareas listas para encargar
 
@@ -52,7 +52,7 @@ flowchart LR
 | T03 | [Persistencia](tasks/T03-persistence.md) | Contratos T01 | Media, 6-10k |
 | T04 | [Motor](tasks/T04-engine.md) | T00 | Media, 5-8k |
 | T05 | [Gemini](tasks/T05-agent.md) | T02/T04 | Alta, 6-12k |
-| T06 | [UI](tasks/T06-ui.md) | T01/T03, fixtures T02 | Media, 6-10k |
+| T06 | [UI](tasks/T06-ui.md) | T01/T03, casos de prueba T02 | Media, 6-10k |
 | T07 | [Evaluación y despliegue](tasks/T07-release.md) | T02-T06 | Alta, 8-12k |
 | T08 | [Entrega](tasks/T08-delivery.md) | T07 | Baja, 3-5k |
 
@@ -70,4 +70,4 @@ Tokens son presupuestos iniciales de contexto, no gasto medido ni límites de la
 - CI verde; commit identificable desplegado en Fly.io con HTTPS verificado desde red externa.
 - Guía para jurados, repo accesible y PDF de herramientas completo; modo real claramente identificado.
 
-Si el tiempo se agota: priorizar un flujo documental estrecho y honesto (PDF con texto + XLSX plantilla). Mantener archivos escaneados como no soportados; no simular extracción exitosa. Congelar P0 antes de fotos/chat/dashboard. Una demo únicamente mock sirve para desarrollar, no satisface por sí sola un agente IA funcional final.
+Si el tiempo se agota: priorizar un flujo documental estrecho y honesto (PDF con texto + XLSX plantilla). Mantener archivos escaneados como no soportados; no simular extracción exitosa. Resolver el flujo principal antes de ampliar a fotos, chat o paneles de análisis. Una demo únicamente simulada sirve para desarrollar, no satisface por sí sola un agente IA funcional final.

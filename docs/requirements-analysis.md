@@ -35,7 +35,7 @@ El plan acierta en herramientas determinísticas, evidencia y revisión humana. 
 
 ## Alcance y aceptación
 
-Preparación: demo JSON, contratos, motor y plan ejecutable. No es extractor documental terminado. P0 pendiente: upload de cuatro documentos, extracción por página/celda, confirmación de datos/versiones, auditoría real y evidencia navegable. A-D deberán funcionar desde archivos, no solo fixtures.
+Preparación: demo JSON, contratos, motor y plan ejecutable. No es extractor documental terminado. Pendiente prioritario: carga de cuatro documentos, extracción por página/celda, confirmación de datos/versiones, auditoría real y evidencia navegable. Los casos A-D deberán funcionar desde archivos, no solo datos de prueba precargados.
 
 Fuera del día: entrenamiento, fraude, RAG/vector DB, chat, fotos y pagos automáticos. Una anomalía no prueba fraude.
 

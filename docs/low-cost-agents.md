@@ -15,7 +15,7 @@ Ejemplos que figuran en la lista oficial consultada: MiMo-V2.5, DeepSeek V4 Flas
 3. Obtener una entrega pequeña (idealmente 1-4 archivos de lógica más tests), revisar y continuar. Dividir T02 por parser PDF, parser Excel y mapeo IA si crece demasiado.
 4. Dos intentos sobre un mismo fallo son suficientes para registrar diagnóstico y escalar a integrador. Enviar error, caso mínimo y diff, no reiniciar el proyecto.
 5. Revisión independiente solo en contratos, cálculos, privacidad y orquestación; no gastar otro modelo revisando textos triviales.
-6. Usar fixtures para UI/motor; reservar llamadas Gemini para evaluación explícita y extracción. El CI normal no consume tokens.
+6. Usar datos de prueba para UI/motor; reservar llamadas Gemini para evaluación explícita y extracción. El CI normal no consume tokens.
 7. Registrar modelo, tarea, tiempo, tokens/coste si la plataforma los muestra. No inventarlos si no están disponibles.
 
 La eficiencia se mide por **tarea aceptada y sin regresiones**, no solo por precio de token. No activar concurrencia sin separar archivos/ramas y dueño del contrato.
@@ -29,7 +29,7 @@ Estado base: <commit>; contexto adicional: <archivos relevantes>.
 Verifica la situación actual antes de cambiarla. Conserva comportamiento que ya pase.
 Respeta archivos permitidos, invariantes y condiciones de aceptación de la ficha.
 No inventes endpoints, evidencia, estado de pruebas, modelos disponibles ni despliegues.
-No leas credenciales ni envíes documentos reales. Usa fixtures sintéticos.
+No leas credenciales ni envíes documentos reales. Usa datos sintéticos de prueba.
 Si hace falta cambiar contrato, explica el cambio mínimo al integrador.
 Entrega diff, pruebas relevantes, resultado de make check, límites y siguiente dependencia.
 Presupuesto de trabajo: una tarea y dos intentos por fallo; si no avanza, deja diagnóstico reproducible.

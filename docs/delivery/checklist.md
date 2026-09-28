@@ -5,7 +5,7 @@ Fuente normativa: bases Panamá §§2-3; filtro adjunto p.1. Inicial y final pid
 ## Preparado localmente y desplegado
 
 - [x] README, equipo y licencia GPL existente preservada.
-- [x] Contratos, fixtures sintéticos, motor, UI guiada, pruebas y configuración de CI.
+- [x] Contratos, datos de prueba sintéticos, motor, UI guiada, pruebas y configuración de CI.
 - [x] Gemini detrás de interfaz, CI/CD a Fly.io configurado y plan de tareas.
 - [x] Registro y generador PDF de herramientas de preparación.
 - [x] Gemini probado con clave/modelo de la cuenta; métricas reales registradas (`gemini-2.5-flash-lite`, 1.6s latencia).
