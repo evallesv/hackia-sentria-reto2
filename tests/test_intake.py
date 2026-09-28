@@ -365,3 +365,69 @@ def test_delete_claim_and_storage_cleanup(client):
     # Verificar que ya no existe
     assert client.get("/api/claims/CLM-DEL").status_code == 404
     assert client.get("/api/claims/CLM-DEL/documents").status_code == 404
+
+
+def test_load_preset_case_and_audit_flow(client):
+    """Verifica la carga interactiva de un caso predefinido, confirmación y auditoría (T06)."""
+    # 1. Cargar preset B
+    res = client.post("/api/claims/CLM-PRESET-B/preset/B")
+    assert res.status_code == 200
+    snap = res.json()
+    assert snap["claim_id"] == "CLM-PRESET-B"
+    assert len(snap["items"]) > 0
+    assert len(snap["tariffs"]) > 0
+    assert len(snap["evidence"]) > 0
+
+    # 2. Verificar documentos asociados creados
+    docs_res = client.get("/api/claims/CLM-PRESET-B/documents")
+    assert docs_res.status_code == 200
+    docs = docs_res.json()
+    assert len(docs) >= 3
+
+    # 3. Confirmar normalización (PUT /normalized)
+    items_payload = [
+        {
+            "id": it["id"],
+            "description": it["description"],
+            "service_code": it.get("service_code") or it["id"],
+            "damage_code": it.get("damage_code") or "UNKNOWN",
+            "unit": it.get("unit") or "UNIT",
+            "quantity": it.get("quantity"),
+            "unit_price": it.get("unit_price"),
+            "line_total": it.get("line_total"),
+            "evidence_id": it["evidence_id"],
+        }
+        for it in snap["items"]
+    ]
+    tariffs_payload = [
+        {
+            "service_code": tf["service_code"],
+            "unit": tf["unit"],
+            "allowed_rate": tf["allowed_rate"],
+            "evidence_id": tf["evidence_id"],
+        }
+        for tf in snap["tariffs"]
+    ]
+
+    norm_res = client.put(
+        "/api/claims/CLM-PRESET-B/normalized",
+        json={
+            "billing_kind": snap.get("billing_kind", "INVOICE"),
+            "reported_damage_codes": snap.get("reported_damage_codes", []),
+            "inspected_damage_codes": snap.get("inspected_damage_codes", []),
+            "items": items_payload,
+            "tariffs": tariffs_payload,
+            "subtotal": snap.get("subtotal"),
+            "taxes": snap.get("taxes") or "0.00",
+            "total": snap.get("total"),
+        },
+    )
+    assert norm_res.status_code == 200
+
+    # 4. Ejecutar auditoría sobre el expediente
+    audit_res = client.post("/api/claims/CLM-PRESET-B/audits")
+    assert audit_res.status_code == 200
+    audit_data = audit_res.json()
+    assert audit_data["claim_id"] == "CLM-PRESET-B"
+    assert audit_data["status"] == "REVIEW_REQUIRED"
+    assert audit_data["flagged_difference"] == "80.00"

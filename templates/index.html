@@ -52,34 +52,189 @@
     </div>
 
     <div class="actions">
-      <button id="run" class="primary">Auditar expediente B →</button>
-      <a id="input-link" href="/api/demo/B" target="_blank" rel="noopener">Consultar datos de entrada ↗</a>
+      <button id="run" class="primary">Auditar expediente B inmediatamente →</button>
+      <button id="load-to-wb" class="secondary" type="button">Inspeccionar en Banco de Trabajo T06 ↓</button>
+      <a id="input-link" href="/api/demo/B" target="_blank" rel="noopener">Consultar JSON de entrada ↗</a>
     </div>
 
     <div class="pipeline-badge">
       <span>⚡ Cruce documental activo: Declaración de siniestro (PDF), Inspección pericial (PDF), Factura (PDF) y Tarifario contractual (XLSX).</span>
     </div>
+  </section>
 
-    <details class="doc-drawer">
-      <summary><b>Inspección documental interactiva</b> · Subir archivo (PDF / XLSX) para verificar extracción</summary>
-      <div class="drawer-content">
-        <p class="caption">El sistema procesa texto nativo por página (PDF con <code>pypdf</code>) y tarifarios estructurados en modo solo lectura (Excel con <code>openpyxl</code>), persistidos en SQLite WAL en volumen privado.</p>
-        <div class="doc-upload-box">
-          <form id="doc-upload-form">
-            <label for="doc-role">Tipo de documento:</label>
-            <select id="doc-role">
-              <option value="BILLING_DOCUMENT">Factura de cobro (PDF)</option>
-              <option value="INCIDENT_REPORT">Declaración de siniestro (PDF)</option>
-              <option value="WORKSHOP_REPORT">Informe de inspección (PDF)</option>
-              <option value="TARIFF">Tarifario de convenio (XLSX / PDF)</option>
-            </select>
-            <input type="file" id="doc-file" accept=".pdf,.xlsx" required>
-            <button type="submit" class="secondary" style="margin-top:0">Subir y extraer evidencia</button>
-          </form>
-          <div id="upload-feedback" role="status" aria-live="polite"></div>
+  <!-- SECCIÓN T06: BANCO DE TRABAJO DOCUMENTAL E INTERACTIVO -->
+  <section id="workbench" aria-labelledby="workbench-title" class="workbench-section">
+    <div class="section-heading">
+      <h2 id="workbench-title">Banco de Trabajo Documental (T06)</h2>
+      <span>02 / Flujo Completo</span>
+    </div>
+    <p class="caption">Gestiona expedientes, sube documentos PDF/XLSX por rol, visualiza ítems extraídos con evidencia localizable (página, texto) y ejecuta auditorías agénticas en vivo con confirmación determinista.</p>
+
+    <!-- 1. Expediente Activo y Carga de Presets -->
+    <div class="wb-claim-bar">
+      <div class="wb-claim-id-box">
+        <label for="claim-id-input"><b>Expediente:</b></label>
+        <input type="text" id="claim-id-input" value="CLM-2026-DEMO-B" maxlength="32">
+        <button id="btn-new-claim" class="secondary btn-sm" type="button">Generar ID nuevo</button>
+      </div>
+      <div class="wb-preset-box">
+        <span>Cargar caso de prueba sintético:</span>
+        <div class="btn-group">
+          <button class="preset-btn" data-preset="A" type="button">Caso A</button>
+          <button class="preset-btn" data-preset="B" type="button">Caso B</button>
+          <button class="preset-btn" data-preset="C" type="button">Caso C</button>
+          <button class="preset-btn" data-preset="D" type="button">Caso D</button>
         </div>
       </div>
-    </details>
+    </div>
+
+    <!-- 2. Tarjetas de Roles Documentales y Estado -->
+    <div class="doc-roles-grid">
+      <div class="doc-role-card" data-role="BILLING_DOCUMENT">
+        <div class="role-header">
+          <span class="role-icon">📄</span>
+          <div>
+            <strong>Factura de cobro</strong>
+            <small>Taller · Formato PDF</small>
+          </div>
+        </div>
+        <div class="role-status badge-pending" id="status-BILLING_DOCUMENT">Pendiente de archivo</div>
+        <div class="role-file-info" id="fileinfo-BILLING_DOCUMENT">Sin documento cargado</div>
+      </div>
+
+      <div class="doc-role-card" data-role="INCIDENT_REPORT">
+        <div class="role-header">
+          <span class="role-icon">📋</span>
+          <div>
+            <strong>Declaración de siniestro</strong>
+            <small>Asegurado · Formato PDF</small>
+          </div>
+        </div>
+        <div class="role-status badge-pending" id="status-INCIDENT_REPORT">Pendiente de archivo</div>
+        <div class="role-file-info" id="fileinfo-INCIDENT_REPORT">Sin documento cargado</div>
+      </div>
+
+      <div class="doc-role-card" data-role="WORKSHOP_REPORT">
+        <div class="role-header">
+          <span class="role-icon">🔍</span>
+          <div>
+            <strong>Informe pericial</strong>
+            <small>Ajustador · Formato PDF</small>
+          </div>
+        </div>
+        <div class="role-status badge-pending" id="status-WORKSHOP_REPORT">Pendiente de archivo</div>
+        <div class="role-file-info" id="fileinfo-WORKSHOP_REPORT">Sin documento cargado</div>
+      </div>
+
+      <div class="doc-role-card" data-role="TARIFF">
+        <div class="role-header">
+          <span class="role-icon">📊</span>
+          <div>
+            <strong>Tarifario de convenio</strong>
+            <small>Aseguradora · XLSX / PDF</small>
+          </div>
+        </div>
+        <div class="role-status badge-pending" id="status-TARIFF">Pendiente de archivo</div>
+        <div class="role-file-info" id="fileinfo-TARIFF">Sin documento cargado</div>
+      </div>
+    </div>
+
+    <!-- 3. Panel de Subida Interactiva de Documentos -->
+    <div class="wb-upload-panel">
+      <form id="wb-upload-form">
+        <div class="form-group">
+          <label for="wb-doc-role">Asignar a rol contractual:</label>
+          <select id="wb-doc-role">
+            <option value="BILLING_DOCUMENT">Factura de cobro (PDF)</option>
+            <option value="INCIDENT_REPORT">Declaración de siniestro (PDF)</option>
+            <option value="WORKSHOP_REPORT">Informe de inspección (PDF)</option>
+            <option value="TARIFF">Tarifario de convenio (XLSX / PDF)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="wb-doc-file">Seleccionar archivo digital (máx 10 MB):</label>
+          <input type="file" id="wb-doc-file" accept=".pdf,.xlsx" required>
+        </div>
+        <button type="submit" class="secondary" id="wb-upload-btn">Subir archivo al expediente</button>
+      </form>
+      <div id="wb-upload-feedback" role="status" aria-live="polite"></div>
+    </div>
+
+    <!-- 4. Acción de Extracción -->
+    <div class="wb-extract-actions">
+      <button id="wb-extract-btn" class="primary" type="button">⚡ Extraer evidencia documental de archivos activos →</button>
+      <span id="wb-extract-status" role="status" aria-live="polite"></span>
+    </div>
+
+    <!-- 5. Visualizador de Ítems y Evidencia Extraída -->
+    <div id="wb-extraction-viewer" class="wb-viewer" hidden>
+      <div class="viewer-header">
+        <h3>Evidencia e Ítems Extraídos</h3>
+        <span id="wb-snapshot-meta" class="caption"></span>
+      </div>
+
+      <div class="viewer-block">
+        <h4>1. Conceptos de Cobro en Factura</h4>
+        <div class="table-responsive">
+          <table class="data-table" id="wb-items-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Descripción del Cobro</th>
+                <th>Cantidad</th>
+                <th>Precio Unit. USD</th>
+                <th>Total USD</th>
+                <th>Daño Relacionado</th>
+                <th>Cita de Evidencia Comprobable</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="viewer-block">
+        <h4>2. Tarifas Contractuales Extraídas</h4>
+        <div class="table-responsive">
+          <table class="data-table" id="wb-tariffs-table">
+            <thead>
+              <tr>
+                <th>Código de Servicio</th>
+                <th>Unidad</th>
+                <th>Tarifa Máx. Permitida USD</th>
+                <th>Cita de Evidencia Contractual</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="viewer-block">
+        <h4>3. Correspondencia de Daños Detectada</h4>
+        <div class="damages-grid">
+          <div class="damage-box">
+            <strong>Daños declarados (Siniestro):</strong>
+            <ul id="wb-reported-damages"></ul>
+          </div>
+          <div class="damage-box">
+            <strong>Daños peritados (Inspección):</strong>
+            <ul id="wb-inspected-damages"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Confirmación y Auditoría en Vivo -->
+      <div class="wb-confirm-audit-box">
+        <div class="confirm-info">
+          <strong>¿Los datos y evidencias son conformes?</strong>
+          <p class="caption">Confirma la normalización estructurada y ejecuta la auditoría agéntica en tiempo real sobre el expediente activo.</p>
+        </div>
+        <button id="wb-confirm-audit-btn" class="primary btn-lg" type="button">
+          Confirmar normalización y auditar expediente en vivo →
+        </button>
+      </div>
+    </div>
   </section>
 
   <p id="progress" role="status" aria-live="polite"></p>
