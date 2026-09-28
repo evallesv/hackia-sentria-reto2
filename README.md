@@ -55,10 +55,10 @@ Para construir una herramienta confiable, auditable y segura para el negocio, es
 
 | Caso | Facturado USD (con 7% ITBMS) | Diferencia potencial sin impuestos USD | Subtotal de referencia USD | Estado Operativo | Explicación de Negocio |
 | :--- | :---:| :---:| :---:| :--- | :--- |
-| **A: Sin discrepancias** | $1,979.50 | $0.00 | $1,850.00 | `CANDIDATE_FOR_APPROVAL` | Todos los precios respetan el tarifario y los daños corresponden al choque. |
-| **B: Sobrecosto tarifario** | $2,065.10 | $80.00 | $1,850.00 | `REVIEW_REQUIRED` | El taller cobró $55.00/h de pintura en vez de los $45.00/h pactados por convenio. |
-| **C: Múltiples anomalías** | $2,600.10 | $250.00 | $2,180.00 | `REVIEW_REQUIRED` | Facturaron alineación duplicada y repuestos sin respaldo de daño en el siniestro. |
-| **D: Falta tarifario** | $2,065.10 | $0.00 (no evaluado) | *No disponible* | `INFORMATION_REQUIRED` | No hay tarifario oficial vigente registrado; se requiere gestión humana. |
+| **A: Sin discrepancias** | $1,979.50 | $0.00 | $1,850.00 | Candidato para aprobación | Todos los precios respetan el tarifario y los daños corresponden al choque. |
+| **B: Sobrecosto tarifario** | $2,065.10 | $80.00 | $1,850.00 | Revisión requerida | El taller cobró $55.00/h de pintura en vez de los $45.00/h pactados por convenio. |
+| **C: Múltiples anomalías** | $2,600.10 | $250.00 | $2,180.00 | Revisión requerida | Facturaron alineación duplicada y repuestos sin respaldo de daño en el siniestro. |
+| **D: Falta tarifario** | $2,065.10 | $0.00 (no evaluado) | *No disponible* | Información requerida | No hay tarifario oficial vigente registrado; se requiere gestión humana. |
 
 > **Nota sobre impuestos y localización:** Las facturas de demostración aplican la tasa del **7% de ITBMS de Panamá** (facturas netas más 7%). Para otros países o jurisdicciones fiscales, la tasa y denominación se configuran de forma manual mediante las variables `TAX_RATE` (ej. `0.16` para IVA México) y `TAX_NAME` en la configuración del sistema. La *Diferencia potencial* se calcula sobre la base neta contratada sin duplicar cálculos fiscales automáticos.
 

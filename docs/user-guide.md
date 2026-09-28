@@ -55,11 +55,11 @@ El analista cuenta con dos formas de operar la herramienta:
 El resultado se presenta en la sección **03 / Dictamen de Auditoría** con tres bloques informativos:
 
 ### A. Estado Operativo del Expediente
-* **Candidato para aprobación (`CANDIDATE_FOR_APPROVAL`):**  
+* **Candidato para aprobación:**  
   Los controles automáticos no detectaron sobrecostos, duplicidades ni reparaciones inconsistentes. El expediente está listo para la firma y autorización final del analista.
-* **Revisión requerida (`REVIEW_REQUIRED`):**  
+* **Revisión requerida:**  
   Se detectaron una o más observaciones que requieren intervención humana (solicitar refacturación al taller o validar autorizaciones especiales con la aseguradora).
-* **Información requerida (`INFORMATION_REQUIRED`):**  
+* **Información requerida:**  
   Falta documentación esencial (por ejemplo, el tarifario de convenio) o algún archivo presenta ilegibilidad. El sistema suspende la evaluación hasta contar con la documentación requerida.
 
 ### B. Métricas Financieras Clave
