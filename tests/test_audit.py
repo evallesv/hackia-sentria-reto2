@@ -47,7 +47,6 @@ def test_overlap_duplicate_and_rate_not_counted_twice():
     duplicate = data.items[0].model_copy(update={"id": "paint_copy"})
     data.items.append(duplicate)
     data.subtotal = data.total = Decimal("2370.00")
-    data.taxes = Decimal("0.00")
     result = run_audit(data, MockProvider())
     # 80 first line + 440 full duplicated line, not 80 + 440 + 80.
     assert result.flagged_difference == Decimal("520.00")
@@ -68,7 +67,6 @@ def test_fractional_quantity_and_rounding():
     data.items[0].quantity = Decimal("0.125")
     data.items[0].line_total = Decimal("5.63")
     data.subtotal = data.total = Decimal("1495.63")
-    data.taxes = Decimal("0.00")
     assert run_audit(data, MockProvider()).status == Status.CANDIDATE
 
 

@@ -138,9 +138,7 @@ def generate(case):
                 "active": True,
             }
         )
-    subtotal = {"A": "1850.00", "B": "1930.00", "C": "2430.00", "D": "1930.00"}[case]
-    taxes = {"A": "129.50", "B": "135.10", "C": "170.10", "D": "135.10"}[case]
-    total = {"A": "1979.50", "B": "2065.10", "C": "2600.10", "D": "2065.10"}[case]
+    total = {"A": "1850.00", "B": "1930.00", "C": "2430.00", "D": "1930.00"}[case]
     payload = {
         "schema_version": "1.0",
         "claim_id": f"DEMO-{case}",
@@ -152,8 +150,8 @@ def generate(case):
         "inspected_damage_codes": ["FRONT"],
         "items": items,
         "tariffs": tariffs,
-        "subtotal": subtotal,
-        "taxes": taxes,
+        "subtotal": total,
+        "taxes": "0.00",
         "total": total,
     }
     (ROOT / f"case_{case}.json").write_text(

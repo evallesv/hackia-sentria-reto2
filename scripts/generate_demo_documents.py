@@ -76,8 +76,8 @@ def main():
                 "Parachoques frontal: 1 UNIT × USD 1490.00 = USD 1490.00",
                 "",
                 "SUBTOTAL: USD 1850.00",
-                "IMPUESTO (7% ITBMS): USD 129.50",
-                "TOTAL: USD 1979.50",
+                "IMPUESTOS: USD 0.00",
+                "TOTAL: USD 1850.00",
             ],
         )
     )
@@ -138,8 +138,8 @@ def main():
                 "Parachoques frontal: 1 UNIT × USD 1490.00 = USD 1490.00",
                 "",
                 "SUBTOTAL: USD 1930.00",
-                "IMPUESTO (7% ITBMS): USD 135.10",
-                "TOTAL: USD 2065.10",
+                "IMPUESTOS: USD 0.00",
+                "TOTAL: USD 1930.00",
             ],
         )
     )
@@ -200,8 +200,8 @@ def main():
                 "Reparación de dirección: 1 UNIT × USD 170.00 = USD 170.00",
                 "",
                 "SUBTOTAL: USD 2430.00",
-                "IMPUESTO (7% ITBMS): USD 170.10",
-                "TOTAL: USD 2600.10",
+                "IMPUESTOS: USD 0.00",
+                "TOTAL: USD 2430.00",
             ],
         )
     )
@@ -261,8 +261,8 @@ def main():
                 "Parachoques frontal: 1 UNIT × USD 1490.00 = USD 1490.00",
                 "",
                 "SUBTOTAL: USD 1930.00",
-                "IMPUESTO (7% ITBMS): USD 135.10",
-                "TOTAL: USD 2065.10",
+                "IMPUESTOS: USD 0.00",
+                "TOTAL: USD 1930.00",
             ],
         )
     )

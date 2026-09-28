@@ -53,12 +53,12 @@ Para construir una herramienta confiable, auditable y segura para el negocio, es
 
 ### Resultados en los Casos de Referencia
 
-| Caso | Facturado USD (con 7% tax) | Diferencia potencial sin impuestos USD | Subtotal de referencia USD | Estado Operativo | Explicación de Negocio |
+| Caso | Facturado USD | Diferencia potencial sin impuestos USD | Subtotal de referencia USD | Estado Operativo | Explicación de Negocio |
 | :--- | :---:| :---:| :---:| :--- | :--- |
-| **A: Sin discrepancias** | $1,979.50 | $0.00 | $1,850.00 | `CANDIDATE_FOR_APPROVAL` | Todos los precios respetan el tarifario y los daños corresponden al choque. |
-| **B: Sobrecosto tarifario** | $2,065.10 | $80.00 | $1,850.00 | `REVIEW_REQUIRED` | El taller cobró $55.00/h de pintura en vez de los $45.00/h pactados por convenio. |
-| **C: Múltiples anomalías** | $2,600.10 | $250.00 | $2,180.00 | `REVIEW_REQUIRED` | Facturaron alineación duplicada y repuestos sin respaldo de daño en el siniestro. |
-| **D: Falta tarifario** | $2,065.10 | $0.00 (no evaluado) | *No disponible* | `INFORMATION_REQUIRED` | No hay tarifario oficial vigente registrado; se requiere gestión humana. |
+| **A: Sin discrepancias** | $1,850.00 | $0.00 | $1,850.00 | `CANDIDATE_FOR_APPROVAL` | Todos los precios respetan el tarifario y los daños corresponden al choque. |
+| **B: Sobrecosto tarifario** | $1,930.00 | $80.00 | $1,850.00 | `REVIEW_REQUIRED` | El taller cobró $55.00/h de pintura en vez de los $45.00/h pactados por convenio. |
+| **C: Múltiples anomalías** | $2,430.00 | $250.00 | $2,180.00 | `REVIEW_REQUIRED` | Facturaron alineación duplicada y repuestos sin respaldo de daño en el siniestro. |
+| **D: Falta tarifario** | $1,930.00 | $0.00 (no evaluado) | *No disponible* | `INFORMATION_REQUIRED` | No hay tarifario oficial vigente registrado; se requiere gestión humana. |
 
 ---
 
