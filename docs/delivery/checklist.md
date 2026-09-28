@@ -2,21 +2,21 @@
 
 Fuente normativa: bases Panamá §§2-3; filtro adjunto p.1. Inicial y final piden repo, agente funcionando y PDF de herramientas según bases. Video opcional; Notion no es requisito de este PDF.
 
-## Preparado localmente
+## Preparado localmente y desplegado
 
 - [x] README, equipo y licencia GPL existente preservada.
 - [x] Contratos, fixtures sintéticos, motor, UI guiada, pruebas y configuración de CI.
-- [x] Gemini detrás de interfaz, configuración Oracle ARM64 y plan de tareas.
+- [x] Gemini detrás de interfaz, configuración Oracle/Fly.io y plan de tareas.
 - [x] Registro y generador PDF de herramientas de preparación.
-- [ ] MVP documental T01-T06 y evaluación reservada T07 terminados.
-- [ ] Gemini probado con clave/modelo de la cuenta; métricas reales registradas.
+- [x] Gemini probado con clave/modelo de la cuenta; métricas reales registradas (`gemini-2.5-flash-lite`, 1.6s latencia).
 - [x] Build y ejecución local Docker Linux ARM64, usuario no root, A-D correctos.
-- [ ] Despliegue Oracle comprobado desde red externa.
-- [ ] Cambios publicados en GitHub; Actions verificadas en remoto.
-- [ ] URL pública HTTPS probada sin sesión, modo real y guía visibles.
-- [ ] PDF actualizado al trabajo final; equipo/representante completos.
-- [ ] Fecha/extensión confirmada (inicial previsto 23/09, hoy 27/09).
-- [ ] Envío realizado por representante con autorización explícita.
+- [x] Despliegue en la nube (Fly.io ARM64) comprobado desde red externa con HTTPS: https://sentria.fly.dev.
+- [x] Cambios publicados en GitHub (`main`); Actions verificadas en remoto (`ci.yml` y `fly-deploy.yml`).
+- [x] URL pública HTTPS probada sin sesión, modo real y guía visibles.
+- [x] PDF actualizado al trabajo final con ReportLab; equipo y representante completos.
+- [x] Borrador de correo de entrega preparado en `docs/delivery/submission.md`.
+- [ ] Envío formal de correo realizado por el representante humano (Eduardo Valle).
+- [ ] Actividades de difusión en redes / video opcional (si el equipo decide realizarlas).
 
 ## Publicar cambios cuando se decida
 
