@@ -1,0 +1,338 @@
+{
+  "$defs": {
+    "Evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "document_id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Document Id",
+          "type": "string"
+        },
+        "location": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Location",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "document_id",
+        "location",
+        "text"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "ExtractedItem": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "service_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9_-]{1,64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Code"
+        },
+        "damage_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9_-]{1,64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Damage Code"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "enum": [
+                "HOUR",
+                "UNIT"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "quantity": {
+          "anyOf": [
+            {
+              "decimal_places": 4,
+              "gt": 0,
+              "le": 10000,
+              "max_digits": 10,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantity"
+        },
+        "unit_price": {
+          "anyOf": [
+            {
+              "decimal_places": 2,
+              "ge": 0,
+              "max_digits": 12,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit Price"
+        },
+        "line_total": {
+          "anyOf": [
+            {
+              "decimal_places": 2,
+              "ge": 0,
+              "max_digits": 12,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Line Total"
+        },
+        "evidence_id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "review_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Review Reason"
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "evidence_id"
+      ],
+      "title": "ExtractedItem",
+      "type": "object"
+    },
+    "ExtractedTariff": {
+      "additionalProperties": false,
+      "properties": {
+        "service_code": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Service Code",
+          "type": "string"
+        },
+        "unit": {
+          "enum": [
+            "HOUR",
+            "UNIT"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "allowed_rate": {
+          "decimal_places": 2,
+          "ge": 0,
+          "max_digits": 12,
+          "title": "Allowed Rate",
+          "type": "string"
+        },
+        "evidence_id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "review_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Review Reason"
+        }
+      },
+      "required": [
+        "service_code",
+        "unit",
+        "allowed_rate",
+        "evidence_id"
+      ],
+      "title": "ExtractedTariff",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "claim_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "created_at": {
+      "title": "Created At",
+      "type": "string"
+    },
+    "confirmed": {
+      "default": false,
+      "title": "Confirmed",
+      "type": "boolean"
+    },
+    "billing_kind": {
+      "default": "INVOICE",
+      "enum": [
+        "INVOICE",
+        "QUOTE"
+      ],
+      "title": "Billing Kind",
+      "type": "string"
+    },
+    "reported_damage_codes": {
+      "items": {
+        "pattern": "^[A-Za-z0-9_-]{1,64}$",
+        "type": "string"
+      },
+      "title": "Reported Damage Codes",
+      "type": "array"
+    },
+    "inspected_damage_codes": {
+      "items": {
+        "pattern": "^[A-Za-z0-9_-]{1,64}$",
+        "type": "string"
+      },
+      "title": "Inspected Damage Codes",
+      "type": "array"
+    },
+    "items": {
+      "items": {
+        "$ref": "#/$defs/ExtractedItem"
+      },
+      "title": "Items",
+      "type": "array"
+    },
+    "tariffs": {
+      "items": {
+        "$ref": "#/$defs/ExtractedTariff"
+      },
+      "title": "Tariffs",
+      "type": "array"
+    },
+    "subtotal": {
+      "anyOf": [
+        {
+          "decimal_places": 2,
+          "ge": 0,
+          "max_digits": 12,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Subtotal"
+    },
+    "taxes": {
+      "anyOf": [
+        {
+          "decimal_places": 2,
+          "ge": 0,
+          "max_digits": 12,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Taxes"
+    },
+    "total": {
+      "anyOf": [
+        {
+          "decimal_places": 2,
+          "ge": 0,
+          "max_digits": 12,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Total"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/Evidence"
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "review_notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Review Notes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "claim_id",
+    "created_at"
+  ],
+  "title": "ExtractionSnapshot",
+  "type": "object"
+}

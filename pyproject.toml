@@ -11,6 +11,8 @@ dependencies = [
   "pydantic-settings>=2.8,<3",
   "google-genai>=2.0,<3",
   "python-multipart>=0.0.32",
+  "pypdf>=5,<7",
+  "openpyxl>=3.1.5,<4",
 ]
 
 [dependency-groups]

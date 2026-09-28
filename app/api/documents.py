@@ -1,4 +1,4 @@
-"""Endpoints de intake y gestión documental de expedientes (T01)."""
+"""Endpoints de intake y gestión documental de expedientes (T01/T02)."""
 
 from typing import Annotated
 
@@ -7,11 +7,19 @@ from fastapi.responses import FileResponse
 
 from app.models import (
     ActiveDocumentsRequest,
+    AuditInput,
+    AuditResult,
     Claim,
     ClaimCreateRequest,
+    ConfirmNormalizedRequest,
+    Document,
     DocumentKind,
+    Evidence,
+    ExtractionSnapshot,
     StoredDocument,
 )
+from app.services.audit_service import run_audit
+from app.services.extraction import extract_claim_snapshot
 from app.services.intake import IntakeService
 
 router = APIRouter(prefix="/api/claims", tags=["claims"])
@@ -106,3 +114,172 @@ def delete_claim(
     """Elimina el expediente y todos sus archivos asociados de almacenamiento."""
     service.delete_claim(claim_id)
     return Response(status_code=204)
+
+
+@router.post("/{claim_id}/extract", response_model=ExtractionSnapshot)
+def extract_documents(
+    claim_id: str,
+    service: ServiceDep,
+):
+    """Extrae evidencia y datos candidatos desde los documentos activos del expediente (T02)."""
+    claim = service.get_claim(claim_id)
+    active_docs = [d for d in claim.documents if d.active]
+    if not active_docs:
+        raise HTTPException(
+            400, "No hay documentos activos configurados para extraer en este expediente"
+        )
+
+    doc_paths = {}
+    for d in active_docs:
+        _, p = service.get_document_file(claim_id, d.id)
+        doc_paths[d.id] = p
+
+    snapshot = extract_claim_snapshot(claim_id, active_docs, doc_paths)
+
+    repo = service.repository
+    if hasattr(repo, "save_snapshot"):
+        repo.save_snapshot(claim_id, snapshot.model_dump(mode="json"), confirmed=False)
+
+    return snapshot
+
+
+@router.get("/{claim_id}/snapshot", response_model=ExtractionSnapshot)
+def get_extraction_snapshot(
+    claim_id: str,
+    service: ServiceDep,
+):
+    """Obtiene el último snapshot de extracción del expediente."""
+    repo = service.repository
+    if not hasattr(repo, "get_snapshot"):
+        raise HTTPException(404, "Repositorio sin soporte de snapshots")
+
+    res = repo.get_snapshot(claim_id)
+    if not res:
+        msg = f"No existe snapshot de extracción para el expediente '{claim_id}'"
+        raise HTTPException(404, msg)
+
+    data, confirmed = res
+    data["confirmed"] = confirmed
+    return ExtractionSnapshot.model_validate(data)
+
+
+@router.put("/{claim_id}/normalized", response_model=AuditInput)
+def confirm_normalized_claim(
+    claim_id: str,
+    payload: ConfirmNormalizedRequest,
+    service: ServiceDep,
+):
+    """Confirma los campos normalizados y construye la entrada validada para la auditoría."""
+    claim = service.get_claim(claim_id)
+    active_docs = [d for d in claim.documents if d.active]
+    if not active_docs:
+        raise HTTPException(400, "No hay documentos activos para normalizar")
+
+    repo = service.repository
+    snapshot_res = repo.get_snapshot(claim_id) if hasattr(repo, "get_snapshot") else None
+    evidence_list: list[Evidence] = []
+    if snapshot_res:
+        snap_data, _ = snapshot_res
+        evidence_list = [Evidence.model_validate(e) for e in snap_data.get("evidence", [])]
+
+    # Asegurar que cada evidencia de ítem y tarifa esté presente
+    for item in payload.items:
+        if not any(e.id == item.evidence_id for e in evidence_list):
+            doc = next((d for d in active_docs if d.kind == DocumentKind.BILLING), active_docs[0])
+            item_ev_text = (
+                f"CONFIRMADO. {item.description}: {item.quantity} {item.unit} "
+                f"@ USD {item.unit_price}"
+            )
+            evidence_list.append(
+                Evidence(
+                    id=item.evidence_id,
+                    document_id=doc.id,
+                    location="línea de factura confirmada",
+                    text=item_ev_text,
+                )
+            )
+
+    for tariff in payload.tariffs:
+        if not any(e.id == tariff.evidence_id for e in evidence_list):
+            doc = next((d for d in active_docs if d.kind == DocumentKind.TARIFF), active_docs[0])
+            tariff_ev_text = (
+                f"CONFIRMADO. {tariff.service_code}: USD {tariff.allowed_rate} por {tariff.unit}"
+            )
+            evidence_list.append(
+                Evidence(
+                    id=tariff.evidence_id,
+                    document_id=doc.id,
+                    location="tarifa contractual confirmada",
+                    text=tariff_ev_text,
+                )
+            )
+
+    audit_docs = [
+        Document(
+            id=d.id,
+            kind=d.kind,
+            filename=d.filename,
+            sha256=d.sha256,
+            active=True,
+        )
+        for d in active_docs
+    ]
+
+    audit_input = AuditInput(
+        schema_version="1.0",
+        claim_id=claim_id,
+        currency="USD",
+        billing_kind=payload.billing_kind,
+        documents=audit_docs,
+        evidence=evidence_list,
+        reported_damage_codes=payload.reported_damage_codes,
+        inspected_damage_codes=payload.inspected_damage_codes,
+        items=payload.items,
+        tariffs=payload.tariffs,
+        subtotal=payload.subtotal,
+        taxes=payload.taxes,
+        total=payload.total,
+    )
+
+    if hasattr(repo, "save_snapshot"):
+        repo.save_snapshot(claim_id, audit_input.model_dump(mode="json"), confirmed=True)
+
+    return audit_input
+
+
+@router.post("/{claim_id}/audits", response_model=AuditResult)
+def run_claim_audit(
+    claim_id: str,
+    request: Request,
+    service: ServiceDep,
+):
+    """Ejecuta la auditoría agéntica determinista + IA sobre el expediente confirmado."""
+    repo = service.repository
+    if not hasattr(repo, "get_snapshot"):
+        raise HTTPException(400, "El expediente no cuenta con datos normalizados confirmados")
+
+    res = repo.get_snapshot(claim_id)
+    if not res or not res[1]:
+        msg = (
+            "El expediente no ha sido normalizado y confirmado previamente "
+            "(use PUT /api/claims/{id}/normalized)"
+        )
+        raise HTTPException(400, msg)
+
+    data, _ = res
+    audit_input = AuditInput.model_validate(data)
+
+    provider = getattr(request.app.state, "provider", None)
+    settings = getattr(request.app.state, "settings", None)
+    ai_mode = settings.ai_mode if settings else "mock"
+
+    result = run_audit(audit_input, provider, ai_mode)
+
+    if hasattr(repo, "save_audit_run"):
+        repo.save_audit_run(
+            run_id=f"run_{claim_id}",
+            claim_id=claim_id,
+            result_json=result.model_dump_json(),
+        )
+
+    return result

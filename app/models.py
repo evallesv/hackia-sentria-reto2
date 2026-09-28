@@ -104,6 +104,35 @@ class ClaimCreateRequest(Model):
     claim_id: Identifier | None = None
 
 
+class ExtractedField(Model):
+    value: str | None = None
+    location: str = Field(min_length=1, max_length=100)
+    document_id: Identifier
+    evidence_text: str = Field(min_length=1, max_length=2000)
+    review_reason: str | None = None
+
+
+class ExtractedItem(Model):
+    id: Identifier
+    description: str = Field(min_length=1, max_length=300)
+    service_code: Identifier | None = None
+    damage_code: Identifier | None = None
+    unit: Literal["HOUR", "UNIT"] | None = None
+    quantity: Quantity | None = None
+    unit_price: Money | None = None
+    line_total: Money | None = None
+    evidence_id: Identifier
+    review_reason: str | None = None
+
+
+class ExtractedTariff(Model):
+    service_code: Identifier
+    unit: Literal["HOUR", "UNIT"]
+    allowed_rate: Money
+    evidence_id: Identifier
+    review_reason: str | None = None
+
+
 class Evidence(Model):
     id: Identifier
     document_id: Identifier
@@ -128,6 +157,33 @@ class Tariff(Model):
     unit: Literal["HOUR", "UNIT"]
     allowed_rate: Money
     evidence_id: Identifier
+
+
+class ExtractionSnapshot(Model):
+    claim_id: Identifier
+    created_at: str
+    confirmed: bool = False
+    billing_kind: Literal["INVOICE", "QUOTE"] = "INVOICE"
+    reported_damage_codes: list[Identifier] = Field(default_factory=list)
+    inspected_damage_codes: list[Identifier] = Field(default_factory=list)
+    items: list[ExtractedItem] = Field(default_factory=list)
+    tariffs: list[ExtractedTariff] = Field(default_factory=list)
+    subtotal: Money | None = None
+    taxes: Money | None = None
+    total: Money | None = None
+    evidence: list[Evidence] = Field(default_factory=list)
+    review_notes: list[str] = Field(default_factory=list)
+
+
+class ConfirmNormalizedRequest(Model):
+    billing_kind: Literal["INVOICE", "QUOTE"] = "INVOICE"
+    reported_damage_codes: list[Identifier] = Field(max_length=50)
+    inspected_damage_codes: list[Identifier] = Field(max_length=50)
+    items: list[Item] = Field(max_length=100)
+    tariffs: list[Tariff] = Field(max_length=100)
+    subtotal: Money | None = None
+    taxes: Money | None = None
+    total: Money | None = None
 
 
 class AuditInput(Model):

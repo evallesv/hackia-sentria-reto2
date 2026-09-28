@@ -9,9 +9,10 @@ from fastapi.templating import Jinja2Templates
 from app.agent.provider import GeminiProvider, MockProvider
 from app.api.documents import router as documents_router
 from app.config import Settings
+from app.db.sqlite import SqliteClaimRepository
 from app.models import AuditInput, AuditResult
 from app.services.audit_service import run_audit
-from app.services.intake import InMemoryClaimRepository, IntakeService
+from app.services.intake import IntakeService
 
 ROOT = Path(__file__).resolve().parent.parent
 CASES = {
@@ -81,12 +82,15 @@ def create_app(settings: Settings | None = None):
     cache, cache_lock = {}, Lock()
 
     upload_storage = ROOT / s.upload_dir
-    claim_repo = InMemoryClaimRepository(storage_dir=upload_storage)
+    db_path = upload_storage.parent / "sentria.db"
+    claim_repo = SqliteClaimRepository(db_path=db_path, storage_dir=upload_storage)
     intake_service = IntakeService(
         repository=claim_repo,
         storage_dir=upload_storage,
         max_file_bytes=s.max_upload_bytes,
     )
+    api.state.settings = s
+    api.state.provider = provider
     api.state.claim_repo = claim_repo
     api.state.intake_service = intake_service
     api.include_router(documents_router)
