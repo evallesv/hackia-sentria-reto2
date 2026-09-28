@@ -77,9 +77,12 @@ El sistema está construido como un monolito modular moderno en **Python 3.13** 
 
 ### Opción 1: Probar en Producción (Recomendada)
 Accede directamente a la plataforma en vivo: **[https://sentria.fly.dev](https://sentria.fly.dev)**
-1. Selecciona cualquiera de los casos interactivos (**A**, **B**, **C** o **D**).
-2. Haz clic en **"Auditar expediente"**.
-3. Revisa el resultado: estado, importe facturado, diferencia detectada, subtotal sugerido y desglose de hallazgos con evidencia textual descargable en JSON.
+1. **Auditoría Rápida:** Selecciona cualquiera de los casos preparados (**A**, **B**, **C** o **D**) y haz clic en **«Auditar expediente inmediatamente →»**.
+2. **Gestión y Extracción Documental:** Haz clic en **«Inspeccionar documentos del caso ↓»** o desplázate a la sección **02 / Documentación y Extracción** para:
+   * Subir nuevos documentos digitales (Factura PDF, Declaración PDF, Inspección PDF y Tarifario XLSX).
+   * Extraer ítems de cobro y tarifas con sus citas textuales de evidencia (página y texto original).
+   * Confirmar la normalización y auditar en tiempo real sobre el expediente activo.
+3. **Dictamen y Trazabilidad:** Revisa el estado operativo (`CANDIDATE_FOR_APPROVAL`, `REVIEW_REQUIRED`, `INFORMATION_REQUIRED`), las métricas financieras (facturado, diferencia calculada y subtotal de referencia), el desglose de hallazgos con citas de evidencia y el recorrido técnico de 5 fases explicables con descarga del dictamen en JSON.
 
 ### Opción 2: Ejecución Local
 Requisitos: Python 3.12 o 3.13 y [uv](https://docs.astral.sh/uv/).
@@ -90,7 +93,7 @@ git clone https://github.com/evallesv/hackia-sentria-reto2.git
 cd hackia-sentria-reto2
 uv sync --locked --all-groups
 
-# 2. Ejecutar la suite completa de calidad (lint, formato, 61 pruebas y evaluación A-D)
+# 2. Ejecutar la suite completa de calidad (lint, formato, 62 pruebas y evaluación A-D)
 make check
 
 # 3. Iniciar el servidor local

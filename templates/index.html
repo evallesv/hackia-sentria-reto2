@@ -39,7 +39,7 @@
   <section aria-labelledby="case-title">
     <div class="section-heading">
       <h2 id="case-title">Expedientes de prueba</h2>
-      <span>01 / Selección</span>
+      <span>01 / Selección Rápida</span>
     </div>
     <div class="cases">
       {% for id, label in cases.items() %}
@@ -53,7 +53,7 @@
 
     <div class="actions">
       <button id="run" class="primary">Auditar expediente B inmediatamente →</button>
-      <button id="load-to-wb" class="secondary" type="button">Inspeccionar en Banco de Trabajo T06 ↓</button>
+      <button id="load-to-wb" class="secondary" type="button">Inspeccionar documentos del caso ↓</button>
       <a id="input-link" href="/api/demo/B" target="_blank" rel="noopener">Consultar JSON de entrada ↗</a>
     </div>
 
@@ -62,13 +62,13 @@
     </div>
   </section>
 
-  <!-- SECCIÓN T06: BANCO DE TRABAJO DOCUMENTAL E INTERACTIVO -->
+  <!-- SECCIÓN: GESTIÓN Y EXTRACCIÓN DOCUMENTAL -->
   <section id="workbench" aria-labelledby="workbench-title" class="workbench-section">
     <div class="section-heading">
-      <h2 id="workbench-title">Banco de Trabajo Documental (T06)</h2>
-      <span>02 / Flujo Completo</span>
+      <h2 id="workbench-title">Gestión y Extracción Documental</h2>
+      <span>02 / Documentación y Extracción</span>
     </div>
-    <p class="caption">Gestiona expedientes, sube documentos PDF/XLSX por rol, visualiza ítems extraídos con evidencia localizable (página, texto) y ejecuta auditorías agénticas en vivo con confirmación determinista.</p>
+    <p class="caption">Gestiona expedientes, sube documentos (PDF / XLSX) por rol contractual, visualiza conceptos y tarifas extraídos con evidencia localizable (página, texto) y ejecuta auditorías agénticas en vivo.</p>
 
     <!-- 1. Expediente Activo y Carga de Presets -->
     <div class="wb-claim-bar">
@@ -242,7 +242,7 @@
   <section id="result" hidden aria-labelledby="result-title">
     <div class="section-heading">
       <h2 id="result-title">Resultado de auditoría</h2>
-      <span>02 / Revisión</span>
+      <span>03 / Dictamen de Auditoría</span>
     </div>
     <div id="status" class="status"></div>
     <div class="metrics">

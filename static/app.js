@@ -72,14 +72,14 @@ document.querySelectorAll('[data-case]').forEach(button => {
     selectedCase = button.dataset.case;
     document.querySelectorAll('[data-case]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
     byId('run').textContent = `Auditar expediente ${selectedCase} inmediatamente →`;
-    byId('load-to-wb').textContent = `Inspeccionar caso ${selectedCase} en Banco de Trabajo T06 ↓`;
+    byId('load-to-wb').textContent = `Inspeccionar documentos del caso ${selectedCase} ↓`;
     byId('input-link').href = `/api/demo/${selectedCase}`;
     byId('result').hidden = true;
     byId('progress').textContent = '';
   });
 });
 
-// Cargar caso rápido directamente en el banco de trabajo T06
+// Cargar caso rápido directamente en el gestor documental interactivo
 const loadToWbBtn = byId('load-to-wb');
 if (loadToWbBtn) {
   loadToWbBtn.addEventListener('click', () => {
@@ -220,7 +220,7 @@ byId('download').addEventListener('click', () => {
 });
 
 // ==========================================
-// 5. BANCO DE TRABAJO T06 (WORKBENCH)
+// 5. GESTOR DOCUMENTAL INTERACTIVO
 // ==========================================
 
 // Refrescar tarjetas de documentos por rol
