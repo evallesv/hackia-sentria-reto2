@@ -431,3 +431,33 @@ def test_load_preset_case_and_audit_flow(client):
     assert audit_data["claim_id"] == "CLM-PRESET-B"
     assert audit_data["status"] == "REVIEW_REQUIRED"
     assert audit_data["flagged_difference"] == "80.00"
+
+
+def test_preset_documents_are_real_pdf_and_xlsx_and_extract_without_error(client):
+    """Verifica que los presets carguen PDFs y XLSX reales y que la extracción no falle."""
+    # Preset B
+    client.post("/api/claims/CLM-VERIFY-B/preset/B")
+    docs_res = client.get("/api/claims/CLM-VERIFY-B/documents")
+    assert docs_res.status_code == 200
+    docs = docs_res.json()
+    tariff_doc = next(d for d in docs if d["kind"] == "TARIFF")
+    assert tariff_doc["filename"].endswith(".xlsx")
+    assert tariff_doc["mime"] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+    # Descargar archivo Excel real
+    dl_res = client.get(f"/api/claims/CLM-VERIFY-B/documents/{tariff_doc['id']}")
+    assert dl_res.status_code == 200
+    assert dl_res.content.startswith(b"PK\x03\x04")
+
+    # Extraer evidencia de los archivos activos (no debe fallar con openpyxl)
+    ext_res = client.post("/api/claims/CLM-VERIFY-B/extract")
+    assert ext_res.status_code == 200
+    ext_data = ext_res.json()
+    assert len(ext_data["items"]) == 2
+    assert len(ext_data["tariffs"]) == 2
+
+    # Caso D (sin tarifario deliberadamente)
+    client.post("/api/claims/CLM-VERIFY-D/preset/D")
+    ext_d = client.post("/api/claims/CLM-VERIFY-D/extract")
+    assert ext_d.status_code == 200
+    assert len(ext_d.json()["tariffs"]) == 0

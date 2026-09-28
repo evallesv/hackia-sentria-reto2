@@ -2,6 +2,7 @@ import hashlib
 import json
 import time
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, Response, UploadFile
@@ -273,27 +274,43 @@ def load_preset_case(
     claim_storage = service.storage_dir / claim_id
     claim_storage.mkdir(parents=True, exist_ok=True)
 
+    root_dir = Path(__file__).resolve().parent.parent.parent
+    sources_dir = root_dir / "data/demo/sources" / normalized_case_id
     doc_id_map = {d.id: f"{claim_id}_{d.id}" for d in case_data.documents}
     for d in case_data.documents:
-        fake_content = (
-            f"CONTENIDO SINTÉTICO DEL EXPEDIENTE {claim_id}\n"
-            f"ROL: {d.kind.value}\n"
-            f"DOC: {d.filename}\n"
-        ).encode()
-        clean_name = d.filename or f"{d.kind.value.lower()}.pdf"
+        ext = ".xlsx" if d.kind == DocumentKind.TARIFF else ".pdf"
+        candidate_file = sources_dir / f"{d.id}{ext}"
+        if not candidate_file.exists():
+            candidate_file = sources_dir / d.filename
+
+        if candidate_file.exists():
+            file_bytes = candidate_file.read_bytes()
+            clean_name = candidate_file.name
+        else:
+            clean_name = f"{d.id}{ext}"
+            file_bytes = (
+                f"CONTENIDO SINTÉTICO DEL EXPEDIENTE {claim_id}\n"
+                f"ROL: {d.kind.value}\n"
+                f"DOC: {d.filename}\n"
+            ).encode()
+
         target_path = claim_storage / f"{d.id}_{clean_name}"
-        if not target_path.exists():
-            target_path.write_bytes(fake_content)
+        target_path.write_bytes(file_bytes)
+
+        if clean_name.endswith(".pdf"):
+            mime = "application/pdf"
+        elif clean_name.endswith(".xlsx"):
+            mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        else:
+            mime = "text/plain"
 
         stored_doc = StoredDocument(
             id=doc_id_map[d.id],
             claim_id=claim_id,
             kind=d.kind,
-            mime="application/pdf"
-            if clean_name.endswith(".pdf")
-            else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            byte_count=len(fake_content),
-            sha256=d.sha256 or hashlib.sha256(fake_content).hexdigest(),
+            mime=mime,
+            byte_count=len(file_bytes),
+            sha256=hashlib.sha256(file_bytes).hexdigest(),
             filename=clean_name,
             version=1,
             active=True,

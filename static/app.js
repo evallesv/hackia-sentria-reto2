@@ -254,15 +254,31 @@ async function refreshClaimDocuments(claimId) {
         }
         if (fileInfoEl) {
           const kb = (activeDoc.byte_count / 1024).toFixed(1);
-          fileInfoEl.textContent = `${activeDoc.filename} (${kb} KB, v${activeDoc.version})`;
-          fileInfoEl.title = activeDoc.filename;
+          fileInfoEl.replaceChildren();
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = `${activeDoc.filename} (${kb} KB)`;
+          const dlLink = document.createElement('a');
+          dlLink.href = `/api/claims/${claimId}/documents/${activeDoc.id}`;
+          dlLink.target = '_blank';
+          dlLink.rel = 'noopener';
+          dlLink.className = 'doc-dl-btn';
+          dlLink.textContent = 'Descargar ↗';
+          fileInfoEl.append(nameSpan, dlLink);
         }
       } else {
         if (statusEl) {
-          statusEl.textContent = 'Pendiente de archivo';
-          statusEl.className = 'role-status badge-pending';
+          if (role === 'TARIFF' && (claimId.endsWith('-D') || selectedCase === 'D')) {
+            statusEl.textContent = 'Sin tarifario convenido (Caso D)';
+            statusEl.className = 'role-status badge-pending';
+            if (fileInfoEl) {
+              fileInfoEl.textContent = 'Caso sin tarifario (diseñado para evaluar requerimiento de información)';
+            }
+          } else {
+            statusEl.textContent = 'Pendiente de archivo';
+            statusEl.className = 'role-status badge-pending';
+            if (fileInfoEl) fileInfoEl.textContent = 'Sin documento cargado';
+          }
         }
-        if (fileInfoEl) fileInfoEl.textContent = 'Sin documento cargado';
       }
     });
   } catch {
@@ -408,9 +424,14 @@ function renderSnapshot(snapshot) {
 
 // Cargar preset sintético en el banco de trabajo
 async function loadPresetIntoWorkbench(caseId) {
+  selectedCase = caseId;
   const claimInput = byId('claim-id-input');
   activeClaimId = `CLM-2026-DEMO-${caseId}`;
   if (claimInput) claimInput.value = activeClaimId;
+
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.setAttribute('aria-pressed', String(btn.dataset.preset === caseId));
+  });
 
   const extractStatus = byId('wb-extract-status');
   if (extractStatus) {
@@ -428,7 +449,7 @@ async function loadPresetIntoWorkbench(caseId) {
     await refreshClaimDocuments(activeClaimId);
     renderSnapshot(snapshot);
     if (extractStatus) {
-      extractStatus.textContent = `✓ Caso ${caseId} cargado con documentos, evidencias y tarifas.`;
+      extractStatus.textContent = `✓ Caso ${caseId} cargado con documentos oficiales (PDF / XLSX), evidencias y tarifas.`;
     }
   } catch (err) {
     if (extractStatus) {
@@ -620,7 +641,7 @@ if (wbConfirmAuditBtn) {
   });
 }
 
-// Inicializar vista al cargar la página
+// Inicializar vista al cargar la página precargando el caso de referencia B
 window.addEventListener('DOMContentLoaded', () => {
-  refreshClaimDocuments(activeClaimId);
+  loadPresetIntoWorkbench('B');
 });

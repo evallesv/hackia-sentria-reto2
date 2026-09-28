@@ -202,6 +202,40 @@ def parse_line_items_from_text(text: str, doc_id: str) -> list[ExtractedItem]:
     return items
 
 
+def parse_tariffs_from_text(text: str) -> list[dict]:
+    """Extrae tarifas desde texto libre o fixtures sintéticos (.txt)."""
+    tariffs: list[dict] = []
+    pattern = re.compile(
+        r"([A-Za-z0-9_-]+):\s*(?:USD|\$)?\s*([0-9.]+)\s*por\s*([A-Za-z]+)",
+        re.IGNORECASE,
+    )
+    for line_idx, line in enumerate(text.splitlines(), start=1):
+        line = line.strip()
+        if not line:
+            continue
+        m = pattern.search(line)
+        if m:
+            code = m.group(1).strip().upper()
+            rate_str = m.group(2).strip()
+            unit_raw = m.group(3).strip().upper()
+            unit = "HOUR" if "H" in unit_raw else "UNIT"
+            try:
+                rate_val = Decimal(rate_str).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+                tariffs.append(
+                    {
+                        "service_code": code,
+                        "description": f"Tarifa convenida {code}",
+                        "unit": unit,
+                        "allowed_rate": f"{rate_val:.2f}",
+                        "location": f"línea {line_idx}",
+                        "text": line,
+                    }
+                )
+            except (InvalidOperation, ValueError):
+                continue
+    return tariffs
+
+
 def extract_claim_snapshot(
     claim_id: str,
     active_docs: list[StoredDocument],
@@ -226,8 +260,34 @@ def extract_claim_snapshot(
             continue
 
         if doc.kind == DocumentKind.TARIFF:
-            if doc.mime.endswith("sheet") or path.suffix.lower() == ".xlsx":
-                extracted_tariffs = extract_xlsx_tariffs(path)
+            is_xlsx = path.suffix.lower() == ".xlsx" or (
+                doc.mime.endswith("sheet") and not path.suffix.lower().endswith(".txt")
+            )
+            if is_xlsx:
+                try:
+                    extracted_tariffs = extract_xlsx_tariffs(path)
+                    for t in extracted_tariffs:
+                        ev_id = f"ev_rate_{t['service_code']}"
+                        evidence_list.append(
+                            Evidence(
+                                id=ev_id,
+                                document_id=doc.id,
+                                location=t["location"],
+                                text=t["text"],
+                            )
+                        )
+                        tariffs.append(
+                            ExtractedTariff(
+                                service_code=t["service_code"],
+                                unit=t["unit"],
+                                allowed_rate=Decimal(t["allowed_rate"]),
+                                evidence_id=ev_id,
+                            )
+                        )
+                except Exception as e:
+                    review_notes.append(f"No fue posible leer tarifario Excel {doc.filename}: {e}")
+            elif path.suffix.lower() in (".txt", ".text") or doc.mime.startswith("text/"):
+                extracted_tariffs = parse_tariffs_from_text(path.read_text(errors="replace"))
                 for t in extracted_tariffs:
                     ev_id = f"ev_rate_{t['service_code']}"
                     evidence_list.append(
