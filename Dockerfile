@@ -3,7 +3,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /srv/sentria
 COPY requirements.txt ./
 RUN pip install --no-cache-dir --require-hashes -r requirements.txt \
-    && useradd --create-home --uid 10001 sentria
+    && useradd --create-home --uid 10001 sentria \
+    && mkdir -p /srv/sentria/storage/uploads \
+    && chown -R sentria:sentria /srv/sentria
 COPY --chown=sentria:sentria app ./app
 COPY --chown=sentria:sentria templates ./templates
 COPY --chown=sentria:sentria static ./static

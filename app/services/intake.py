@@ -149,8 +149,18 @@ class InMemoryClaimRepository:
     """Repositorio en memoria con soporte de aislamiento de expedientes y bloqueo seguro."""
 
     def __init__(self, storage_dir: Path):
-        self.storage_dir = storage_dir
-        self.storage_dir.mkdir(parents=True, exist_ok=True)
+        self.storage_dir = Path(storage_dir)
+        try:
+            self.storage_dir.mkdir(parents=True, exist_ok=True)
+            test_file = self.storage_dir / ".write_test"
+            test_file.touch()
+            test_file.unlink()
+        except (PermissionError, OSError):
+            import tempfile
+
+            self.storage_dir = Path(tempfile.gettempdir()) / "sentria" / "uploads"
+            self.storage_dir.mkdir(parents=True, exist_ok=True)
+
         self._claims: dict[str, Claim] = {}
         self._doc_paths: dict[str, Path] = {}
         self._lock = Lock()
@@ -263,7 +273,8 @@ class IntakeService:
         max_file_bytes: int = MAX_FILE_BYTES,
     ):
         self.repository = repository
-        self.storage_dir = Path(storage_dir)
+        resolved_dir = getattr(repository, "storage_dir", storage_dir)
+        self.storage_dir = Path(resolved_dir)
         self.storage_dir.mkdir(parents=True, exist_ok=True)
         self.max_file_bytes = max_file_bytes
 
