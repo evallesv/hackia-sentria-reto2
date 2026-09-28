@@ -32,13 +32,20 @@ def run_migrations(engine: Engine) -> None:
     """Ejecuta migraciones pendientes de Alembic contra el motor configurado."""
     project_root = Path(__file__).resolve().parent.parent.parent
     alembic_ini_path = project_root / "alembic.ini"
-    alembic_cfg = Config(str(alembic_ini_path))
-    alembic_cfg.set_main_option("script_location", str(project_root / "migrations"))
-    alembic_cfg.attributes["skip_logging_config"] = True
+    migrations_dir = project_root / "migrations"
 
-    with engine.connect() as connection:
-        alembic_cfg.attributes["connection"] = connection
-        command.upgrade(alembic_cfg, "head")
+    if alembic_ini_path.exists() and migrations_dir.exists():
+        alembic_cfg = Config(str(alembic_ini_path))
+        alembic_cfg.set_main_option("script_location", str(migrations_dir))
+        alembic_cfg.attributes["skip_logging_config"] = True
+
+        with engine.connect() as connection:
+            alembic_cfg.attributes["connection"] = connection
+            command.upgrade(alembic_cfg, "head")
+    else:
+        from app.db.schema import Base
+
+        Base.metadata.create_all(bind=engine)
 
 
 def get_session_factory(engine: Engine) -> sessionmaker[Session]:
