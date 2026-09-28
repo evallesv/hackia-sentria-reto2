@@ -21,15 +21,13 @@ def generate(case):
             "id": "ev_incident",
             "document_id": "incident",
             "location": "línea 1",
-            "text": (
-                "SINTÉTICO. Colisión frontal. Daño en parachoques, pintura y alineación frontal."
-            ),
+            "text": "Colisión frontal. Daño en parachoques, pintura y alineación frontal.",
         },
         {
             "id": "ev_inspection",
             "document_id": "inspection",
             "location": "línea 1",
-            "text": "SINTÉTICO. Se confirma daño frontal. Cambiar parachoques, pintar y alinear.",
+            "text": "Se confirma daño frontal. Cambiar parachoques, pintar y alinear.",
         },
     ]
     rows = [
@@ -90,7 +88,7 @@ def generate(case):
                 "id": f"ev_{ident}",
                 "document_id": "billing",
                 "location": f"línea {index}",
-                "text": f"SINTÉTICO. {desc}: {qty} {unit} × USD {price} = USD {total}",
+                "text": f"{desc}: {qty} {unit} × USD {price} = USD {total}",
             }
         )
         items.append(
@@ -113,7 +111,7 @@ def generate(case):
                     "id": f"ev_rate_{code}",
                     "document_id": "tariff",
                     "location": f"registro {code}",
-                    "text": f"SINTÉTICO. {code}: USD {rate} por {unit}",
+                    "text": f"{code}: USD {rate} por {unit}",
                 }
             )
             tariffs.append(

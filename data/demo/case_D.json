@@ -8,21 +8,21 @@
       "id": "incident",
       "kind": "INCIDENT_REPORT",
       "filename": "incident.txt",
-      "sha256": "a47c74f66a72fb9527d7897683bc8f0b8da045edcf50d00b1792b26b47ab081f",
+      "sha256": "1ea1cc2860ada577f82bd88fedd026406425eb190d12e2de22ae94f36b7c8473",
       "active": true
     },
     {
       "id": "inspection",
       "kind": "WORKSHOP_REPORT",
       "filename": "inspection.txt",
-      "sha256": "8cab6a9ca5c441800d67cf769abf83aaf9a66e3769907cd74bc316d5cf48f97e",
+      "sha256": "c0f0a8537fe572584d3658226771fdce758f090f9f3c794c25d70358941672b8",
       "active": true
     },
     {
       "id": "billing",
       "kind": "BILLING_DOCUMENT",
       "filename": "billing.txt",
-      "sha256": "1cb02f07247b89dc7feb4060ab904361b1a86f13ed40422ca450123b517027c2",
+      "sha256": "0a9293db2a0b385e413f71799a5df0b77200e1dfe8f3aa5e15932fd77b0503f9",
       "active": true
     }
   ],
@@ -31,25 +31,25 @@
       "id": "ev_incident",
       "document_id": "incident",
       "location": "línea 1",
-      "text": "SINTÉTICO. Colisión frontal. Daño en parachoques, pintura y alineación frontal."
+      "text": "Colisión frontal. Daño en parachoques, pintura y alineación frontal."
     },
     {
       "id": "ev_inspection",
       "document_id": "inspection",
       "location": "línea 1",
-      "text": "SINTÉTICO. Se confirma daño frontal. Cambiar parachoques, pintar y alinear."
+      "text": "Se confirma daño frontal. Cambiar parachoques, pintar y alinear."
     },
     {
       "id": "ev_paint",
       "document_id": "billing",
       "location": "línea 1",
-      "text": "SINTÉTICO. Pintura frontal: 8 HOUR × USD 55.00 = USD 440.00"
+      "text": "Pintura frontal: 8 HOUR × USD 55.00 = USD 440.00"
     },
     {
       "id": "ev_bumper",
       "document_id": "billing",
       "location": "línea 2",
-      "text": "SINTÉTICO. Parachoques frontal: 1 UNIT × USD 1490.00 = USD 1490.00"
+      "text": "Parachoques frontal: 1 UNIT × USD 1490.00 = USD 1490.00"
     }
   ],
   "reported_damage_codes": [

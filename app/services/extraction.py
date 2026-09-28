@@ -136,7 +136,7 @@ def extract_xlsx_tariffs(file_path: Path, max_rows: int = MAX_XLSX_ROWS) -> list
                 "unit": unit_str,
                 "allowed_rate": f"{rate_val:.2f}",
                 "location": f"hoja '{sheet.title}', fila {row_idx}",
-                "text": f"SINTÉTICO. {code_str}: USD {rate_val:.2f} por {unit_str}",
+                "text": f"{code_str}: USD {rate_val:.2f} por {unit_str}",
             }
         )
 
@@ -366,7 +366,7 @@ def extract_claim_snapshot(
                     for item in parsed_items:
                         items.append(item)
                         item_text = (
-                            f"SINTÉTICO. {item.description}: {item.quantity} {item.unit} "
+                            f"{item.description}: {item.quantity} {item.unit} "
                             f"× USD {item.unit_price} = USD {item.line_total}"
                         )
                         evidence_list.append(

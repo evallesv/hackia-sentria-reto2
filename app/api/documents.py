@@ -289,9 +289,7 @@ def load_preset_case(
         else:
             clean_name = f"{d.id}{ext}"
             file_bytes = (
-                f"CONTENIDO SINTÉTICO DEL EXPEDIENTE {claim_id}\n"
-                f"ROL: {d.kind.value}\n"
-                f"DOC: {d.filename}\n"
+                f"CONTENIDO DEL EXPEDIENTE {claim_id}\nROL: {d.kind.value}\nDOC: {d.filename}\n"
             ).encode()
 
         target_path = claim_storage / f"{d.id}_{clean_name}"

@@ -161,7 +161,9 @@ def create_app(settings: Settings | None = None):
     @api.post("/api/audits", response_model=AuditResult)
     def audit(data: AuditInput):
         if not s.enable_custom_input:
-            raise HTTPException(403, "La demo pública solo permite los casos sintéticos incluidos")
+            raise HTTPException(
+                403, "La demo pública solo permite los casos de demostración incluidos"
+            )
         return run_audit(data, provider, s.ai_mode)
 
     return api

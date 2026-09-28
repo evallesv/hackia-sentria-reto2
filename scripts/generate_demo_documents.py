@@ -1,4 +1,4 @@
-"""Generador de documentos sintéticos oficiales en formato PDF y XLSX para los casos A, B, C y D."""
+"""Generador de documentos oficiales en formato PDF y XLSX para los casos A, B, C y D."""
 
 import io
 from pathlib import Path
@@ -18,8 +18,9 @@ def create_pdf(title: str, lines: list[str]) -> bytes:
     # Encabezado
     c.setFont("Helvetica-Bold", 14)
     c.drawString(50, 750, title)
+    c.setFont("Helvetica-Oblique", 9)
     c.drawString(
-        50, 735, "Sentria · Auditor Agéntico de Facturación de Siniestros (Datos Sintéticos)"
+        50, 735, "Sentria · Sistema de Auditoría y Verificación de Siniestros Automotrices"
     )
     c.setLineWidth(0.5)
     c.line(50, 725, 550, 725)
@@ -55,7 +56,7 @@ def create_xlsx(rows: list[list]) -> bytes:
 
 
 def main():
-    print("Generando documentos sintéticos oficiales en PDF y XLSX...")
+    print("Generando documentos oficiales en PDF y XLSX...")
 
     # ==========================
     # CASO A: Sin discrepancias
@@ -88,8 +89,8 @@ def main():
                 "Aseguradora: Seguros Sentria S.A. | Ramo: Automóvil",
                 "Reporte de Evento: Declaración inicial del asegurado",
                 "",
-                "SINTÉTICO. Colisión frontal. Daño en parachoques, pintura y alineación frontal.",
-                "El vehículo impactó contra poste a baja velocidad afectando la zona delantera.",
+                "Colisión frontal. Daño en parachoques, pintura y alineación frontal.",
+                "Impacto frontal contra obstáculo a baja velocidad.",
             ],
         )
     )
@@ -101,7 +102,7 @@ def main():
                 "Perito Ajustador: Centro Técnico de Inspección Vehicular",
                 "Verificación Visual de Daños:",
                 "",
-                "SINTÉTICO. Se confirma daño frontal. Cambiar parachoques, pintar y alinear.",
+                "Se confirma daño frontal. Cambiar parachoques, pintar y alinear.",
                 "Correlación de daños: Impacto frontal directo conforme con el relato.",
             ],
         )
@@ -150,7 +151,7 @@ def main():
                 "Aseguradora: Seguros Sentria S.A. | Ramo: Automóvil",
                 "Reporte de Evento: Declaración inicial del asegurado",
                 "",
-                "SINTÉTICO. Colisión frontal. Daño en parachoques, pintura y alineación frontal.",
+                "Colisión frontal. Daño en parachoques, pintura y alineación frontal.",
             ],
         )
     )
@@ -162,7 +163,7 @@ def main():
                 "Perito Ajustador: Centro Técnico de Inspección Vehicular",
                 "Verificación Visual de Daños:",
                 "",
-                "SINTÉTICO. Se confirma daño frontal. Cambiar parachoques, pintar y alinear.",
+                "Se confirma daño frontal. Cambiar parachoques, pintar y alinear.",
             ],
         )
     )
@@ -212,7 +213,7 @@ def main():
                 "Aseguradora: Seguros Sentria S.A. | Ramo: Automóvil",
                 "Reporte de Evento: Declaración inicial del asegurado",
                 "",
-                "SINTÉTICO. Colisión frontal. Daño en parachoques, pintura y alineación frontal.",
+                "Colisión frontal. Daño en parachoques, pintura y alineación frontal.",
             ],
         )
     )
@@ -224,7 +225,7 @@ def main():
                 "Perito Ajustador: Centro Técnico de Inspección Vehicular",
                 "Verificación Visual de Daños:",
                 "",
-                "SINTÉTICO. Se confirma daño frontal. Cambiar parachoques, pintar y alinear.",
+                "Se confirma daño frontal. Cambiar parachoques, pintar y alinear.",
             ],
         )
     )
@@ -272,7 +273,7 @@ def main():
             [
                 "Aseguradora: Seguros Sentria S.A. | Ramo: Automóvil",
                 "",
-                "SINTÉTICO. Colisión frontal. Daño en parachoques, pintura y alineación frontal.",
+                "Colisión frontal. Daño en parachoques, pintura y alineación frontal.",
             ],
         )
     )
@@ -283,7 +284,7 @@ def main():
             [
                 "Perito Ajustador: Centro Técnico de Inspección Vehicular",
                 "",
-                "SINTÉTICO. Se confirma daño frontal. Cambiar parachoques, pintar y alinear.",
+                "Se confirma daño frontal. Cambiar parachoques, pintar y alinear.",
             ],
         )
     )
