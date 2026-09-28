@@ -67,8 +67,9 @@ def test_fractional_quantity_and_rounding():
     data = load_case("A")
     data.items[0].quantity = Decimal("0.125")
     data.items[0].line_total = Decimal("5.63")
-    data.subtotal = data.total = Decimal("1495.63")
-    data.taxes = Decimal("0.00")
+    data.subtotal = Decimal("1495.63")
+    data.taxes = money(data.subtotal * Decimal("0.07"))
+    data.total = money(data.subtotal + data.taxes)
     assert run_audit(data, MockProvider()).status == Status.CANDIDATE
 
 
@@ -148,3 +149,25 @@ def test_large_valid_inputs_do_not_overflow_output_contract():
     assert result.status == Status.INFORMATION
     assert result.reference_subtotal is None
     assert result.flagged_difference == Decimal("99999999549900.00")
+
+
+def test_incorrect_taxes_flagged_without_affecting_savings():
+    """Verifica que un cálculo erróneo de impuestos no contamine el cálculo del ahorro."""
+    data = load_case("A")
+    # Caso A es conforme con $0.00 de diferencia potencial en ítems.
+    # Alteramos el impuesto declarado a $180.00 en vez de $129.50 (7% de $1850).
+    data.taxes = Decimal("180.00")
+    data.total = money(data.subtotal + data.taxes)
+
+    result = run_audit(data, MockProvider())
+    # 1. Se genera la alerta de cálculo de impuestos erróneo
+    tax_findings = [f for f in result.findings if f.code == "TAX_CALCULATION_MISMATCH"]
+    assert len(tax_findings) == 1
+    assert "Cálculo de impuestos (ITBMS) incorrecto" in tax_findings[0].description
+
+    # 2. Los impuestos NO se suman ni alteran el ahorro / diferencia potencial
+    assert result.flagged_difference == Decimal("0.00")
+
+    # 3. Al existir una discrepancia fiscal, exige revisión humana
+    assert result.status == Status.REVIEW
+    assert result.reference_subtotal == Decimal("1850.00")

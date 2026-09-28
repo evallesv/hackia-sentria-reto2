@@ -59,7 +59,11 @@ def check_integrity(data: AuditInput) -> list[Finding]:
     return findings
 
 
-def check_financials(data: AuditInput) -> tuple[list[Finding], Decimal]:
+def check_financials(
+    data: AuditInput,
+    expected_tax_rate: Decimal | None = None,
+    tax_name: str = "ITBMS",
+) -> tuple[list[Finding], Decimal]:
     """Diferencias potenciales sin impuestos. Duplicados nunca se descuentan automáticamente."""
     findings: list[Finding] = []
     impact_by_item: dict[str, Decimal] = {}
@@ -170,6 +174,33 @@ def check_financials(data: AuditInput) -> tuple[list[Finding], Decimal]:
                     evidence_ids=[i.evidence_id for i in data.items],
                 )
             )
+
+    # Verificación de impuestos (no impactan el ahorro, pero se auditan si están incorrectos)
+    if (
+        expected_tax_rate is not None
+        and expected_tax_rate > ZERO
+        and data.taxes is not None
+        and data.subtotal is not None
+    ):
+        expected_tax = money(data.subtotal * expected_tax_rate)
+        if data.taxes != expected_tax:
+            tax_pct = money(expected_tax_rate * Decimal("100"))
+            findings.append(
+                Finding(
+                    code="TAX_CALCULATION_MISMATCH",
+                    blocking=False,
+                    description=(
+                        f"Cálculo de impuestos ({tax_name}) incorrecto: "
+                        f"declarado USD {data.taxes}, esperado USD {expected_tax} "
+                        f"({tax_pct}% de subtotal USD {data.subtotal})."
+                    ),
+                    calculation=(
+                        f"{data.subtotal} × {expected_tax_rate} = {expected_tax} ≠ {data.taxes}"
+                    ),
+                    evidence_ids=[i.evidence_id for i in data.items if i.evidence_id][:1],
+                )
+            )
+
     return findings, money(sum(impact_by_item.values(), ZERO))
 
 

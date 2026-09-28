@@ -28,6 +28,7 @@ const findingTitles = {
   TARIFF_UNRESOLVED: 'Tarifario inexistente o no convenido',
   MISSING_INFORMATION: 'Información obligatoria faltante en el expediente',
   TOTAL_MISMATCH: 'Discrepancia en la sumatoria de totales de factura',
+  TAX_CALCULATION_MISMATCH: 'Cálculo de impuestos incorrecto en factura',
   LINE_TOTAL_MISMATCH: 'Error de cálculo aritmético en línea de cobro',
   SEMANTIC_UNCERTAIN: 'Correspondencia de daño incierta',
   SEMANTIC_UNAVAILABLE: 'Revisión asistida no disponible temporalmente',

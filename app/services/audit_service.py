@@ -1,4 +1,5 @@
 import hashlib
+from decimal import Decimal
 from time import perf_counter
 
 from app.agent.provider import ProviderError, SemanticProvider, validate_review
@@ -10,17 +11,35 @@ from app.audit.engine import (
     derive_status,
     money,
 )
+from app.config import Settings
 from app.models import AuditInput, AuditResult, Finding
 
 
-def run_audit(data: AuditInput, provider: SemanticProvider, mode="mock") -> AuditResult:
+def run_audit(
+    data: AuditInput,
+    provider: SemanticProvider,
+    mode: str = "mock",
+    tax_rate: Decimal | None = None,
+    tax_name: str = "ITBMS",
+) -> AuditResult:
     start = perf_counter()
     trace = ["integrity_check"]
     findings = check_integrity(data)
     difference = ZERO
     model, input_tokens, output_tokens = None, 0, 0
     if not findings:
-        financials, difference = check_financials(data)
+        if tax_rate is None:
+            try:
+                s = Settings(_env_file=None)
+                tax_rate = s.tax_rate
+                tax_name = s.tax_name
+            except Exception:
+                tax_rate = Decimal("0.07")
+                tax_name = "ITBMS"
+
+        financials, difference = check_financials(
+            data, expected_tax_rate=tax_rate, tax_name=tax_name
+        )
         findings.extend(financials)
         trace.extend(["quote_check", "tariff_check"])
         try:
