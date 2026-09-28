@@ -1,7 +1,7 @@
 # Auditor Agéntico de Facturación de Siniestros · Equipo Sentria
 
 > **🚀 Enlace público del agente funcional en producción:** [https://sentria.fly.dev](https://sentria.fly.dev)  
-> **Healthcheck del sistema:** [https://sentria.fly.dev/healthz](https://sentria.fly.dev/healthz) · **CI/CD:** Despliegue automático vía GitHub Actions a Fly.io (Linux ARM64, 512 MB RAM)  
+> **Healthcheck del sistema:** [https://sentria.fly.dev/healthz](https://sentria.fly.dev/healthz) · **CI/CD:** Despliegue automático vía GitHub Actions a Fly.io  
 > **Repositorio de código:** [https://github.com/evallesv/hackia-sentria-reto2](https://github.com/evallesv/hackia-sentria-reto2)  
 > **Entrega oficial:** Reto 2 para [hackIAthon Panamá (Viamatica / ADEN)](https://hackiathon.dev/wp-content/uploads/2026/08/hackIAthon-Panama-Bases-y-Entregables.pdf) dirigido a `hackiathon@viamatica.com`
 
@@ -95,7 +95,7 @@ git clone https://github.com/evallesv/hackia-sentria-reto2.git
 cd hackia-sentria-reto2
 uv sync --locked --all-groups
 
-# 2. Ejecutar la suite completa de calidad (lint, formato, 63 pruebas y evaluación A-D)
+# 2. Ejecutar la suite completa de calidad (lint, formato, 64 pruebas y evaluación A-D)
 make check
 
 # 3. Iniciar el servidor local

@@ -13,11 +13,11 @@ flowchart LR
   R --> E
   E --> UI
   I --> FS[Archivos privados fuera de Git]
-  V --> DB[(PostgreSQL)]
+  V --> DB[(SQLite WAL)]
   E --> DB
 ```
 
-**Implementado:** UI, contratos, fixtures normalizados, servicio, reglas, mock y adaptador Gemini. **Planeado:** intake, extracción, confirmación, archivos privados y PostgreSQL. No hay conexión DB en el starter.
+**Implementado:** UI, contratos, fixtures normalizados, servicio de auditoría, extracción documental, persistencia SQLite WAL, reglas, mock y adaptador Gemini, CI/CD y despliegue en Fly.io.
 
 | ADR | Elección | Coste / revisión futura |
 |---|---|---|
@@ -26,9 +26,9 @@ flowchart LR
 | 03 | Gemini detrás de SemanticProvider | SDK directo, sin framework de agentes |
 | 04 | Workflow con function calling acotado | El modelo aporta assessments; host valida y ejecuta; no hay bucle abierto |
 | 05 | Decimal; ausentes nullable | Desconocido no equivale a cero; HALF_UP por línea |
-| 06 | PostgreSQL al persistir | SQLAlchemy 2 + Alembic en T03; sin SQLite provisional |
-| 07 | Volumen privado, IDs internos | Object storage al tener varias instancias; nombre nunca es ruta |
-| 08 | ARM64 nativo Oracle + Caddy | Sin emulación x86; DNS y puertos públicos para TLS |
+| 06 | SQLite WAL + SQLAlchemy 2 + Alembic | Migrar a PostgreSQL si se requieren múltiples instancias |
+| 07 | Volumen privado, IDs internos | Object storage al escalar horizontalmente; nombre nunca es ruta |
+| 08 | Fly.io con TLS automático | Despliegue contenedor gestionado; sin servidor VPS manual |
 | 09 | Demo pública solo cuatro fixtures | Entrada libre requiere auth, cuotas y validación de archivos |
 | 10 | Subtotal de referencia | Impuestos y justificaciones no se resuelven restando anomalías |
 
@@ -38,7 +38,7 @@ flowchart LR
 - `audit/engine.py`: funciones puras; sin SDK IA, FastAPI, SQLAlchemy ni entorno.
 - `agent/provider.py`: clasificar relaciones y validar citas; sin mutar importes.
 - `services/audit_service.py`: integridad, checks financieros/semánticos, estado y reporte.
-- `main.py`: transporte, límites y composición. Futuros intake/extraction/repositories/db en T01-T03.
+- `main.py`: transporte, límites y composición. Intake, extracción y repositorios en `app/api/documents.py` y `app/services/`.
 
 ## Reproducibilidad
 

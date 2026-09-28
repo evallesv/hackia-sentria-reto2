@@ -1,10 +1,10 @@
 # Plan de implementación para hoy
 
-Objetivo: que una persona cargue siniestro, inspección, factura/cotización y tarifario, confirme datos ambiguos y reciba hallazgos con evidencia mediante Gemini en una URL Oracle. Estimación de **8-10 horas de equipo**, a partir del starter; no es promesa de entrega ni prórroga del evento.
+Objetivo: que una persona cargue siniestro, inspección, factura/cotización y tarifario, confirme datos ambiguos y reciba hallazgos con evidencia mediante Gemini en una URL pública HTTPS. Estimación de **8-10 horas de equipo**, a partir del starter; no es promesa de entrega ni prórroga del evento.
 
 ## Estado de partida
 
-T00 preparado: demo JSON A-D, motor, contratos, adaptador Gemini, UI guiada, pruebas, lock/CI y configuración ARM64. No confundir preparación del adaptador con prueba real usando credenciales. Consulta `verification.md` para resultados ejecutados.
+T00 preparado: demo JSON A-D, motor, contratos, adaptador Gemini, UI guiada, pruebas, lock/CI y desplegado en Fly.io. Consulta `verification.md` para resultados ejecutados.
 
 ## Roles propuestos
 
@@ -27,7 +27,7 @@ flowchart LR
   T01 --> T06[UI documental]
   T02 --> T05[Gemini y evaluación]
   T03 --> T06
-  T04 --> T07[E2E y Oracle]
+  T04 --> T07[E2E y despliegue]
   T05 --> T07
   T06 --> T07
   T07 --> T08[Entrega]
@@ -39,8 +39,8 @@ flowchart LR
 | 0:30-2:00 | T01 intake + T03 DB + T04 reglas en archivos separados | Contrato 1.1 acordado, archivos rechazados/aceptados, migración y reglas |
 | 2:00-4:00 | T02 extracción; T06 UI con fixtures; integrar repositorios | Datos con fuente por campo y edición humana |
 | 4:00-5:30 | T05 Gemini real; UI deja mocks solo en modo demo | Revisión real, fallback de error y límites comprobados |
-| 5:30-7:00 | T07 corpus reservado, E2E, correcciones e imagen ARM64 | Cero falsos candidatos críticos; A-D desde documentos |
-| 7:00-8:00 | Despliegue en VPS, prueba desde navegador externo, T08 | URL HTTPS, repo visible, PDF actualizado |
+| 5:30-7:00 | T07 corpus reservado, E2E, correcciones e imagen final | Cero falsos candidatos críticos; A-D desde documentos |
+| 7:00-8:00 | Despliegue en Fly.io, prueba desde navegador externo, T08 | URL HTTPS, repo visible, PDF actualizado |
 | 8:00-10:00 | Reserva para SDK, OCR no incluido, DNS, extracción defectuosa | Resolver P0; no ampliar a P2 |
 
 ## Tareas listas para encargar
@@ -67,7 +67,7 @@ Tokens son presupuestos iniciales de contexto, no gasto medido ni límites de la
 - Cada hallazgo remite a fuente verificable; diferencias sin doble conteo.
 - A-D ejecutados desde archivos; caso no visto y fallos del proveedor evaluados.
 - UI señala información faltante, procesamiento, errores y próximo paso; reporte descargable.
-- CI verde; commit identificable desplegado en Oracle ARM64; HTTPS y prueba desde fuera del VPS.
+- CI verde; commit identificable desplegado en Fly.io con HTTPS verificado desde red externa.
 - Guía para jurados, repo accesible y PDF de herramientas completo; modo real claramente identificado.
 
 Si el tiempo se agota: priorizar un flujo documental estrecho y honesto (PDF con texto + XLSX plantilla). Mantener archivos escaneados como no soportados; no simular extracción exitosa. Congelar P0 antes de fotos/chat/dashboard. Una demo únicamente mock sirve para desarrollar, no satisface por sí sola un agente IA funcional final.

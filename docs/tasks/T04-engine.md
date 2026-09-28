@@ -4,7 +4,7 @@ Dependencia: T00. Responsable propuesto: Jose; revisión financiera por Eduardo.
 
 **Editar:** `app/audit/engine.py`, módulos puros adicionales en `app/audit/`, tests de reglas. Contratos solo mediante integrador. No importar SDK ni persistencia.
 
-Baseline A=1850/0; B=1930/80; C=2430/250; D=sin tarifa/INFORMATION_REQUIRED. Mantener esos resultados y no usar cálculos del LLM.
+Baseline (montos con 7% ITBMS incluido / diferencia neta sin impuestos): A=1979.50/0; B=2065.10/80; C=2600.10/250; D=sin tarifa/INFORMATION_REQUIRED. Mantener esos resultados y no usar cálculos del LLM.
 
 1. Integrar tarifa aplicable por taller, unidad, moneda y fecha según contrato T02. Sin coincidencia/varias → información requerida. No convertir divisas ni inferir tipo de cambio.
 2. Separar total declarado, total calculado, diferencias propuestas y base de impuesto. Política configurable de tolerancia decimal (default exactitud a centavos); no ocultar diferencias con tolerancia implícita.

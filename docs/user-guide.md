@@ -63,7 +63,7 @@ El resultado se presenta en la sección **03 / Dictamen de Auditoría** con tres
   Falta documentación esencial (por ejemplo, el tarifario de convenio) o algún archivo presenta ilegibilidad. El sistema suspende la evaluación hasta contar con la documentación requerida.
 
 ### B. Métricas Financieras Clave
-* **Importe facturado:** Monto total presentado en la factura del taller antes de impuestos.
+* **Importe facturado:** Monto total de la factura del taller, incluyendo los impuestos declarados (ej. 7% ITBMS de Panamá).
 * **Diferencia potencial (sin impuestos):** Suma exacta de los sobrecostos identificados por discrepancias de tarifa o cobros duplicados. Cada impacto se calcula una sola vez por línea de cobro.
 * **Subtotal de referencia:** Monto ajustado que la aseguradora reconocería como base para la liquidación, sujeto a la confirmación de las partidas en observación.
 

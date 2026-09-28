@@ -6,7 +6,7 @@ Fuente normativa: bases Panamá §§2-3; filtro adjunto p.1. Inicial y final pid
 
 - [x] README, equipo y licencia GPL existente preservada.
 - [x] Contratos, fixtures sintéticos, motor, UI guiada, pruebas y configuración de CI.
-- [x] Gemini detrás de interfaz, configuración Oracle/Fly.io y plan de tareas.
+- [x] Gemini detrás de interfaz, CI/CD a Fly.io configurado y plan de tareas.
 - [x] Registro y generador PDF de herramientas de preparación.
 - [x] Gemini probado con clave/modelo de la cuenta; métricas reales registradas (`gemini-2.5-flash-lite`, 1.6s latencia).
 - [x] Build y ejecución local Docker Linux ARM64, usuario no root, A-D correctos.
@@ -29,7 +29,7 @@ git diff --check
 git switch -c codex/mvp-foundation
 git add README.md AGENTS.md app contracts data docs scripts static templates tests deploy
 git add .env.example .gitignore .dockerignore .python-version .github
-git add pyproject.toml uv.lock requirements.txt Dockerfile compose.yaml compose.oracle.yaml Makefile opencode.json
+git add pyproject.toml uv.lock requirements.txt Dockerfile compose.yaml Makefile opencode.json
 git diff --cached --stat
 git commit -m "Prepare Sentria claims audit foundation and implementation plan"
 git push -u origin codex/mvp-foundation

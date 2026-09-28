@@ -31,7 +31,7 @@ El plan acierta en herramientas determinísticas, evidencia y revisión humana. 
 | Checks opcionales para el agente | Secuencia obligatoria en servicio | Plan acotado sin saltar invariantes |
 | Calidad IA no medida | Golden cases y pruebas negativas | Corpus reservado y evaluación real |
 | Privacidad/operación ausentes | Demo sintética y entradas limitadas | Auth, retención y cuotas antes de uploads públicos |
-| Infraestructura genérica | Gemini + Docker ARM64/Caddy en Oracle | Verificar cuenta y VPS |
+| Infraestructura genérica | Gemini + contenedor en Fly.io con TLS automático y CI/CD | Desplegado en producción |
 
 ## Alcance y aceptación
 
@@ -47,7 +47,7 @@ El [aviso publicado](https://hackiathon.dev/aviso-de-la-politica-de-tratamiento-
 
 - Extensión del cierre inicial y aceptación a 27/09: sin confirmar.
 - Representante, edades, residencia y experiencia: no verificados.
-- Dominio, SSH, SO y capacidad del VPS: no proporcionados.
+- Dominio, SSH, SO y capacidad del VPS: reemplazado por Fly.io (resuelto).
 - Modelo Gemini, modalidad de facturación y límites: consultar en la cuenta.
 - Criterios ponderados: las bases no detallan pesos; no inventar puntuaciones.
 - Sede: §4 menciona ADEN/Torre de las Américas; §6 señala dirección por confirmar.

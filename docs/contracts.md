@@ -41,8 +41,12 @@ Exceso por línea: `max(0, precio − tarifa) × cantidad`, redondeado. Duplicad
 curl -X POST http://127.0.0.1:8000/api/demo/B/audit
 ```
 
-## API prevista, todavía no disponible
+## API Documental y de Ingesta (v1)
 
-POST /api/claims; POST /api/claims/{id}/documents; PATCH /api/claims/{id}/active-documents; POST /api/claims/{id}/extract; PUT /api/claims/{id}/normalized; POST /api/claims/{id}/audits; GET /api/audits/{id}; GET /api/documents/{id}/evidence; DELETE /api/claims/{id}.
+Los endpoints de gestión de expedientes implementados en `app/api/documents.py` (creación de expedientes, carga de documentos, extracción, confirmación de normalización y auditoría en vivo) están documentados automáticamente en la especificación OpenAPI:
 
-IDs UUID internos; auditorías inmutables. Extracción añadirá `ExtractedField(value, evidence_ids, review_reason)` con desconocidos explícitos. Integrador aprueba esquema 1.1 al iniciar T01-T03; mantener compatibilidad v1 y no presentar endpoints previstos como existentes.
+```bash
+curl http://127.0.0.1:8000/openapi.json
+```
+
+O explorar visualmente en [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) (requiere internet para cargar Swagger UI).
