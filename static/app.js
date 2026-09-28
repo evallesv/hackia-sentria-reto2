@@ -21,6 +21,51 @@ const roleNames = {
   TARIFF: 'Tarifario de convenio'
 };
 
+const findingTitles = {
+  RATE_MISMATCH: 'Discrepancia en tarifa convenida',
+  DUPLICATE_ITEM: 'Cobro posiblemente duplicado',
+  CLAIM_INCONSISTENCY: 'Reparación ajena o no respaldada en el siniestro',
+  TARIFF_UNRESOLVED: 'Tarifario inexistente o no convenido',
+  MISSING_INFORMATION: 'Información obligatoria faltante en el expediente',
+  TOTAL_MISMATCH: 'Discrepancia en la sumatoria de totales de factura',
+  LINE_TOTAL_MISMATCH: 'Error de cálculo aritmético en línea de cobro',
+  SEMANTIC_UNCERTAIN: 'Correspondencia de daño incierta',
+  SEMANTIC_UNAVAILABLE: 'Revisión asistida no disponible temporalmente',
+  DOCUMENTS_MISSING: 'Documentos contractuales obligatorios no cargados',
+  DOCUMENTS_AMBIGUOUS: 'Conflicto entre versiones de documentos activos'
+};
+
+const traceStepsInfo = {
+  'integrity_check': {
+    title: 'Comprobación de integridad documental',
+    description: 'Verificación de autenticidad, unicidad de hashes SHA-256 por archivo y disponibilidad de los documentos requeridos del expediente.'
+  },
+  'quote_check': {
+    title: 'Validación del tipo de comprobante',
+    description: 'Cotejo de la modalidad de liquidación (factura final de cobro vs. cotización de taller).'
+  },
+  'tariff_check': {
+    title: 'Auditoría determinista de tarifas y duplicados',
+    description: 'Contraste matemático exacto de precios unitarios contra el tarifario convenido y detección de posibles cobros redundantes.'
+  },
+  'submit_claim_assessments:validated': {
+    title: 'Evaluación de consistencia de daños (Gemini IA)',
+    description: 'Análisis de correspondencia semántica asistida entre la descripción del choque y los componentes reparados o sustituidos.'
+  },
+  'claim_check:simulated': {
+    title: 'Evaluación de consistencia de daños (Modo local)',
+    description: 'Validación de correspondencia entre los códigos de daño del siniestro y las líneas facturadas.'
+  },
+  'claim_check:unavailable': {
+    title: 'Evaluación de correspondencia interrumpida',
+    description: 'El servicio asistido no completó la revisión; el caso queda marcado para intervención humana obligatoria.'
+  },
+  'deterministic_consolidation': {
+    title: 'Consolidación financiera y clasificación final',
+    description: 'Cálculo de diferencias potenciales sin impuestos, proyección del subtotal de referencia y determinación del estado operativo.'
+  }
+};
+
 // 1. Selector rápido de casos superiores (A, B, C, D)
 document.querySelectorAll('[data-case]').forEach(button => {
   button.addEventListener('click', () => {
@@ -64,11 +109,20 @@ function renderAuditResult(auditResult) {
   } else {
     auditResult.findings.forEach(finding => {
       const card = document.createElement('details');
+      card.open = true;
+
       const summary = document.createElement('summary');
-      summary.textContent = `${finding.code}${finding.item_id ? ` · ${finding.item_id}` : ''}`;
+      const friendlyTitle = findingTitles[finding.code] || finding.code;
+      const itemLabel = finding.item_id ? ` · Ítem: ${finding.item_id}` : '';
+      summary.textContent = `${friendlyTitle}${itemLabel}`;
+
+      const badge = document.createElement('span');
+      badge.className = 'finding-code-badge';
+      badge.textContent = `Regla técnica: ${finding.code}`;
+
       const p = document.createElement('p');
       p.textContent = finding.description;
-      card.append(summary, p);
+      card.append(summary, badge, p);
 
       if (finding.calculation) {
         const calc = document.createElement('pre');
@@ -96,9 +150,35 @@ function renderAuditResult(auditResult) {
   const traceContainer = byId('trace');
   traceContainer.replaceChildren();
   if (auditResult.trace) {
-    auditResult.trace.forEach(step => {
+    auditResult.trace.forEach((step, idx) => {
+      const info = traceStepsInfo[step] || {
+        title: step.replace(/_/g, ' '),
+        description: 'Fase de validación completada durante la auditoría.'
+      };
       const li = document.createElement('li');
-      li.textContent = step;
+      li.className = 'trace-step';
+
+      const header = document.createElement('div');
+      header.className = 'trace-step-header';
+
+      const badge = document.createElement('span');
+      badge.className = 'trace-badge';
+      badge.textContent = `Paso 0${idx + 1}`;
+
+      const title = document.createElement('strong');
+      title.textContent = info.title;
+
+      header.append(badge, title);
+
+      const desc = document.createElement('p');
+      desc.className = 'trace-step-desc';
+      desc.textContent = info.description;
+
+      const codeTag = document.createElement('span');
+      codeTag.className = 'trace-code-tag';
+      codeTag.textContent = `Identificador de proceso: ${step}`;
+
+      li.append(header, desc, codeTag);
       traceContainer.append(li);
     });
   }
