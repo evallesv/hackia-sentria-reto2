@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     max_request_bytes: int = Field(default=262144, ge=1024, le=1048576)
     max_upload_bytes: int = Field(default=10 * 1024 * 1024, ge=1024, le=50 * 1024 * 1024)
     upload_dir: str = "storage/uploads"
+    database_url: str = ""
     llm_timeout_seconds: float = Field(default=30, gt=0, le=60)
     llm_max_output_tokens: int = Field(default=3000, ge=512, le=8000)
     llm_max_calls_per_process: int = Field(default=20, ge=0, le=1000)

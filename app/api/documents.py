@@ -1,5 +1,6 @@
-"""Endpoints de intake y gestión documental de expedientes (T01/T02)."""
-
+import hashlib
+import json
+import time
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, Response, UploadFile
@@ -253,7 +254,7 @@ def run_claim_audit(
     request: Request,
     service: ServiceDep,
 ):
-    """Ejecuta la auditoría agéntica determinista + IA sobre el expediente confirmado."""
+    """Ejecuta la auditoría agéntica sobre el expediente con idempotencia (T03)."""
     repo = service.repository
     if not hasattr(repo, "get_snapshot"):
         raise HTTPException(400, "El expediente no cuenta con datos normalizados confirmados")
@@ -272,14 +273,50 @@ def run_claim_audit(
     provider = getattr(request.app.state, "provider", None)
     settings = getattr(request.app.state, "settings", None)
     ai_mode = settings.ai_mode if settings else "mock"
+    model_name = getattr(settings, "gemini_model", "mock") or "mock"
+    rule_version = "1.0"
+    prompt_version = "1.0"
 
+    # Idempotencia por claim + snapshot_hash + rule_version + prompt_version + model
+    canonical_snapshot = json.dumps(data, sort_keys=True, ensure_ascii=False)
+    snapshot_hash = hashlib.sha256(canonical_snapshot.encode("utf-8")).hexdigest()
+    idempotency_raw = f"{claim_id}:{snapshot_hash}:{rule_version}:{prompt_version}:{model_name}"
+    idempotency_key = hashlib.sha256(idempotency_raw.encode("utf-8")).hexdigest()
+
+    if hasattr(repo, "get_audit_run"):
+        cached = repo.get_audit_run(idempotency_key)
+        if cached:
+            return AuditResult.model_validate(cached)
+
+    start_t = time.perf_counter()
     result = run_audit(audit_input, provider, ai_mode)
+    latency_ms = int((time.perf_counter() - start_t) * 1000)
 
     if hasattr(repo, "save_audit_run"):
         repo.save_audit_run(
-            run_id=f"run_{claim_id}",
+            idempotency_key=idempotency_key,
             claim_id=claim_id,
-            result_json=result.model_dump_json(),
+            snapshot_hash=snapshot_hash,
+            rule_version=rule_version,
+            prompt_version=prompt_version,
+            model_name=model_name,
+            input_data=audit_input.model_dump(mode="json"),
+            output_data=result.model_dump(mode="json"),
+            latency_ms=latency_ms,
+            mode=ai_mode,
         )
 
     return result
+
+
+@router.post("/admin/purge")
+def purge_claims_retention(
+    service: ServiceDep,
+    older_than_seconds: int = 86400,
+    dry_run: bool = True,
+):
+    """Purga reclamos antiguos según política de retención con soporte para dry-run (T03)."""
+    repo = service.repository
+    if not hasattr(repo, "purge_claims"):
+        raise HTTPException(400, "El repositorio no soporta purga por política")
+    return repo.purge_claims(older_than_seconds=older_than_seconds, dry_run=dry_run)

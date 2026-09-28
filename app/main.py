@@ -9,7 +9,8 @@ from fastapi.templating import Jinja2Templates
 from app.agent.provider import GeminiProvider, MockProvider
 from app.api.documents import router as documents_router
 from app.config import Settings
-from app.db.sqlite import SqliteClaimRepository
+from app.db.repository import SqlAlchemyClaimRepository
+from app.db.session import get_engine, run_migrations
 from app.models import AuditInput, AuditResult
 from app.services.audit_service import run_audit
 from app.services.intake import IntakeService
@@ -82,8 +83,27 @@ def create_app(settings: Settings | None = None):
     cache, cache_lock = {}, Lock()
 
     upload_storage = ROOT / s.upload_dir
-    db_path = upload_storage.parent / "sentria.db"
-    claim_repo = SqliteClaimRepository(db_path=db_path, storage_dir=upload_storage)
+    upload_storage.mkdir(parents=True, exist_ok=True)
+    if s.database_url:
+        db_url = s.database_url
+    else:
+        db_path = upload_storage.parent / "sentria.db"
+        db_url = f"sqlite:///{db_path}"
+
+    try:
+        engine = get_engine(db_url)
+        run_migrations(engine)
+    except Exception:
+        import tempfile
+
+        temp_dir = Path(tempfile.gettempdir()) / "sentria"
+        upload_storage = temp_dir / "uploads"
+        upload_storage.mkdir(parents=True, exist_ok=True)
+        db_url = f"sqlite:///{temp_dir / 'sentria.db'}"
+        engine = get_engine(db_url)
+        run_migrations(engine)
+
+    claim_repo = SqlAlchemyClaimRepository(engine=engine, storage_dir=upload_storage)
     intake_service = IntakeService(
         repository=claim_repo,
         storage_dir=upload_storage,
