@@ -20,7 +20,7 @@ Nuestra solución contrasta facturas y cotizaciones de talleres contra el report
 
 2. **Repositorio de Código:**
    * **GitHub:** [https://github.com/evallesv/hackia-sentria-reto2](https://github.com/evallesv/hackia-sentria-reto2)
-   * Incluye código fuente completo, contratos Pydantic y JSON Schemas, suite de 38 pruebas automatizadas, fixtures sintéticos y pipelines de CI/CD (GitHub Actions).
+   * Incluye código fuente completo, contratos Pydantic y JSON Schemas, suite de 61 pruebas automatizadas, fixtures sintéticos y pipelines de CI/CD (GitHub Actions).
 
 3. **Registro de Herramientas de IA (PDF Adjunto):**
    * Documento: `docs/delivery/herramientas-ia-preparacion.pdf` (generado conforme a las bases del hackIAthon con el desglose de Google Antigravity y Gemini API).

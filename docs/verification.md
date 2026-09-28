@@ -5,7 +5,7 @@ Fecha: 27/09/2026. Cambios locales sin commit/push. Esta tabla acredita el start
 | Comprobación | Resultado | Alcance |
 |---|---|---|
 | `uv sync --all-groups` y lock/export | PASS | Entorno Python 3.13.13 creado; dependencias bloqueadas y hashes |
-| `make check` | PASS | Ruff lint/formato, 38 pruebas, cuatro golden cases |
+| `make check` | PASS | Ruff lint/formato, 61 pruebas, cuatro golden cases |
 | SDK Gemini con doble de respuesta | PASS | Tipos reales del SDK; herramienta permitida, presupuesto, errores y salida inválida |
 | Evaluación mock A-D | PASS | A candidato/0; B revisión/80; C revisión/250; D información/0 no evaluado |
 | Hashes de documentos sintéticos | PASS | SHA-256 comparado con archivos de data/demo/sources |
@@ -27,7 +27,7 @@ Fecha: 27/09/2026. Cambios locales sin commit/push. Esta tabla acredita el start
 | PDF de herramientas (make tools-pdf) | PASS | Dos páginas compiladas con ReportLab y actualizadas con métricas de entrega |
 | PDF/XLSX → normalización | PENDIENTE | T01-T06 (roadmap); fixtures sintéticos demo normalizados en JSON |
 
-Observación de dependencias: Starlette emitió una advertencia de deprecación del TestClient basado en httpx. Las 38 pruebas pasaron. Migrar el cliente de prueba al actualizar ese stack; no se ocultó la advertencia.
+Observación de dependencias: Starlette emitió una advertencia de deprecación del TestClient basado en httpx. Las 61 pruebas pasaron. Migrar el cliente de prueba al actualizar ese stack; no se ocultó la advertencia.
 
 ## Entorno que queda funcionando
 

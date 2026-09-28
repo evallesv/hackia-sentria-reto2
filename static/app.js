@@ -64,3 +64,66 @@ byId('download').addEventListener('click', () => {
   const url = URL.createObjectURL(new Blob([JSON.stringify(result, null, 2)], {type: 'application/json'}));
   const a = document.createElement('a'); a.href = url; a.download = `${result.claim_id}-audit.json`; a.click(); URL.revokeObjectURL(url);
 });
+
+const uploadForm = byId('doc-upload-form');
+if (uploadForm) {
+  uploadForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fileInput = byId('doc-file');
+    const roleSelect = byId('doc-role');
+    const feedback = byId('upload-feedback');
+    if (!fileInput.files.length) return;
+    const file = fileInput.files[0];
+    const kind = roleSelect.value;
+    const submitBtn = uploadForm.querySelector('button[type=submit]');
+
+    feedback.textContent = 'Subiendo documento y extrayendo evidencia…';
+    feedback.style.color = '#14684f';
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      const claimId = 'DEMO-CUSTOM';
+      await fetch('/api/claims', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({claim_id: claimId})
+      }).catch(() => {});
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('kind', kind);
+
+      const uploadRes = await fetch(`/api/claims/${claimId}/documents`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json().catch(() => ({}));
+        throw new Error(err.detail || 'Error al subir el archivo');
+      }
+      const doc = await uploadRes.json();
+
+      feedback.textContent = `Archivo "${doc.filename}" almacenado. Extrayendo texto y metadatos…`;
+
+      const extractRes = await fetch(`/api/claims/${claimId}/extract`, {
+        method: 'POST',
+      });
+      if (!extractRes.ok) {
+        const err = await extractRes.json().catch(() => ({}));
+        throw new Error(err.detail || 'Error al extraer información');
+      }
+      const snapshot = await extractRes.json();
+      const itemsCount = snapshot.candidate_items ? snapshot.candidate_items.length : 0;
+      const evCount = snapshot.candidate_evidence ? snapshot.candidate_evidence.length : 0;
+      feedback.textContent = `✓ Documento procesado: ${itemsCount} ítems detectados, ${evCount} fragmentos de evidencia extraídos.`;
+      feedback.style.color = '#12664f';
+    } catch (err) {
+      feedback.textContent = `⚠ ${err.message}`;
+      feedback.style.color = '#b26418';
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+}
+

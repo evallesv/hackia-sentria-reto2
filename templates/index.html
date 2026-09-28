@@ -1,42 +1,128 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Auditor de siniestros · Equipo Sentria</title>
-  <link rel="stylesheet" href="/static/style.css"><script defer src="/static/app.js"></script>
+  <link rel="stylesheet" href="/static/style.css">
+  <script defer src="/static/app.js"></script>
 </head>
 <body>
-<header><a class="brand" href="/">Equipo Sentria<span> / </span></a><span>hackIAthon Panamá · Reto 02</span></header>
+<header>
+  <a class="brand" href="/">Equipo Sentria<span> / </span></a>
+  <span>hackIAthon Panamá · Reto 02: Auditoría de Siniestros</span>
+</header>
 <main>
   <section class="hero">
-    <p class="eyebrow">ASISTENTE DE AUDITORÍA</p>
+    <p class="eyebrow">RETO 2 · HACKIATHON PANAMÁ</p>
     <h1>Cada cobro,<br>con su evidencia.</h1>
-    <p>Compara facturas del taller con el siniestro y el tarifario. Revisa diferencias explicables antes de tomar una decisión.</p>
-    <div class="notice">{% if mode == 'mock' %}<strong>Modo simulación.</strong> Sin llamadas a IA. La consistencia usa códigos sintéticos.{% else %}<strong>Modo Gemini.</strong> La revisión semántica se solicita al proveedor configurado; los errores se indican en el resultado.{% endif %} Los casos contienen únicamente datos ficticios.</div>
-  </section>
-  <section aria-labelledby="guide-title" class="guide">
-    <h2 id="guide-title">Prueba guiada</h2>
-    <ol><li><b>Elige un expediente.</b> Empieza por B para ver la diferencia de tarifa.</li><li><b>Ejecuta la auditoría.</b> Se comprueban documentos, cobros y consistencia.</li><li><b>Abre los hallazgos.</b> Consulta el cálculo y las fuentes. La decisión final corresponde a una persona.</li></ol>
-  </section>
-  <section aria-labelledby="case-title">
-    <div class="section-heading"><h2 id="case-title">Expedientes de prueba</h2><span>01 / Selección</span></div>
-    <div class="cases">
-      {% for id, label in cases.items() %}<button class="case" data-case="{{ id }}" aria-pressed="{{ 'true' if id == 'B' else 'false' }}"><span>{{ id }}</span><b>{{ label }}</b><small>Expediente DEMO-{{ id }}</small></button>{% endfor %}
+    <p>Auditor agéntico que contrasta facturas del taller contra el siniestro reportado, el informe pericial y el tarifario pactado. Detecta sobrecostos de tarifa, reparaciones no respaldadas y cobros duplicados antes de la revisión humana.</p>
+    <div class="notice">
+      {% if mode == 'mock' %}
+      <strong>Modo simulación local.</strong> Aritmética financiera determinista sin consumo de tokens externos.
+      {% else %}
+      <strong>Modo Google Gemini activo en producción.</strong> Evaluación de coherencia semántica de daños en tiempo real con <code>gemini-2.5-flash-lite</code>.
+      {% endif %}
+      <span class="subnotice">Datos de prueba 100% sintéticos en estricto cumplimiento de la política de tratamiento de datos personales de las bases del hackIAthon.</span>
     </div>
-    <div class="actions"><button id="run" class="primary">Auditar expediente B →</button><a id="input-link" href="/api/demo/B" target="_blank" rel="noopener">Consultar datos de entrada ↗</a></div>
-    <p class="caption">Esta base recibe expedientes JSON normalizados. La carga y extracción de PDF/XLSX está pendiente en el plan de implementación.</p>
   </section>
+
+  <section aria-labelledby="guide-title" class="guide">
+    <h2 id="guide-title">Prueba guiada · Cómo funciona la auditoría</h2>
+    <ol>
+      <li><b>1. Selección del caso</b> Elige un expediente con diferentes escenarios habituales de facturación de talleres.</li>
+      <li><b>2. Análisis agéntico</b> Comprueba precios contra el tarifario y consistencia con los daños del siniestro.</li>
+      <li><b>3. Decisión asistida</b> Revisa las diferencias en dólares con citas exactas de evidencia para tomar una decisión.</li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="case-title">
+    <div class="section-heading">
+      <h2 id="case-title">Expedientes de prueba</h2>
+      <span>01 / Selección</span>
+    </div>
+    <div class="cases">
+      {% for id, label in cases.items() %}
+      <button class="case" data-case="{{ id }}" aria-pressed="{{ 'true' if id == 'B' else 'false' }}">
+        <span>{{ id }}</span>
+        <b>{{ label }}</b>
+        <small>Expediente DEMO-{{ id }}</small>
+      </button>
+      {% endfor %}
+    </div>
+
+    <div class="actions">
+      <button id="run" class="primary">Auditar expediente B →</button>
+      <a id="input-link" href="/api/demo/B" target="_blank" rel="noopener">Consultar datos de entrada ↗</a>
+    </div>
+
+    <div class="pipeline-badge">
+      <span>⚡ Cruce documental activo: Declaración de siniestro (PDF), Inspección pericial (PDF), Factura (PDF) y Tarifario contractual (XLSX).</span>
+    </div>
+
+    <details class="doc-drawer">
+      <summary><b>Inspección documental interactiva</b> · Subir archivo (PDF / XLSX) para verificar extracción</summary>
+      <div class="drawer-content">
+        <p class="caption">El sistema procesa texto nativo por página (PDF con <code>pypdf</code>) y tarifarios estructurados en modo solo lectura (Excel con <code>openpyxl</code>), persistidos en SQLite WAL en volumen privado.</p>
+        <div class="doc-upload-box">
+          <form id="doc-upload-form">
+            <label for="doc-role">Tipo de documento:</label>
+            <select id="doc-role">
+              <option value="BILLING_DOCUMENT">Factura de cobro (PDF)</option>
+              <option value="INCIDENT_REPORT">Declaración de siniestro (PDF)</option>
+              <option value="WORKSHOP_REPORT">Informe de inspección (PDF)</option>
+              <option value="TARIFF">Tarifario de convenio (XLSX / PDF)</option>
+            </select>
+            <input type="file" id="doc-file" accept=".pdf,.xlsx" required>
+            <button type="submit" class="secondary" style="margin-top:0">Subir y extraer evidencia</button>
+          </form>
+          <div id="upload-feedback" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </details>
+  </section>
+
   <p id="progress" role="status" aria-live="polite"></p>
+
   <section id="result" hidden aria-labelledby="result-title">
-    <div class="section-heading"><h2 id="result-title">Resultado de auditoría</h2><span>02 / Revisión</span></div>
+    <div class="section-heading">
+      <h2 id="result-title">Resultado de auditoría</h2>
+      <span>02 / Revisión</span>
+    </div>
     <div id="status" class="status"></div>
-    <div class="metrics"><div><small>Importe facturado</small><strong id="billed"></strong></div><div><small>Diferencia potencial · sin impuestos</small><strong id="difference"></strong></div><div><small>Subtotal de referencia</small><strong id="reference"></strong></div></div>
-    <p class="caption">La diferencia agrupa posibles ajustes sin duplicar impactos por línea. El subtotal de referencia no es una autorización de pago; las reparaciones sin respaldo requieren revisión y no se restan automáticamente.</p>
+    <div class="metrics">
+      <div>
+        <small>Importe facturado</small>
+        <strong id="billed"></strong>
+      </div>
+      <div>
+        <small>Diferencia potencial · sin impuestos</small>
+        <strong id="difference"></strong>
+      </div>
+      <div>
+        <small>Subtotal de referencia</small>
+        <strong id="reference"></strong>
+      </div>
+    </div>
+    <p class="caption">La diferencia agrupa posibles ajustes sin duplicar impactos por línea. El subtotal de referencia no es una autorización de pago automático; las reparaciones sin respaldo requieren confirmación de la aseguradora.</p>
     <div id="findings"></div>
-    <details><summary>Ver recorrido de la auditoría</summary><ol id="trace"></ol><p id="versions" class="caption"></p></details>
+    <details>
+      <summary>Ver recorrido técnico de la auditoría</summary>
+      <ol id="trace"></ol>
+      <p id="versions" class="caption"></p>
+    </details>
     <button id="download" class="secondary">Descargar reporte JSON</button>
   </section>
 </main>
-<footer>Sentria · Eduardo Valle / Jose Muñoz / Santiago López <a href="/docs">API de desarrollo ↗</a></footer>
+<footer>
+  <div>Equipo Sentria · Eduardo Valle (Representante) / Jose Muñoz / Santiago López</div>
+  <div class="footer-links">
+    <a href="https://github.com/evallesv/hackia-sentria-reto2" target="_blank" rel="noopener">Repositorio GitHub ↗</a>
+    <span>·</span>
+    <a href="/docs" target="_blank" rel="noopener">Documentación OpenAPI / Swagger ↗</a>
+    <span>·</span>
+    <a href="https://hackiathon.dev/aviso-de-la-politica-de-tratamiento-de-datos-personales/" target="_blank" rel="noopener">Tratamiento de Datos Personales ↗</a>
+  </div>
+</footer>
 </body>
 </html>

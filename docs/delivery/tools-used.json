@@ -23,7 +23,7 @@
       "model": "Gemini 3.8 Flash (High)",
       "purpose": "Asistencia en el diseño de arquitectura modular, desarrollo del motor determinista de reglas, suites de pruebas automatizadas, integración del SDK de Google GenAI y automatización de despliegue continuo.",
       "application": "Estructuración de contratos Pydantic, refactorización de esquemas para compatibilidad con Gemini 2.5, suites de testing unitario y de integración, y configuración de CI/CD para Fly.io.",
-      "results": "Monolito modular FastAPI, motor financiero con Decimal HALF_UP, 38 pruebas unitarias pasando al 100%, 4 casos canónicos A-D verificados, y workflows de GitHub Actions para calidad y despliegue.",
+      "results": "Monolito modular FastAPI, motor financiero con Decimal HALF_UP, 61 pruebas automatizadas pasando al 100%, 4 casos canónicos A-D verificados, y workflows de GitHub Actions para calidad y despliegue.",
       "evidence": "README.md, app/, tests/, .github/workflows/, fly.toml, docs/architecture.md",
       "limits": "El código y cada decisión técnica fueron supervisados y validados por el equipo humano antes de su publicación y despliegue."
     },
