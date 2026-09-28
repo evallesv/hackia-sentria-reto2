@@ -66,25 +66,39 @@ const traceStepsInfo = {
   }
 };
 
-// 1. Selector rápido de casos superiores (A, B, C, D)
+// 1. Selector de casos preparados (A, B, C, D)
 document.querySelectorAll('[data-case]').forEach(button => {
   button.addEventListener('click', () => {
     selectedCase = button.dataset.case;
     document.querySelectorAll('[data-case]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
-    byId('run').textContent = `Auditar expediente ${selectedCase} inmediatamente →`;
-    byId('load-to-wb').textContent = `Inspeccionar documentos del caso ${selectedCase} ↓`;
+    activeClaimId = `CLM-2026-DEMO-${selectedCase}`;
+    const claimInput = byId('claim-id-input');
+    if (claimInput) claimInput.value = activeClaimId;
+    loadPresetIntoWorkbench(selectedCase);
+    byId('run').textContent = `⚡ Auditar expediente ${selectedCase} inmediatamente →`;
     byId('input-link').href = `/api/demo/${selectedCase}`;
     byId('result').hidden = true;
     byId('progress').textContent = '';
   });
 });
 
-// Cargar caso rápido directamente en el gestor documental interactivo
-const loadToWbBtn = byId('load-to-wb');
-if (loadToWbBtn) {
-  loadToWbBtn.addEventListener('click', () => {
-    loadPresetIntoWorkbench(selectedCase);
-    byId('workbench').scrollIntoView({behavior: 'smooth'});
+// Botón para alternar formulario de subida
+const toggleUploadBtn = byId('toggle-upload-btn');
+const wbUploadPanel = byId('wb-upload-panel');
+if (toggleUploadBtn && wbUploadPanel) {
+  toggleUploadBtn.addEventListener('click', () => {
+    wbUploadPanel.hidden = !wbUploadPanel.hidden;
+    toggleUploadBtn.textContent = wbUploadPanel.hidden ? '+ Subir o reemplazar documento' : '✕ Ocultar formulario';
+  });
+}
+
+// Botón para alternar visualizador de datos extraídos
+const toggleDataBtn = byId('toggle-data-btn');
+const wbViewer = byId('wb-extraction-viewer');
+if (toggleDataBtn && wbViewer) {
+  toggleDataBtn.addEventListener('click', () => {
+    wbViewer.hidden = !wbViewer.hidden;
+    toggleDataBtn.textContent = wbViewer.hidden ? 'Inspeccionar ítems y tarifas extraídos ↓' : 'Ocultar datos extraídos ↑';
   });
 }
 
@@ -412,14 +426,7 @@ function renderSnapshot(snapshot) {
       li.textContent = code;
       inspList.append(li);
     });
-  } else {
-    const li = document.createElement('li');
-    li.textContent = 'Ninguno peritado';
-    inspList.append(li);
   }
-
-  byId('wb-extraction-viewer').hidden = false;
-  byId('wb-extraction-viewer').scrollIntoView({behavior: 'smooth'});
 }
 
 // Cargar preset sintético en el banco de trabajo
@@ -641,7 +648,8 @@ if (wbConfirmAuditBtn) {
   });
 }
 
-// Inicializar vista al cargar la página precargando el caso de referencia B
+// Inicializar vista al cargar la página precargando el caso de referencia B sin alterar scroll
 window.addEventListener('DOMContentLoaded', () => {
   loadPresetIntoWorkbench('B');
+  window.scrollTo(0, 0);
 });
