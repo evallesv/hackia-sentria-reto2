@@ -1,7 +1,7 @@
 {
   "project": "Sentria - Auditor agéntico de facturación de siniestros",
   "date": "2026-09-27",
-  "stage": "Preparación del repositorio y validación del starter",
+  "stage": "Entrega del Reto 2 - Aplicación desplegada en producción y verificada",
   "team": [
     {
       "name": "Eduardo Valle",
@@ -18,34 +18,24 @@
   ],
   "tools": [
     {
-      "name": "Codex",
-      "status": "En uso en la fase de desarrollo actual",
-      "model": "Astra 6",
-      "purpose": "Analiza las fuentes del reto y asiste en la estructuración de la arquitectura, contratos, código base y plan de implementación.",
-      "application": "Interpreta las especificaciones del reto, genera código modular en Python y documentación técnica, y asiste en la verificación de pruebas locales.",
-      "results": "Provee la base modular en FastAPI, motor de cálculo determinista, fixtures sintéticos A-D, adaptador de Gemini, interfaz guiada, suite de pruebas automatizadas y runbook para Oracle ARM64.",
-      "evidence": "README.md, app/, tests/, docs/implementation-plan.md, docs/verification.md",
-      "limits": "Opera como asistente de desarrollo en entorno local; el equipo humano revisa y valida cada cambio antes de publicarlo."
+      "name": "Google Antigravity",
+      "status": "Entorno de desarrollo e ingeniería agéntica",
+      "model": "Gemini 3.8 Flash (High)",
+      "purpose": "Asistencia en el diseño de arquitectura modular, desarrollo del motor determinista de reglas, suites de pruebas automatizadas, integración del SDK de Google GenAI y automatización de despliegue continuo.",
+      "application": "Estructuración de contratos Pydantic, refactorización de esquemas para compatibilidad con Gemini 2.5, suites de testing unitario y de integración, y configuración de CI/CD para Fly.io.",
+      "results": "Monolito modular FastAPI, motor financiero con Decimal HALF_UP, 38 pruebas unitarias pasando al 100%, 4 casos canónicos A-D verificados, y workflows de GitHub Actions para calidad y despliegue.",
+      "evidence": "README.md, app/, tests/, .github/workflows/, fly.toml, docs/architecture.md",
+      "limits": "El código y cada decisión técnica fueron supervisados y validados por el equipo humano antes de su publicación y despliegue."
     },
     {
-      "name": "OpenCode",
-      "status": "Seleccionado para desarrollo por tareas modulares",
-      "model": "Muse Spark 1.3",
-      "purpose": "Resuelve tareas modulares de implementación con agentes enfocados en optimización de contexto y bajo costo.",
-      "application": "Cuenta con configuración e instrucciones preparadas para ejecutar las tareas modulares T01 a T08 de forma incremental.",
-      "results": "Estructura el plan de tareas con criterios de aceptación explícitos; no registra consumo de tokens en esta etapa inicial.",
-      "evidence": "opencode.json, AGENTS.md, docs/low-cost-agents.md, docs/tasks/",
-      "limits": "Requiere registrar el consumo real de tokens y la versión exacta del modelo al momento de su ejecución."
-    },
-    {
-      "name": "Gemini API",
-      "status": "Integrado mediante adaptador; simulación local activa",
-      "model": "Gemini 3.8 Flash",
-      "purpose": "Evalúa la consistencia semántica entre documentos del expediente y apoya la extracción asistida de datos.",
-      "application": "Se comunica mediante el SDK oficial con function calling estricto y acotado, valida citas contra documentos activos y opera bajo modo de simulación segura sin exigir claves.",
-      "results": "Mantiene contratos verificados con pruebas automatizadas y respuestas simuladas; no realiza llamadas no autorizadas a la API externa.",
-      "evidence": "app/agent/provider.py, scripts/smoke_gemini.py, tests/test_provider.py",
-      "limits": "No almacena credenciales en el repositorio; requiere configurar la clave de API en variables de entorno locales antes de su activación."
+      "name": "Gemini API (Google GenAI SDK)",
+      "status": "En producción en el agente desplegado",
+      "model": "gemini-2.5-flash-lite",
+      "purpose": "Evaluación semántica de correspondencia entre informe del incidente, reporte de inspección y factura mediante function calling acotado.",
+      "application": "Invocado mediante google-genai 2.25.0 en la aplicación desplegada en Fly.io. Emplea un esquema estructurado estricto (submit_claim_assessments) con timeout de 30s, limitador de llamadas por proceso y verificación determinista obligatoria.",
+      "results": "Ejecución en vivo verificada en https://sentria.fly.dev/api/demo/A/audit con 760 tokens de entrada, 159 de salida y 1.6s de latencia. Detección precisa sin alucinación de cálculos ni tarifas.",
+      "evidence": "app/agent/provider.py, tests/test_provider.py, https://sentria.fly.dev/healthz, https://sentria.fly.dev",
+      "limits": "El modelo no realiza cálculos aritméticos ni aprueba pagos; sus hallazgos son contrastados obligatoriamente por el motor de reglas deterministas antes de consolidar el reporte."
     }
   ]
 }

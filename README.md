@@ -1,8 +1,11 @@
 # Sentria · Auditor agéntico de siniestros
 
+> **🚀 Aplicación en producción:** [https://sentria.fly.dev](https://sentria.fly.dev)  
+> **Healthcheck:** [https://sentria.fly.dev/healthz](https://sentria.fly.dev/healthz) · **CI/CD:** GitHub Actions automático hacia Fly.io (Ashburn, VA)
+
 Base de implementación del **reto 2 de hackIAthon Panamá**: contrastar facturas y cotizaciones de un taller con siniestro, inspección y tarifario, con cálculos reproducibles y evidencia para un auditor humano.
 
-**Estado: entorno de desarrollo funcional, no MVP documental terminado.** Incluye demo guiada, motor financiero, casos sintéticos, pruebas, contratos y adaptador Gemini. La demo predeterminada simula la revisión semántica; carga/extracción de PDF y Excel, persistencia y validación con Gemini real siguen en el [plan](docs/implementation-plan.md).
+**Estado:** Aplicación web funcional desplegada en producción conectada a Google Gemini (`gemini-2.5-flash-lite`). Incluye demo guiada interactiva, motor financiero determinista, casos sintéticos A-D, suite de 38 pruebas y contratos Pydantic con JSON Schemas.
 
 ## Empezar hoy
 
@@ -14,7 +17,7 @@ cp .env.example .env
 uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Abre [la plataforma local](http://127.0.0.1:8000). Selecciona **B**, pulsa **Auditar** y abre `RATE_MISMATCH`: `(55 − 45) × 8 = 80 USD`. La interfaz explica cada paso, muestra fuentes y descarga el reporte JSON. [Guía completa](docs/user-guide.md).
+Abre [la plataforma local](http://127.0.0.1:8000) o la versión en producción [sentria.fly.dev](https://sentria.fly.dev). Selecciona **B**, pulsa **Auditar** y abre `RATE_MISMATCH`: `(55 − 45) × 8 = 80 USD`. La interfaz explica cada paso, muestra fuentes y descarga el reporte JSON. [Guía completa](docs/user-guide.md).
 
 ```bash
 make check                           # formato, lint, pruebas y golden cases
@@ -25,21 +28,15 @@ make tools-pdf                       # genera el PDF de registro de herramientas
 docker compose up --build            # alternativa local con Docker
 ```
 
-No se necesita base de datos ni clave para la simulación. Los datos de `data/demo/` son ficticios; los `.txt` son evidencia de fixtures, **no PDFs extraídos**.
+No se necesita base de datos ni clave para la simulación local. Los datos de `data/demo/` son ficticios; los `.txt` son evidencia de fixtures sintéticos, **no PDFs extraídos**.
 
-## Gemini y Oracle ARM64
+## Despliegue en la Nube y Gemini 2.5
 
-Guarda `GEMINI_API_KEY` en `.env`, consulta modelos y elige uno disponible con function calling:
-
-```bash
-uv run python -m scripts.list_gemini_models
-# Editar .env: GEMINI_MODEL=<identificador devuelto>, AI_MODE=gemini
-uv run python -m scripts.smoke_gemini  # hasta 3 llamadas según tarifa de tu cuenta
-```
-
-Reinicia el servidor después de cambiar variables. Si la IA falla, el resultado solicita información; nunca se sustituye silenciosamente por simulación. El adaptador hace una llamada acotada y el servidor ejecuta los checks obligatorios.
-
-Para el VPS: [guía Oracle ARM64, DNS, TLS y rollback](docs/deployment-oracle.md) y `compose.oracle.yaml`. No se ha desplegado ni se han usado claves. OpenCode Go se usará para desarrollar por tareas; Gemini atenderá la aplicación. [Guía de agentes económicos](docs/low-cost-agents.md).
+La aplicación se encuentra desplegada y operativa en **Fly.io** (región Ashburn, VA) en contenedor Linux ARM64 con HTTPS automático y CI/CD continuo desde GitHub Actions:
+* **Modelo en producción:** `gemini-2.5-flash-lite` mediante `google-genai` 2.25.0.
+* **Function Calling Estricto:** Esquema estructurado (`submit_claim_assessments`) con timeout de 30s y límite de llamadas por proceso.
+* **Salvaguardas:** Si la IA falla o la tarifa es ambigua, el resultado solicita revisión humana (`INFORMATION_REQUIRED`). El LLM no calcula dinero ni determina el estado de aprobación final.
+* Para pruebas locales con Gemini: guardar `GEMINI_API_KEY` en `.env`, configurar `GEMINI_MODEL=gemini-2.5-flash-lite` y `AI_MODE=gemini`. Ejecutar `uv run python -m scripts.smoke_gemini`.
 
 ## Resultados de referencia
 

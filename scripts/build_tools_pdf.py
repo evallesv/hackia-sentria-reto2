@@ -88,11 +88,12 @@ def main():
     p(
         "Cálculos con precisión Decimal; evidencia trazable y referenciada; revisión y "
         "decisión bajo criterio humano; datos de prueba sintéticos; credenciales fuera de Git. "
-        "La arquitectura monolítica en Oracle ARM64 está preparada para despliegue reproducible."
+        "La aplicación está empaquetada en contenedor Linux ARM64 y desplegada en producción "
+        "en Fly.io con HTTPS y CI/CD automatizado."
     )
     p(
-        "Al completar la entrega: registrar commit de release, modelos definitivos, consumo "
-        "medido y enlace público verificado; actualizar tools-used.json y regenerar este PDF."
+        "Entrega completada: commits en GitHub, modelo gemini-2.5-flash-lite validado en vivo, "
+        "y enlace público operativo: https://sentria.fly.dev"
     )
 
     def footer(canvas, doc):

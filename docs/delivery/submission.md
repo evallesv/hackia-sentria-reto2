@@ -1,25 +1,45 @@
-# Borrador de entrega · no enviado
+# Entrega Final · Reto 2: Sentria
 
-Destinatario indicado en fuentes: hackiathon@viamatica.com.
-Asunto propuesto: Reto inicial 2 - Sentria - Eduardo Valle, Jose Muñoz y Santiago López.
-
-Antes de enviar: confirmar aceptación fuera del cierre del 23/09/2026 o nueva fecha documentada. No afirmar que existe prórroga sin evidencia.
+**Destinatario:** `hackiathon@viamatica.com`  
+**Asunto:** Reto 2 - Sentria - Eduardo Valle, Jose Muñoz y Santiago López
 
 ---
 
-Presentamos Sentria, nuestro asistente de auditoría de facturación de siniestros del reto 2.
-Compara documentación del taller con el siniestro y el tarifario, calcula diferencias mediante reglas determinísticas y presenta evidencia para revisión humana.
+Estimado comité evaluador de hackIAthon Panamá:
 
-- Repositorio: https://github.com/evallesv/hackia-sentria-reto2 (verificar versión pública final).
-- Agente en ejecución: **PENDIENTE: URL HTTPS real**.
-- PDF de herramientas de IA: **PENDIENTE: PDF final actualizado/adjunto**.
-- Guía de prueba: seleccionar un expediente sintético, ejecutar auditoría y abrir los hallazgos; incluir ruta final de la guía.
+Presentamos **Sentria**, nuestro asistente y auditor agéntico de facturación de siniestros automotrices para el **Reto 2**.
 
-Equipo: Eduardo Valle, Jose Muñoz y Santiago López.
-Representante: **PENDIENTE DE DESIGNACIÓN**.
+Sentria contrasta facturas y cotizaciones de talleres contra el reporte del siniestro, el informe de inspección y los tarifarios pactados. Implementa una arquitectura híbrida donde los cálculos financieros y validaciones de tarifas son estrictamente deterministas (aritmética `Decimal` con redondeo `ROUND_HALF_UP`), mientras que los modelos de lenguaje (Gemini 2.5) evalúan la consistencia semántica y correspondencia de daños mediante *function calling* estructurado, impidiendo alucinaciones o modificaciones no auditadas.
 
-Alcance probado, versión y limitaciones: **COMPLETAR CON T07**.
+### Entregables del Reto
 
----
+1. **Agente en Ejecución (URL Pública HTTPS):**
+   * **Plataforma Web:** [https://sentria.fly.dev](https://sentria.fly.dev)
+   * **Healthcheck del Sistema:** [https://sentria.fly.dev/healthz](https://sentria.fly.dev/healthz)
+   * *Alojado en contenedor Linux ARM64 en Ashburn, VA con TLS automático y modo Gemini activo.*
 
-No enviar este borrador con marcadores. El PDF de preparación existente no acredita herramientas todavía no utilizadas ni un MVP ya desplegado.
+2. **Repositorio de Código:**
+   * **GitHub:** [https://github.com/evallesv/hackia-sentria-reto2](https://github.com/evallesv/hackia-sentria-reto2)
+   * Incluye código fuente completo, contratos Pydantic y JSON Schemas, suite de 38 pruebas automatizadas, fixtures sintéticos y pipelines de CI/CD (GitHub Actions).
+
+3. **Registro de Herramientas de IA (PDF Adjunto):**
+   * Documento: `docs/delivery/herramientas-ia-preparacion.pdf` (generado conforme a las bases del hackIAthon con el desglose de Google Antigravity y Gemini API).
+
+4. **Instrucciones para Evaluación Rápida:**
+   * Acceder a [https://sentria.fly.dev](https://sentria.fly.dev).
+   * **Caso A (Sin discrepancias):** Pulsa "Auditar". El sistema valida precios contra tarifario y confirma consistencia semántica (`CANDIDATE_FOR_APPROVAL`, diferencia $0.00).
+   * **Caso B (Discrepancia tarifaria):** Pulsa "Auditar". Detecta sobrecosto en tarifa de pintura: (55 − 45) × 8 = $80.00 USD (`REVIEW_REQUIRED`).
+   * **Caso C (Múltiples anomalías):** Detecta duplicado de alineación, sobrecosto y reparación no respaldada ($250.00 USD de impacto).
+   * **Caso D (Tarifario ausente):** Identifica falta de información contractual requerida (`INFORMATION_REQUIRED`).
+   * En cada caso se puede expandir la traza de auditoría, las citas textuales de la evidencia y descargar el reporte estructurado en JSON.
+
+### Integrantes del Equipo
+
+* **Eduardo Valle** (Representante) | [LinkedIn](https://linkedin.com/in/evallesv)
+* **Jose Muñoz** | [LinkedIn](https://linkedin.com/in/jose-salcedo-442663293)
+* **Santiago López** | [LinkedIn](https://linkedin.com/in/santiago-lopez-software-engineer)
+
+### Alcance Técnico y Salvaguardas
+* **Determinismo Financiero:** El LLM no calcula dinero ni define el estado final de pago; solo clasifica y cita evidencia documental.
+* **Seguridad y Privacidad:** Datos de prueba 100% sintéticos. Secretos y credenciales protegidos fuera del control de versiones.
+* **Trazabilidad:** Toda discrepancia cuenta con ID de documento, ubicación y texto fuente comprobable.

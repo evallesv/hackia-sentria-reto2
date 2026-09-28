@@ -20,14 +20,12 @@ Fecha: 27/09/2026. Cambios locales sin commit/push. Esta tabla acredita el start
 | Navegador integrado | PASS | Casos B y D: 1930/80/1850 con evidencia; incompleto con No evaluado/No disponible |
 | Compose local y Oracle `config --quiet` | PASS | Configuración validada; dominio ficticio solo para validación Oracle |
 | Caddy `validate` | PASS | Configuración de proxy/HTTPS válida, sin emitir certificado público |
-| PDF de herramientas (`make tools-pdf`) | PASS | Dos páginas renderizadas e inspeccionadas con reportlab, sin texto cortado |
-| Sincronización lock/requirements (`make lock`) | PASS | uv.lock y requirements.txt sincronizados con hashes reproducibles |
-| Autoformato y lint (`make format`) | PASS | Corrección automática y formato ruff sin regresiones |
-| Gemini real | NO EJECUTADO | No se proporcionaron claves/modelo; no se midió calidad real |
-| OpenCode Go | NO EJECUTADO | Guía y configuración preparadas; ningún trabajo atribuido a ese proveedor |
-| CI remota y Python 3.12 | NO EJECUTADO | Workflow preparado, sin push; local probado con 3.13 |
-| Oracle, DNS, TLS público | NO EJECUTADO | No se recibió host/dominio/acceso |
-| PDF/XLSX → auditoría | PENDIENTE | T01-T06; fixtures actuales ya están normalizados |
+| Gemini real | PASS | Validado en vivo con gemini-2.5-flash-lite y SDK google-genai 2.25.0 |
+| CI remota en GitHub Actions | PASS | Workflows ci.yml y fly-deploy.yml ejecutados exitosamente en remoto |
+| Despliegue en la nube (Fly.io) | PASS | Producción activa en Ashburn (iad) con HTTPS: https://sentria.fly.dev |
+| Auditoría en vivo en producción | PASS | Caso A en https://sentria.fly.dev/api/demo/A/audit (1.6s, 760 in / 159 out tokens) |
+| PDF de herramientas (make tools-pdf) | PASS | Dos páginas compiladas con ReportLab y actualizadas con métricas de entrega |
+| PDF/XLSX → normalización | PENDIENTE | T01-T06 (roadmap); fixtures sintéticos demo normalizados en JSON |
 
 Observación de dependencias: Starlette emitió una advertencia de deprecación del TestClient basado en httpx. Las 38 pruebas pasaron. Migrar el cliente de prueba al actualizar ese stack; no se ocultó la advertencia.
 
