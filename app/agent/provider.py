@@ -89,10 +89,7 @@ class GeminiProvider:
         s = self.settings
         if not s.gemini_api_key.get_secret_value() or not s.gemini_model:
             raise ProviderError("Proveedor sin configurar")
-        with self.lock:
-            if self.calls >= s.llm_max_calls_per_process:
-                raise ProviderError("Límite de llamadas del proceso alcanzado")
-            self.calls += 1
+        self.reserve_call()
         active = {d.id for d in data.documents if d.active}
         payload = {
             "documents": [{"id": d.id, "kind": d.kind} for d in data.documents if d.active],
@@ -182,3 +179,9 @@ class GeminiProvider:
             raise
         except Exception as exc:
             raise ProviderError("Proveedor no disponible o salida inválida") from exc
+
+    def reserve_call(self):
+        with self.lock:
+            if self.calls >= self.settings.llm_max_calls_per_process:
+                raise ProviderError("Límite de llamadas del proceso alcanzado")
+            self.calls += 1

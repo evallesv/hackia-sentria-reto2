@@ -59,7 +59,7 @@ def extract_pdf_pages(file_path: Path, max_pages: int = MAX_PDF_PAGES) -> list[t
 def extract_xlsx_tariffs(file_path: Path, max_rows: int = MAX_XLSX_ROWS) -> list[dict]:
     """Extrae tarifas de un tarifario en XLSX en modo sólo lectura y sin evaluar fórmulas."""
     try:
-        wb = load_workbook(filename=str(file_path), read_only=True, data_only=True)
+        wb = load_workbook(filename=str(file_path), read_only=True, data_only=False)
     except Exception as e:
         raise HTTPException(400, f"Error al abrir la hoja de cálculo XLSX: {e}") from None
 
@@ -99,6 +99,8 @@ def extract_xlsx_tariffs(file_path: Path, max_rows: int = MAX_XLSX_ROWS) -> list
         raw_code = row[code_idx]
         raw_unit = row[unit_idx]
         raw_rate = row[rate_idx]
+        if isinstance(raw_rate, str) and raw_rate.startswith("="):
+            raise HTTPException(422, "La tarifa contiene una fórmula; usa un importe explícito.")
         raw_desc = row[desc_idx] if desc_idx is not None and desc_idx < len(row) else ""
         raw_curr = row[curr_idx] if curr_idx is not None and curr_idx < len(row) else "USD"
 
@@ -118,7 +120,7 @@ def extract_xlsx_tariffs(file_path: Path, max_rows: int = MAX_XLSX_ROWS) -> list
             elif "UNIDAD" in unit_str or "PZA" in unit_str or "PIEZA" in unit_str:
                 unit_str = "UNIT"
             else:
-                unit_str = "UNIT"
+                raise HTTPException(422, "Unidad de tarifa desconocida; requiere corrección.")
 
         try:
             rate_val = Decimal(str(raw_rate).strip()).quantize(
@@ -242,7 +244,9 @@ def extract_claim_snapshot(
     doc_paths: dict[str, Path],
 ) -> ExtractionSnapshot:
     """Extrae evidencia estructurada y candidatos de todos los documentos activos del claim."""
-    now = "2026-09-28T00:00:00Z"
+    from datetime import UTC, datetime
+
+    now = datetime.now(UTC).isoformat()
     evidence_list: list[Evidence] = []
     items: list[ExtractedItem] = []
     tariffs: list[ExtractedTariff] = []
@@ -252,6 +256,7 @@ def extract_claim_snapshot(
 
     subtotal: Decimal | None = None
     total: Decimal | None = None
+    billing_kind = "INVOICE"
 
     for doc in active_docs:
         path = doc_paths.get(doc.id)
@@ -362,12 +367,15 @@ def extract_claim_snapshot(
                         inspected_damages.append("FRONT_ALIGNMENT")
 
                 elif doc.kind == DocumentKind.BILLING:
+                    if "COTIZACI" in upper_text or "QUOTE" in upper_text:
+                        billing_kind = "QUOTE"
                     parsed_items = parse_line_items_from_text(p_text, doc.id)
                     for item in parsed_items:
                         items.append(item)
-                        item_text = (
-                            f"{item.description}: {item.quantity} {item.unit} "
-                            f"× USD {item.unit_price} = USD {item.line_total}"
+                        item_text = next(
+                            match.group(0)
+                            for match in LINE_ITEM_REGEX.finditer(p_text)
+                            if match.group(1).strip() == item.description
                         )
                         evidence_list.append(
                             Evidence(
@@ -388,7 +396,7 @@ def extract_claim_snapshot(
         claim_id=claim_id,
         created_at=now,
         confirmed=False,
-        billing_kind="INVOICE",
+        billing_kind=billing_kind,
         reported_damage_codes=list(dict.fromkeys(reported_damages)),
         inspected_damage_codes=list(dict.fromkeys(inspected_damages)),
         items=items,

@@ -25,7 +25,7 @@
       <div class="panel-header">
         <div>
           <h1>Expediente de Siniestro</h1>
-          <p class="panel-desc">Prueba guiada: contrasta de forma agéntica la factura del taller frente a la declaración
+          <p class="panel-desc">Prueba guiada: revisa la cotización del taller antes de autorizar la reparación y facturación, frente a la declaración
             del siniestro, el informe pericial y el tarifario contractual pactado.</p>
         </div>
         <div class="claim-badge-box">
@@ -36,7 +36,19 @@
       </div>
 
       <p class="caption">Para probar con tus propios archivos sintéticos, pulsa «Crear expediente y subir documentos».
-        Se abrirá el formulario para cargar factura, siniestro, inspección y tarifario.</p>
+        Carga cotización, siniestro e inspección. Gemini detectará el tipo de cada documento; el tarifario estándar se aplica automáticamente.</p>
+
+      <details>
+        <summary>Tarifario estándar · configurado una vez</summary>
+        <p>La demo usa tarifas sintéticas, no tarifas comerciales reales. Los expedientes nuevos conservan una copia de la versión vigente.</p>
+        <a href="/api/claims/settings/standard-tariff/file">Descargar tarifario estándar</a>
+        <form id="standard-tariff-form">
+          <label for="standard-tariff-file">Sustituir para futuros expedientes (XLSX):</label>
+          <input id="standard-tariff-file" type="file" accept=".xlsx" required>
+          <button type="submit" class="secondary">Guardar tarifario estándar</button>
+        </form>
+        <p id="standard-tariff-status" role="status"></p>
+      </details>
 
       <!-- Selector de Casos de Referencia -->
       <div class="cases-selector">
@@ -67,7 +79,7 @@
             <div class="role-header">
               <span class="role-icon">📄</span>
               <div>
-                <strong>Factura de cobro</strong>
+                <strong>Cotización del taller</strong>
                 <small>Taller · Formato PDF</small>
               </div>
             </div>
@@ -103,8 +115,8 @@
             <div class="role-header">
               <span class="role-icon">📊</span>
               <div>
-                <strong>Tarifario de convenio</strong>
-                <small>Aseguradora · Formato XLSX</small>
+                <strong>Tarifario estándar</strong>
+                <small>Aplicado automáticamente</small>
               </div>
             </div>
             <div class="role-status badge-uploaded" id="status-TARIFF">Subido · Activo</div>
@@ -112,14 +124,17 @@
           </div>
         </div>
 
+        <div id="wb-document-classifications"></div>
+
         <!-- Panel colapsable de subida de archivos -->
         <div id="wb-upload-panel" class="wb-upload-panel" hidden>
           <h4>Subir documento digital al expediente</h4>
           <form id="wb-upload-form">
             <div class="form-group">
-              <label for="wb-doc-role">Rol contractual:</label>
+              <label for="wb-doc-role">Tipo de documento:</label>
               <select id="wb-doc-role">
-                <option value="BILLING_DOCUMENT">Factura de cobro (PDF)</option>
+                <option value="">Detectar automáticamente con Gemini</option>
+                <option value="BILLING_DOCUMENT">Cotización / factura del taller (corrección manual)</option>
                 <option value="INCIDENT_REPORT">Declaración de siniestro (PDF)</option>
                 <option value="WORKSHOP_REPORT">Informe de inspección técnica (PDF)</option>
                 <option value="TARIFF">Tarifario de convenio (XLSX / PDF)</option>
@@ -145,13 +160,22 @@
 
       <!-- Visualizador de Extracción Documental (Inspección) -->
       <div id="wb-extraction-viewer" class="wb-viewer" hidden>
+        <p id="wb-review-notes" role="status"></p>
+        <label for="wb-billing-kind">Comprobante detectado:</label>
+        <select id="wb-billing-kind"><option value="QUOTE">Cotización</option><option value="INVOICE">Factura</option></select>
+        <p>Revisa y corrige los datos extraídos antes de confirmar. Los importes son declarados, no calculados por la IA.</p>
+        <div class="form-group">
+          <label for="wb-subtotal">Subtotal declarado USD:</label><input id="wb-subtotal" type="text" inputmode="decimal">
+          <label for="wb-taxes">Impuestos declarados USD:</label><input id="wb-taxes" type="text" inputmode="decimal">
+          <label for="wb-total">Total declarado USD:</label><input id="wb-total" type="text" inputmode="decimal">
+        </div>
         <div class="viewer-header">
           <h4>Evidencia y Conceptos Extraídos de los Documentos</h4>
           <span id="wb-snapshot-meta" class="caption"></span>
         </div>
 
         <div class="viewer-block">
-          <h5>1. Conceptos Facturados por el Taller</h5>
+          <h5>1. Conceptos Cotizados por el Taller</h5>
           <div class="table-responsive">
             <table class="data-table" id="wb-items-table">
               <thead>
@@ -221,8 +245,8 @@
         <div id="status" class="status"></div>
         <div class="metrics">
           <div>
-            <small>Importe facturado</small>
-            <strong id="billed"></strong>
+            <small>Importe cotizado</small>
+    <strong id="billed"></strong>
           </div>
           <div>
             <small>Diferencia potencial (sin impuestos)</small>

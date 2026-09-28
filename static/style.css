@@ -763,3 +763,21 @@ footer {
   .wb-confirm-audit-box { flex-direction: column; align-items: stretch; }
   .damages-grid { grid-template-columns: 1fr; }
 }
+
+/* Corrección de los candidatos extraídos, antes de confirmar la cotización. */
+#wb-items-table input, #wb-items-table select {
+  display: block;
+  width: 100%;
+  min-width: 90px;
+  max-width: 190px;
+  box-sizing: border-box;
+  margin-top: 6px;
+  padding: 6px 8px;
+  border: 1px solid #c4d3cc;
+  border-radius: 4px;
+  background: white;
+  color: #142e35;
+}
+#wb-document-classifications label { display: inline-block; margin: 5px 0; }
+#wb-document-classifications select { margin-left: 8px; padding: 5px; }
+#wb-review-notes { color: #805500; }

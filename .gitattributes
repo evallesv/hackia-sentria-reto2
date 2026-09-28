@@ -1,0 +1,3 @@
+# Documentos generados: evitar diffs y controles de whitespace sobre contenido binario.
+*.pdf binary
+*.xlsx binary

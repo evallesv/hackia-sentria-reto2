@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.access import DemoAccess
+from app.agent.documents import GeminiDocumentProvider
 from app.agent.provider import GeminiProvider, MockProvider
 from app.api.documents import router as documents_router
 from app.config import Settings
@@ -15,6 +16,7 @@ from app.db.session import get_engine, run_migrations
 from app.models import AuditInput, AuditResult
 from app.services.audit_service import run_audit
 from app.services.intake import IntakeService
+from app.services.standard_tariff import StandardTariff
 
 ROOT = Path(__file__).resolve().parent.parent
 CASES = {
@@ -28,7 +30,8 @@ CASES = {
 def load_case(case_id: str) -> AuditInput:
     if case_id not in CASES:
         raise HTTPException(404, "Caso inexistente")
-    return AuditInput.model_validate_json((ROOT / "data/demo" / f"case_{case_id}.json").read_text())
+    data = AuditInput.model_validate_json((ROOT / "data/demo" / f"case_{case_id}.json").read_text())
+    return data.model_copy(update={"billing_kind": "QUOTE"})
 
 
 class RequestLimit:
@@ -46,7 +49,10 @@ class RequestLimit:
         path = scope.get("path", "")
         limit = (
             self.max_upload_bytes
-            if ("/documents" in path and path.startswith("/api/claims/"))
+            if (
+                ("/documents" in path and path.startswith("/api/claims/"))
+                or path == "/api/claims/settings/standard-tariff"
+            )
             else self.max_bytes
         )
 
@@ -116,6 +122,17 @@ def create_app(settings: Settings | None = None):
     api.state.provider = provider
     api.state.claim_repo = claim_repo
     api.state.intake_service = intake_service
+    api.state.document_provider = (
+        GeminiDocumentProvider(s, provider) if s.ai_mode == "gemini" else None
+    )
+    api.state.standard_tariff = (
+        StandardTariff(
+            upload_storage.parent / "tarifario_estandar.xlsx",
+            ROOT / "data/demo/standard_tariff.xlsx",
+        )
+        if s.standard_tariff_enabled
+        else None
+    )
     api.include_router(documents_router)
 
     @api.middleware("http")
@@ -149,7 +166,7 @@ def create_app(settings: Settings | None = None):
             request=request,
             name="index.html",
             context={
-                "cases": CASES,
+                "cases": {key: value for key, value in CASES.items() if key != "D"},
                 "mode": s.ai_mode,
                 "custom_input": s.enable_custom_input,
             },

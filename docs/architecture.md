@@ -29,7 +29,7 @@ flowchart LR
 | 06 | SQLite WAL + SQLAlchemy 2 + Alembic | Migrar a PostgreSQL si se requieren múltiples instancias |
 | 07 | Volumen privado, IDs internos | Object storage al escalar horizontalmente; nombre nunca es ruta |
 | 08 | Fly.io con TLS automático | Despliegue contenedor gestionado; sin servidor VPS manual |
-| 09 | Demo pública con cuatro casos de prueba | Entrada libre requiere autenticación, cuotas y validación de archivos |
+| 09 | Demo con contraseña y tres casos visibles | El caso D sigue como regresión interna; no representa el flujo habitual |
 | 10 | Subtotal de referencia | Impuestos y justificaciones no se resuelven restando anomalías |
 
 ## Responsabilidades
@@ -51,6 +51,16 @@ La evidencia une documento, localizador y texto. Implementado con línea/registr
 422 entrada inválida; 413 exceso de bytes; 404 caso inexistente; 403 entrada personalizada deshabilitada.
 LLM inaccesible, bloqueado, truncado o respuesta inválida → información requerida; conservar cálculos disponibles. Tarifa no única, unidad incompatible o totales inconciliables bloquean el subtotal de referencia.
 
-Una llamada a IA por auditoría normalizada; 30 s de timeout, 3000 tokens de salida y un intento por defecto. Cuatro casos de prueba almacenados en memoria por proceso. Reiniciar invalida la caché y el presupuesto: el límite local no es cuota global ni control de facturación. Un error almacenado requiere reinicio para reintentar. No hay modo silencioso de degradación.
+Una llamada a IA por auditoría normalizada; timeout de 30 segundos y un intento por defecto. La clasificación y la extracción usan llamadas adicionales acotadas. Los casos rápidos usan una caché local; las auditorías de expedientes confirmados se guardan en SQLite. El presupuesto de llamadas es por proceso y se reinicia al arrancar: no es una cuota global ni un control de facturación. No hay degradación silenciosa a simulación.
 
-Antes de habilitar carga de archivos pública: presupuesto e idempotencia persistidos por hash+modelo+prompt, límite de concurrencia y tiempo máximo de trabajo. No abrir ingreso libre hasta completar controles.
+La demo usa contraseña compartida para evaluación y límites de archivos. Antes de un uso comercial se requieren cuotas persistentes y gestión de usuarios; la contraseña publicada no proporciona confidencialidad frente a quien lee el README.
+
+## Cotización, tarifario compartido y extracción Gemini
+
+El tarifario estándar persiste en el volumen privado y se administra una vez con XLSX. Cada expediente nuevo recibe una copia inmutable por hash. Sustituir el estándar afecta solo a expedientes posteriores. La semilla es sintética y no acredita convenios comerciales.
+
+La carga PDF sin rol solicita clasificación a Gemini, con una cita comprobable. El usuario puede corregir el rol; esto invalida la normalización anterior y obliga a extraer de nuevo. La extracción recibe texto por página, roles y el catálogo de tarifas; devuelve valores declarados como cadenas decimales, nulos y citas. No calcula dinero. El servidor valida página, documento activo, texto exacto, importes impresos y códigos del catálogo antes de persistir un candidato sin confirmar.
+
+Clasificación, extracción y revisión semántica comparten el presupuesto acotado por proceso. En producción no se degrada silenciosamente al parser simulado cuando Gemini falla. La clasificación fallida permite elegir el rol manualmente; una extracción fallida bloquea la auditoría hasta reintentar y confirmar. Los PDF escaneados/OCR permanecen pendientes.
+
+Los contratos de `app/models.py` y los esquemas exportados se conservan. La compatibilidad del transporte requiere nuevas rutas de corrección y configuración; la interfaz y los adaptadores cambian como dependencia del flujo solicitado.

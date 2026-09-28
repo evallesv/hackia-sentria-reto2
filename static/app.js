@@ -15,7 +15,7 @@ const labels = {
 };
 
 const roleNames = {
-  BILLING_DOCUMENT: 'Factura de cobro',
+  BILLING_DOCUMENT: 'Cotización del taller',
   INCIDENT_REPORT: 'Declaración de siniestro',
   WORKSHOP_REPORT: 'Informe pericial',
   TARIFF: 'Tarifario de convenio'
@@ -27,8 +27,8 @@ const findingTitles = {
   CLAIM_INCONSISTENCY: 'Reparación ajena o no respaldada en el siniestro',
   TARIFF_UNRESOLVED: 'Tarifario inexistente o no convenido',
   MISSING_INFORMATION: 'Información obligatoria faltante en el expediente',
-  TOTAL_MISMATCH: 'Discrepancia en la sumatoria de totales de factura',
-  TAX_CALCULATION_MISMATCH: 'Cálculo de impuestos incorrecto en factura',
+  TOTAL_MISMATCH: 'Discrepancia en la sumatoria de totales declarados',
+  TAX_CALCULATION_MISMATCH: 'Cálculo de impuestos incorrecto en cotización',
   LINE_TOTAL_MISMATCH: 'Error de cálculo aritmético en línea de cobro',
   SEMANTIC_UNCERTAIN: 'Correspondencia de daño incierta',
   SEMANTIC_UNAVAILABLE: 'Revisión asistida no disponible temporalmente',
@@ -55,7 +55,7 @@ const traceStepsInfo = {
   },
   'claim_check:simulated': {
     title: 'Evaluación de consistencia de daños (Modo local)',
-    description: 'Validación de correspondencia entre los códigos de daño del siniestro y las líneas facturadas.'
+    description: 'Validación de correspondencia entre los códigos de daño del siniestro y las líneas cotizadas.'
   },
   'claim_check:unavailable': {
     title: 'Evaluación de correspondencia interrumpida',
@@ -255,6 +255,31 @@ async function refreshClaimDocuments(claimId) {
       return;
     }
     const docs = await res.json();
+    const classificationPanel = byId('wb-document-classifications');
+    classificationPanel.replaceChildren();
+    docs.filter(doc => doc.kind !== 'TARIFF').forEach(doc => {
+      const label = document.createElement('label');
+      label.textContent = `${doc.filename} · Tipo detectado (puedes corregirlo): `;
+      const select = document.createElement('select');
+      select.setAttribute('aria-label', `Tipo de ${doc.filename}`);
+      Object.entries(roleNames).filter(([kind]) => kind !== 'TARIFF').forEach(([kind, name]) => {
+        const option = document.createElement('option');
+        option.value = kind; option.textContent = name; option.selected = kind === doc.kind;
+        select.append(option);
+      });
+      select.addEventListener('change', async () => {
+        const response = await fetch(`/api/claims/${claimId}/documents/${doc.id}`, {
+          method: 'PATCH', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({kind: select.value})
+        });
+        if (!response.ok) { alert('No se pudo corregir el tipo documental.'); return; }
+        currentSnapshot = null;
+        byId('wb-confirm-audit-btn').disabled = true;
+        byId('wb-extract-status').textContent = 'Tipo corregido. Extrae nuevamente para actualizar los datos.';
+        await refreshClaimDocuments(claimId);
+      });
+      label.append(select); classificationPanel.append(label, document.createElement('br'));
+    });
     roles.forEach(role => {
       const roleDocs = docs.filter(d => d.kind === role);
       const activeDoc = roleDocs.find(d => d.active) || roleDocs[0];
@@ -304,11 +329,16 @@ async function refreshClaimDocuments(claimId) {
 function renderSnapshot(snapshot) {
   currentSnapshot = snapshot;
   byId('wb-confirm-audit-btn').disabled = !(snapshot.items && snapshot.items.length);
+  byId('wb-billing-kind').value = snapshot.billing_kind || 'QUOTE';
+  ['subtotal', 'taxes', 'total'].forEach(key => {
+    byId(`wb-${key}`).value = snapshot[key] === null || snapshot[key] === undefined ? '' : snapshot[key];
+  });
+  byId('wb-review-notes').textContent = (snapshot.review_notes || []).join(' · ');
   const metaEl = byId('wb-snapshot-meta');
   if (metaEl) {
     const totalItems = snapshot.items ? snapshot.items.length : 0;
     const totalTariffs = snapshot.tariffs ? snapshot.tariffs.length : 0;
-    metaEl.textContent = `${totalItems} ítems facturados · ${totalTariffs} tarifas contractuales · Moneda: USD`;
+    metaEl.textContent = `${totalItems} ítems cotizados · ${totalTariffs} tarifas contractuales · Moneda: USD`;
   }
 
   // 1. Tabla de ítems
@@ -323,6 +353,17 @@ function renderSnapshot(snapshot) {
 
       const tdDesc = document.createElement('td');
       tdDesc.textContent = item.description;
+      const codeSelect = document.createElement('select');
+      codeSelect.setAttribute('aria-label', `Servicio de ${item.description}`);
+      const unknown = document.createElement('option');
+      unknown.value = ''; unknown.textContent = 'Servicio sin identificar'; codeSelect.append(unknown);
+      [...new Set((snapshot.tariffs || []).map(t => t.service_code))].forEach(code => {
+        const option = document.createElement('option');
+        option.value = code; option.textContent = code; option.selected = code === item.service_code;
+        codeSelect.append(option);
+      });
+      codeSelect.addEventListener('change', () => { item.service_code = codeSelect.value || null; });
+      tdDesc.append(codeSelect);
 
       const tdQty = document.createElement('td');
       tdQty.textContent = `${item.quantity || 1} ${item.unit || 'UNIT'}`;
@@ -332,6 +373,21 @@ function renderSnapshot(snapshot) {
 
       const tdTotal = document.createElement('td');
       tdTotal.textContent = currency(item.line_total);
+      [[tdQty, 'quantity'], [tdPrice, 'unit_price'], [tdTotal, 'line_total']].forEach(([cell, key]) => {
+        const input = document.createElement('input'); input.type = 'text'; input.inputMode = 'decimal';
+        input.setAttribute('aria-label', `${key} de ${item.description}`);
+        input.value = item[key] === null || item[key] === undefined ? '' : item[key];
+        input.addEventListener('change', () => { item[key] = input.value.trim() || null; });
+        cell.replaceChildren(input);
+      });
+      const unitSelect = document.createElement('select');
+      unitSelect.setAttribute('aria-label', `Unidad de ${item.description}`);
+      [['', 'Unidad pendiente'], ['HOUR', 'Horas'], ['UNIT', 'Unidades']].forEach(([value, name]) => {
+        const option = document.createElement('option'); option.value = value; option.textContent = name;
+        option.selected = value === (item.unit || ''); unitSelect.append(option);
+      });
+      unitSelect.addEventListener('change', () => { item.unit = unitSelect.value || null; });
+      tdQty.append(unitSelect);
 
       const tdDamage = document.createElement('td');
       tdDamage.textContent = item.damage_code || 'No especificado';
@@ -357,7 +413,7 @@ function renderSnapshot(snapshot) {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
     td.colSpan = 7;
-    td.textContent = 'No se extrajeron ítems de facturación en este expediente.';
+    td.textContent = 'No se extrajeron ítems de cotización en este expediente.';
     tr.append(td);
     itemsTbody.append(tr);
   }
@@ -480,7 +536,7 @@ document.querySelectorAll('.preset-btn').forEach(btn => {
 // Botón para generar ID nuevo
 const btnNewClaim = byId('btn-new-claim');
 if (btnNewClaim) {
-  btnNewClaim.addEventListener('click', () => {
+  btnNewClaim.addEventListener('click', async () => {
     const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
     activeClaimId = `CLM-2026-${randomSuffix}`;
     selectedCase = null;
@@ -496,10 +552,15 @@ if (btnNewClaim) {
     byId('toggle-data-btn').textContent = 'Ocultar datos extraídos ↑';
     byId('run').hidden = true;
     byId('input-link').hidden = true;
-    byId('progress').textContent = '1. Sube los cuatro documentos. 2. Extrae la evidencia. 3. Confirma y audita.';
+    byId('progress').textContent = '1. Sube cotización, siniestro e inspección. 2. Extrae con Gemini. 3. Revisa, corrige y audita. El tarifario ya está configurado.';
     byId('wb-upload-feedback').textContent = '';
     byId('wb-extract-status').textContent = `Nuevo expediente ${activeClaimId} iniciado. Sube tus documentos.`;
-    refreshClaimDocuments(activeClaimId);
+    const response = await fetch('/api/claims', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({claim_id: activeClaimId})
+    });
+    if (!response.ok) { byId('progress').textContent = 'No se pudo crear el expediente. Reintenta.'; return; }
+    await refreshClaimDocuments(activeClaimId);
     byId('wb-doc-file').focus();
   });
 }
@@ -530,7 +591,7 @@ if (wbUploadForm) {
     const file = fileInput.files[0];
     const kind = roleSelect.value;
 
-    feedback.textContent = `Subiendo ${file.name} como ${roleNames[kind]}…`;
+    feedback.textContent = kind ? `Subiendo ${file.name} como ${roleNames[kind]}…` : `Gemini está clasificando ${file.name}…`;
     feedback.style.color = '#14684f';
     if (submitBtn) submitBtn.disabled = true;
 
@@ -544,7 +605,7 @@ if (wbUploadForm) {
 
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('kind', kind);
+      if (kind) formData.append('kind', kind);
 
       const res = await fetch(`/api/claims/${activeClaimId}/documents`, {
         method: 'POST',
@@ -557,7 +618,7 @@ if (wbUploadForm) {
       }
 
       const doc = await res.json();
-      feedback.textContent = `✓ Archivo "${doc.filename}" almacenado correctamente (v${doc.version}).`;
+      feedback.textContent = `✓ ${doc.filename}: ${roleNames[doc.kind]}. Puedes corregir el tipo en la lista de documentos.`;
       feedback.style.color = '#12664f';
       fileInput.value = '';
       await refreshClaimDocuments(activeClaimId);
@@ -575,7 +636,7 @@ const wbExtractBtn = byId('wb-extract-btn');
 if (wbExtractBtn) {
   wbExtractBtn.addEventListener('click', async () => {
     const statusEl = byId('wb-extract-status');
-    statusEl.textContent = 'Extrayendo texto página por página y analizando tarifas…';
+    statusEl.textContent = 'Gemini está extrayendo los datos y verificando las citas por página…';
     statusEl.style.color = '#14684f';
     wbExtractBtn.disabled = true;
 
@@ -612,7 +673,7 @@ if (wbConfirmAuditBtn) {
         description: it.description,
         service_code: it.service_code || it.id,
         damage_code: it.damage_code || 'UNKNOWN',
-        unit: it.unit || 'UNIT',
+        unit: it.unit,
         quantity: it.quantity,
         unit_price: it.unit_price,
         line_total: it.line_total,
@@ -631,14 +692,14 @@ if (wbConfirmAuditBtn) {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          billing_kind: currentSnapshot.billing_kind || 'INVOICE',
+          billing_kind: byId('wb-billing-kind').value,
           reported_damage_codes: currentSnapshot.reported_damage_codes || [],
           inspected_damage_codes: currentSnapshot.inspected_damage_codes || [],
           items: itemsPayload,
           tariffs: tariffsPayload,
-          subtotal: currentSnapshot.subtotal,
-          taxes: currentSnapshot.taxes || '0.00',
-          total: currentSnapshot.total
+          subtotal: byId('wb-subtotal').value.trim() || null,
+          taxes: byId('wb-taxes').value.trim() || null,
+          total: byId('wb-total').value.trim() || null
         })
       });
 
@@ -669,4 +730,12 @@ if (wbConfirmAuditBtn) {
 window.addEventListener('DOMContentLoaded', () => {
   loadPresetIntoWorkbench('B');
   window.scrollTo(0, 0);
+});
+
+byId('standard-tariff-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const form = new FormData(); form.append('file', byId('standard-tariff-file').files[0]);
+  const response = await fetch('/api/claims/settings/standard-tariff', {method:'PUT', body:form});
+  const result = await response.json();
+  byId('standard-tariff-status').textContent = response.ok ? result.message : (result.detail || 'No se pudo guardar el tarifario.');
 });

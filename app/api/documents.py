@@ -1,5 +1,6 @@
 import hashlib
 import json
+import tempfile
 import time
 from datetime import UTC, datetime
 from pathlib import Path
@@ -7,7 +8,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, Response, UploadFile
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
+from starlette.concurrency import run_in_threadpool
 
+from app.agent.provider import ProviderError
 from app.models import (
     ActiveDocumentsRequest,
     AuditInput,
@@ -24,8 +28,8 @@ from app.models import (
     StoredDocument,
 )
 from app.services.audit_service import run_audit
-from app.services.extraction import extract_claim_snapshot
-from app.services.intake import IntakeService
+from app.services.extraction import extract_claim_snapshot, extract_pdf_pages, extract_xlsx_tariffs
+from app.services.intake import IntakeService, inspect_and_validate_file, validate_safe_filename
 
 router = APIRouter(prefix="/api/claims", tags=["claims"])
 
@@ -42,12 +46,17 @@ ServiceDep = Annotated[IntakeService, Depends(get_intake_service)]
 
 @router.post("", response_model=Claim, status_code=201)
 def create_claim(
+    request: Request,
     service: ServiceDep,
     payload: ClaimCreateRequest | None = None,
 ):
     """Crea un nuevo expediente de siniestro."""
     claim_id = payload.claim_id if payload else None
-    return service.create_claim(claim_id)
+    claim = service.create_claim(claim_id)
+    standard = getattr(request.app.state, "standard_tariff", None)
+    if standard:
+        standard.attach(service, claim.id)
+    return service.get_claim(claim.id)
 
 
 @router.get("/{claim_id}", response_model=Claim)
@@ -71,19 +80,98 @@ def list_documents(
 @router.post("/{claim_id}/documents", response_model=StoredDocument, status_code=201)
 async def upload_document(
     claim_id: str,
+    request: Request,
     file: Annotated[UploadFile, File(...)],
-    kind: Annotated[DocumentKind, Form(...)],
     service: ServiceDep,
+    kind: Annotated[DocumentKind | None, Form()] = None,
 ):
     """Sube un documento (PDF o XLSX) validando límites reales, magic bytes y unicidad."""
     content = await file.read()
     original_name = file.filename or "archivo_sin_nombre"
+    clean_name = validate_safe_filename(original_name)
+    inspect_and_validate_file(content, clean_name)
+    if len(content) > service.max_file_bytes:
+        raise HTTPException(413, "Archivo demasiado grande")
+    if kind is None:
+        if clean_name.lower().endswith(".xlsx"):
+            kind = DocumentKind.TARIFF
+        else:
+            provider = getattr(request.app.state, "document_provider", None)
+            if provider is None:
+                raise HTTPException(422, "Clasificación Gemini no disponible; selecciona el tipo.")
+            with tempfile.NamedTemporaryFile(suffix=".pdf") as temporary:
+                temporary.write(content)
+                temporary.flush()
+                pages = extract_pdf_pages(Path(temporary.name))
+            if any("[DOCUMENTO ESCANEADO" in text for _, text in pages):
+                raise HTTPException(422, "Documento sin texto digital; requiere OCR.")
+            try:
+                kind = await run_in_threadpool(provider.classify, pages)
+            except ProviderError as exc:
+                raise HTTPException(503, str(exc)) from None
     return service.upload_document(
         claim_id=claim_id,
         data=content,
         original_filename=original_name,
         kind=kind,
     )
+
+
+class DocumentCorrection(BaseModel):
+    kind: DocumentKind
+
+
+@router.patch("/{claim_id}/documents/{doc_id}", response_model=StoredDocument)
+def correct_document_kind(
+    claim_id: str, doc_id: str, payload: DocumentCorrection, service: ServiceDep
+):
+    document, path = service.get_document_file(claim_id, doc_id)
+    document = document.model_copy(update={"kind": payload.kind, "active": False})
+    service.repository.add_document(claim_id, document, path)
+    active = [
+        d.id
+        for d in service.list_documents(claim_id)
+        if d.active and d.kind != payload.kind and d.id != doc_id
+    ]
+    service.set_active_documents(claim_id, [*active, doc_id])
+    return service.get_document_file(claim_id, doc_id)[0]
+
+
+@router.get("/settings/standard-tariff/file")
+def standard_tariff_file(request: Request):
+    standard = getattr(request.app.state, "standard_tariff", None)
+    if not standard:
+        raise HTTPException(404, "Tarifario estándar no configurado")
+    return FileResponse(standard.path, filename="tarifario_estandar.xlsx")
+
+
+@router.put("/settings/standard-tariff")
+async def replace_standard_tariff(request: Request, file: Annotated[UploadFile, File(...)]):
+    standard = getattr(request.app.state, "standard_tariff", None)
+    if not standard:
+        raise HTTPException(404, "Tarifario estándar no configurado")
+    data = await file.read()
+    name = validate_safe_filename(file.filename or "tarifario.xlsx")
+    inspect_and_validate_file(data, name)
+    if not name.lower().endswith(".xlsx"):
+        raise HTTPException(422, "El tarifario estándar debe ser XLSX")
+    with (
+        standard.lock,
+        tempfile.NamedTemporaryFile(dir=standard.path.parent, suffix=".xlsx") as tmp,
+    ):
+        tmp.write(data)
+        tmp.flush()
+        rates = extract_xlsx_tariffs(Path(tmp.name))
+        keys = [(r["service_code"], r["unit"]) for r in rates]
+        if not rates or len(keys) != len(set(keys)):
+            raise HTTPException(422, "Tarifario vacío o con tarifas ambiguas")
+        replacement = standard.path.with_suffix(".pending")
+        replacement.write_bytes(data)
+        replacement.replace(standard.path)
+    return {
+        "message": "Tarifario estándar actualizado para nuevos expedientes.",
+        "rates": len(rates),
+    }
 
 
 @router.patch("/{claim_id}/active-documents", response_model=list[StoredDocument])
@@ -124,6 +212,7 @@ def delete_claim(
 @router.post("/{claim_id}/extract", response_model=ExtractionSnapshot)
 def extract_documents(
     claim_id: str,
+    request: Request,
     service: ServiceDep,
 ):
     """Extrae evidencia y datos candidatos desde los documentos activos del expediente (T02)."""
@@ -139,7 +228,21 @@ def extract_documents(
         _, p = service.get_document_file(claim_id, d.id)
         doc_paths[d.id] = p
 
-    snapshot = extract_claim_snapshot(claim_id, active_docs, doc_paths)
+    provider = getattr(request.app.state, "document_provider", None)
+    repo = service.repository
+    previous = repo.get_snapshot(claim_id) if hasattr(repo, "get_snapshot") else None
+    if previous and hasattr(repo, "save_snapshot"):
+        repo.save_snapshot(claim_id, previous[0], confirmed=False)
+    try:
+        snapshot = (
+            provider.extract(claim_id, active_docs, doc_paths)
+            if provider
+            else extract_claim_snapshot(claim_id, active_docs, doc_paths)
+        )
+    except (ProviderError, ValueError):
+        raise HTTPException(
+            422, "Extracción incompleta o sin evidencia válida; revisa documentos y reintenta."
+        ) from None
 
     repo = service.repository
     if hasattr(repo, "save_snapshot"):
@@ -187,37 +290,14 @@ def confirm_normalized_claim(
         snap_data, _ = snapshot_res
         evidence_list = [Evidence.model_validate(e) for e in snap_data.get("evidence", [])]
 
-    # Asegurar que cada evidencia de ítem y tarifa esté presente
+    # Las correcciones conservan fuentes existentes; nunca inventan evidencia documental.
     for item in payload.items:
         if not any(e.id == item.evidence_id for e in evidence_list):
-            doc = next((d for d in active_docs if d.kind == DocumentKind.BILLING), active_docs[0])
-            item_ev_text = (
-                f"CONFIRMADO. {item.description}: {item.quantity} {item.unit} "
-                f"@ USD {item.unit_price}"
-            )
-            evidence_list.append(
-                Evidence(
-                    id=item.evidence_id,
-                    document_id=doc.id,
-                    location="línea de factura confirmada",
-                    text=item_ev_text,
-                )
-            )
+            raise HTTPException(422, "La línea corregida debe conservar una evidencia existente.")
 
     for tariff in payload.tariffs:
         if not any(e.id == tariff.evidence_id for e in evidence_list):
-            doc = next((d for d in active_docs if d.kind == DocumentKind.TARIFF), active_docs[0])
-            tariff_ev_text = (
-                f"CONFIRMADO. {tariff.service_code}: USD {tariff.allowed_rate} por {tariff.unit}"
-            )
-            evidence_list.append(
-                Evidence(
-                    id=tariff.evidence_id,
-                    document_id=doc.id,
-                    location="tarifa contractual confirmada",
-                    text=tariff_ev_text,
-                )
-            )
+            raise HTTPException(422, "La tarifa debe conservar una evidencia existente.")
 
     audit_docs = [
         Document(

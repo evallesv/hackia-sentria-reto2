@@ -66,10 +66,10 @@ def main():
 
     (dir_a / "billing.pdf").write_bytes(
         create_pdf(
-            "FACTURA DE REPARACIÓN VEHICULAR · EXPEDIENTE DEMO-A",
+            "COTIZACIÓN DE REPARACIÓN VEHICULAR · EXPEDIENTE DEMO-A",
             [
                 "Taller Automotriz: AutoReparaciones del Istmo S.A.",
-                "Número de Factura: FAC-2026-001A | Moneda: USD",
+                "Número de Cotización: COT-2026-001A | Moneda: USD",
                 "",
                 "DETALLE DE CONCEPTOS Y MANO DE OBRA:",
                 "Pintura frontal: 8 HOUR × USD 45.00 = USD 360.00",
@@ -128,10 +128,10 @@ def main():
 
     (dir_b / "billing.pdf").write_bytes(
         create_pdf(
-            "FACTURA DE REPARACIÓN VEHICULAR · EXPEDIENTE DEMO-B",
+            "COTIZACIÓN DE REPARACIÓN VEHICULAR · EXPEDIENTE DEMO-B",
             [
                 "Taller Automotriz: AutoReparaciones del Istmo S.A.",
-                "Número de Factura: FAC-2026-002B | Moneda: USD",
+                "Número de Cotización: COT-2026-002B | Moneda: USD",
                 "",
                 "DETALLE DE CONCEPTOS Y MANO DE OBRA:",
                 "Pintura frontal: 8 HOUR × USD 55.00 = USD 440.00",
@@ -187,10 +187,10 @@ def main():
 
     (dir_c / "billing.pdf").write_bytes(
         create_pdf(
-            "FACTURA DE REPARACIÓN VEHICULAR · EXPEDIENTE DEMO-C",
+            "COTIZACIÓN DE REPARACIÓN VEHICULAR · EXPEDIENTE DEMO-C",
             [
                 "Taller Automotriz: Taller Central del Pacífico",
-                "Número de Factura: FAC-2026-003C | Moneda: USD",
+                "Número de Cotización: COT-2026-003C | Moneda: USD",
                 "",
                 "DETALLE DE CONCEPTOS Y MANO DE OBRA:",
                 "Pintura frontal: 8 HOUR × USD 55.00 = USD 440.00",
@@ -251,10 +251,10 @@ def main():
 
     (dir_d / "billing.pdf").write_bytes(
         create_pdf(
-            "FACTURA DE REPARACIÓN VEHICULAR · EXPEDIENTE DEMO-D",
+            "COTIZACIÓN DE REPARACIÓN VEHICULAR · EXPEDIENTE DEMO-D",
             [
                 "Taller Automotriz: Taller Rápido Especializado",
-                "Número de Factura: FAC-2026-004D | Moneda: USD",
+                "Número de Cotización: COT-2026-004D | Moneda: USD",
                 "",
                 "DETALLE DE CONCEPTOS Y MANO DE OBRA:",
                 "Pintura frontal: 8 HOUR × USD 55.00 = USD 440.00",

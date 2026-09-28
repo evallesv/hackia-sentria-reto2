@@ -11,6 +11,7 @@ from app.db.repository import SqlAlchemyClaimRepository
 from app.db.session import get_engine, run_migrations
 from app.main import create_app
 from app.models import DocumentKind, StoredDocument
+from scripts.generate_demo_documents import create_pdf, create_xlsx
 
 
 @pytest.fixture
@@ -140,18 +141,28 @@ def test_audit_idempotency_via_api(tmp_path):
     # 1. Crear claim y subir documentos activos para BILLING y TARIFF
     cid = "CLM-IDEMPOTENCY-TEST"
     client.post("/api/claims", json={"claim_id": cid})
-    dummy_pdf_1 = b"%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF"
-    dummy_pdf_2 = b"%PDF-1.4\n2 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 2 0 R>>\n%%EOF"
+    billing_pdf = create_pdf("COTIZACIÓN SINTÉTICA", ["Pintura: 5 HOUR × USD 50.00 = USD 250.00"])
+    tariff_xlsx = create_xlsx(
+        [
+            ["service_code", "unit", "allowed_rate", "currency"],
+            ["PAINT", "HOUR", "50.00", "USD"],
+        ]
+    )
     client.post(
         f"/api/claims/{cid}/documents",
         data={"kind": DocumentKind.BILLING.value},
-        files={"file": ("factura.pdf", dummy_pdf_1, "application/pdf")},
+        files={"file": ("cotizacion.pdf", billing_pdf, "application/pdf")},
     )
     client.post(
         f"/api/claims/{cid}/documents",
         data={"kind": DocumentKind.TARIFF.value},
-        files={"file": ("tarifario.pdf", dummy_pdf_2, "application/pdf")},
+        files={"file": ("tarifario.xlsx", tariff_xlsx)},
     )
+    extraction = client.post(f"/api/claims/{cid}/extract")
+    assert extraction.status_code == 200
+    source = extraction.json()
+    item_evidence = source["items"][0]["evidence_id"]
+    tariff_evidence = source["tariffs"][0]["evidence_id"]
 
     # 2. Guardar snapshot normalizado confirmado
     norm_payload = {
@@ -168,7 +179,7 @@ def test_audit_idempotency_via_api(tmp_path):
                 "quantity": "5.0000",
                 "unit_price": "50.00",
                 "line_total": "250.00",
-                "evidence_id": "ev_1",
+                "evidence_id": item_evidence,
             }
         ],
         "tariffs": [
@@ -176,7 +187,7 @@ def test_audit_idempotency_via_api(tmp_path):
                 "service_code": "PAINT",
                 "unit": "HOUR",
                 "allowed_rate": "50.00",
-                "evidence_id": "ev_t1",
+                "evidence_id": tariff_evidence,
             }
         ],
         "subtotal": "250.00",
@@ -225,7 +236,7 @@ def test_audit_idempotency_via_api(tmp_path):
             "quantity": "6.0000",
             "unit_price": "50.00",
             "line_total": "300.00",
-            "evidence_id": "ev_1",
+            "evidence_id": item_evidence,
         }
     ]
     res_norm_mod = client.put(f"/api/claims/{cid}/normalized", json=norm_payload_modified)
