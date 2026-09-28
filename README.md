@@ -110,7 +110,7 @@ git clone https://github.com/evallesv/hackia-sentria-reto2.git
 cd hackia-sentria-reto2
 uv sync --locked --all-groups
 
-# 2. Ejecutar la suite completa de calidad (lint, formato, 93 pruebas y evaluación A-D interna)
+# 2. Ejecutar la suite completa de calidad (lint, formato, 94 pruebas y evaluación A-D interna)
 make check
 
 # 3. Iniciar el servidor local

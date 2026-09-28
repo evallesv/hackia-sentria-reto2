@@ -20,10 +20,10 @@
     {
       "name": "Google Antigravity y Codex",
       "status": "Entorno de desarrollo e ingeniería agéntica",
-      "model": "Versión del registro histórico del equipo; no verificada en esta revisión",
+      "model": "Gemini 3.8 Flash y GPT-6 / Codex",
       "purpose": "Asistencia en el diseño de arquitectura modular, desarrollo del motor determinista de reglas, suites de pruebas automatizadas, integración del SDK de Google GenAI y automatización de despliegue continuo.",
       "application": "Estructuración de contratos Pydantic, refactorización de esquemas para compatibilidad con Gemini 2.5, suites de testing unitario y de integración, y configuración de CI/CD para Fly.io.",
-      "results": "Monolito modular FastAPI con motor financiero Decimal HALF_UP, 93 pruebas automatizadas, casos A-D internos, tres casos visibles para el jurado y CI/CD para Fly.io. Esta revisión añade tarifario reutilizable, cotizaciones y carga con clasificación corregible.",
+      "results": "Monolito modular FastAPI con motor financiero Decimal HALF_UP, 94 pruebas automatizadas, casos A-D internos, tres casos visibles para el jurado y CI/CD para Fly.io. Esta revisión añade tarifario reutilizable, cotizaciones y carga con clasificación corregible.",
       "evidence": "README.md, app/, tests/, .github/workflows/, fly.toml, docs/architecture.md",
       "limits": "La asistencia de desarrollo requiere supervisión humana; las pruebas sintéticas no demuestran calidad general del modelo real."
     },
@@ -43,7 +43,7 @@
       "model": "GPT-6 / Codex",
       "purpose": "Revisión de avance y mejoras solicitadas por el equipo: acceso con contraseña, tarifario compartido, cotizaciones y clasificación/extracción corregibles.",
       "application": "Edición del monolito, pruebas de fallos y evidencia, revisión de interfaz, publicación en GitHub y comprobación del despliegue existente.",
-      "results": "make check: 93 pruebas correctas y evaluación sintética A-D. Flujo Gemini real de clasificación, extracción y auditoría comprobado con cotización alternativa y diferencia exacta 80.00 USD. Base persistente nueva migrada antes de su activación; la base antigua permanece intacta.",
+      "results": "make check: 94 pruebas correctas y evaluación sintética A-D. Flujo Gemini real de clasificación, extracción y auditoría comprobado con cotización alternativa y diferencia exacta 80.00 USD. Base persistente nueva migrada antes de su activación; la base antigua permanece intacta.",
       "evidence": "tests/test_access.py, tests/test_document_flow.py, README.md, docs/user-guide.md, historial Git.",
       "limits": "Pruebas simuladas y validaciones reales se distinguen. El envío formal de la entrega queda a cargo del representante; no hay evidencia de envío desde esta tarea."
     }

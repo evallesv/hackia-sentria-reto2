@@ -337,6 +337,14 @@ class SqlAlchemyClaimRepository:
             ).scalar_one_or_none()
             return snap
 
+    def get_snapshot_created_at(self, claim_id: str) -> str | None:
+        with self._lock, self._get_session() as session:
+            return session.execute(
+                select(ExtractionSnapshotModel.created_at).where(
+                    ExtractionSnapshotModel.claim_id == claim_id
+                )
+            ).scalar_one_or_none()
+
     def get_audit_run(self, idempotency_key: str) -> dict | None:
         """Busca una auditoría previa por su clave de idempotencia."""
         with self._lock, self._get_session() as session:

@@ -267,6 +267,10 @@ def get_extraction_snapshot(
         raise HTTPException(404, msg)
 
     data, confirmed = res
+    if "documents" in data:
+        # La confirmación almacena AuditInput; el transporte devuelve el snapshot de revisión.
+        data = {key: value for key, value in data.items() if key in ExtractionSnapshot.model_fields}
+        data["created_at"] = repo.get_snapshot_created_at(claim_id)
     data["confirmed"] = confirmed
     return ExtractionSnapshot.model_validate(data)
 

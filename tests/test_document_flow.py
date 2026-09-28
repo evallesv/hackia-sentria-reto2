@@ -321,3 +321,28 @@ def test_claim_and_standard_tariff_survive_application_restart(client):
     restarted = TestClient(create_app(client.app.state.settings))
     assert restarted.get("/api/claims/CLM-PERSISTENT/documents").json() == first
     assert restarted.get("/api/claims/settings/standard-tariff/file").content == stream.getvalue()
+
+
+def test_confirmed_snapshot_can_be_read_after_restart(client):
+    claim_id = "CLM-READ-CONFIRMED"
+    snapshot = client.post(f"/api/claims/{claim_id}/preset/B").json()
+    fields = [
+        "billing_kind",
+        "reported_damage_codes",
+        "inspected_damage_codes",
+        "items",
+        "tariffs",
+        "subtotal",
+        "taxes",
+        "total",
+    ]
+    payload = {key: snapshot[key] for key in fields}
+    for row in [*payload["items"], *payload["tariffs"]]:
+        row.pop("review_reason", None)
+    assert client.put(f"/api/claims/{claim_id}/normalized", json=payload).status_code == 200
+    restarted = TestClient(create_app(client.app.state.settings))
+    response = restarted.get(f"/api/claims/{claim_id}/snapshot")
+    assert response.status_code == 200
+    assert response.json()["confirmed"] is True
+    assert response.json()["total"] == payload["total"]
+    assert response.json()["created_at"]
