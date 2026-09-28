@@ -110,13 +110,13 @@ git clone https://github.com/evallesv/hackia-sentria-reto2.git
 cd hackia-sentria-reto2
 uv sync --locked --all-groups
 
-# 2. Ejecutar la suite completa de calidad (lint, formato, 94 pruebas y evaluación A-D interna)
+# 2. Ejecutar la suite completa de calidad (lint, formato, 108 pruebas y evaluación A-D interna)
 make check
 
 # 3. Iniciar el servidor local
 STANDARD_TARIFF_ENABLED=true uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
-Para clasificación y extracción reales configura `AI_MODE=gemini`, `GEMINI_MODEL` y `GEMINI_API_KEY` fuera de Git. El modo `mock` usa un parser limitado a los formatos de prueba y requiere selección manual del tipo. Los PDF escaneados requieren OCR, todavía pendiente. No se garantiza extracción correcta de todos los proveedores: es obligatoria la revisión humana. El caso D permanece como regresión técnica de ausencia de tarifa, pero se retira de la selección del jurado.
+Para clasificación y extracción reales configura `AI_MODE=gemini`, `GEMINI_MODEL` y `GEMINI_API_KEY` fuera de Git. El modo `mock` usa un parser limitado a los formatos de prueba y requiere selección manual del tipo. El OCR local para PDF escaneados se activa con `OCR_ENABLED=true`; Docker incluye Tesseract en español e inglés. En instalaciones locales requiere el ejecutable Tesseract y esos idiomas. Procesa hasta cinco páginas escaneadas por documento a 300 DPI, con límites de resolución, tiempo y confianza; números dudosos bloquean la extracción. La confirmación exige cotejar texto e importes con el PDF original. No se garantiza extracción correcta de todos los proveedores: es obligatoria la revisión humana. El caso D permanece como regresión técnica de ausencia de tarifa, pero se retira de la selección del jurado.
 
 Abre en tu navegador [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
@@ -129,7 +129,7 @@ Abre en tu navegador [http://127.0.0.1:8000](http://127.0.0.1:8000).
 - [Arquitectura del Sistema](docs/architecture.md)
 - [Contratos de Datos y Esquemas JSON](docs/contracts.md)
 - [Ingeniería de Inteligencia Artificial](docs/ai-engineering.md)
-- [Registro de Herramientas IA (PDF Requerido)](docs/delivery/herramientas-ia-preparacion.pdf)
+- [Registro de Herramientas IA (PDF Requerido)](docs/delivery/herramientas-ia.pdf)
 - [Borrador de Envío de Entrega](docs/delivery/submission.md)
 
 ---

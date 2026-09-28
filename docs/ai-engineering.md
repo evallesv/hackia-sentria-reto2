@@ -6,7 +6,7 @@ Gemini interpreta relaciones entre siniestro, inspección y líneas. El host obl
 
 En simulación se comparan códigos de daño; eso **no demuestra comprensión de documentos**. En modo Gemini se enviará texto de evidencia y descripciones; el proveedor puede ver cualquier dato incluido allí. El prompt no es un mecanismo suficiente de aislamiento.
 
-Para extracción futura: primero parser local por página/celda; después Gemini solo sobre texto relevante. PDF escaneado sin texto → información requerida/OCR pendiente, nunca inventar lectura. JSON estructurado debe validarse y mostrar campos dudosos para confirmación. El modelo no decide moneda, impuestos o tarifa válida sin fuentes.
+Para extracción futura: primero parser local por página/celda; después Gemini solo sobre texto relevante. PDF escaneado: OCR local opcional, con abstención ante baja confianza y revisión humana explícita; sin texto legible se bloquea la extracción, nunca inventar lectura. JSON estructurado debe validarse y mostrar campos dudosos para confirmación. El modelo no decide moneda, impuestos o tarifa válida sin fuentes.
 
 ## Seguridad de herramientas
 

@@ -6,6 +6,7 @@ services:
     environment:
       AI_MODE: ${AI_MODE:-mock}
       ENABLE_CUSTOM_INPUT: "false"
+      OCR_ENABLED: "true"
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-}
       LLM_MAX_CALLS_PER_PROCESS: "20"

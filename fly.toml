@@ -14,6 +14,7 @@ primary_region = 'iad'
   # Credencial compartida de evaluación, publicada en README por solicitud del equipo.
   DEMO_PASSWORD = 'Sentria-Reto2-2026!'
   STANDARD_TARIFF_ENABLED = 'true'
+  OCR_ENABLED = 'true'
   # Base nueva para el esquema actual; se conserva intacta la base antigua.
   DATABASE_URL = 'sqlite:////srv/sentria/storage/sentria-v2.db'
 

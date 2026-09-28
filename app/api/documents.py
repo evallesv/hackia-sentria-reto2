@@ -102,7 +102,11 @@ async def upload_document(
             with tempfile.NamedTemporaryFile(suffix=".pdf") as temporary:
                 temporary.write(content)
                 temporary.flush()
-                pages = extract_pdf_pages(Path(temporary.name))
+                pages = await run_in_threadpool(
+                    extract_pdf_pages,
+                    Path(temporary.name),
+                    ocr_enabled=request.app.state.settings.ocr_enabled,
+                )
             if any("[DOCUMENTO ESCANEADO" in text for _, text in pages):
                 raise HTTPException(422, "Documento sin texto digital; requiere OCR.")
             try:
@@ -278,6 +282,7 @@ def get_extraction_snapshot(
 @router.put("/{claim_id}/normalized", response_model=AuditInput)
 def confirm_normalized_claim(
     claim_id: str,
+    request: Request,
     payload: ConfirmNormalizedRequest,
     service: ServiceDep,
 ):
@@ -293,6 +298,9 @@ def confirm_normalized_claim(
     if snapshot_res:
         snap_data, _ = snapshot_res
         evidence_list = [Evidence.model_validate(e) for e in snap_data.get("evidence", [])]
+    if any(" · OCR" in e.location for e in evidence_list):
+        if request.headers.get("X-OCR-Reviewed") != "true":
+            raise HTTPException(422, "Compara el texto OCR y los importes con el PDF original.")
     active_ids = {d.id for d in active_docs}
     if any(e.document_id not in active_ids for e in evidence_list):
         raise HTTPException(422, "La evidencia cambió de versión; extrae nuevamente.")

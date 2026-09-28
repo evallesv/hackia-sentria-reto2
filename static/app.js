@@ -328,7 +328,15 @@ async function refreshClaimDocuments(claimId) {
 // Renderizar snapshot de extracción
 function renderSnapshot(snapshot) {
   currentSnapshot = snapshot;
-  byId('wb-confirm-audit-btn').disabled = !(snapshot.items && snapshot.items.length);
+  const hasOcr = (snapshot.evidence || []).some(e => e.location.includes(' · OCR'));
+  byId('wb-ocr-review-label').hidden = !hasOcr;
+  byId('wb-ocr-reviewed').checked = false;
+  const updateConfirmation = () => {
+    byId('wb-confirm-audit-btn').disabled = !(snapshot.items && snapshot.items.length)
+      || (hasOcr && !byId('wb-ocr-reviewed').checked);
+  };
+  byId('wb-ocr-reviewed').onchange = updateConfirmation;
+  updateConfirmation();
   byId('wb-billing-kind').value = snapshot.billing_kind || 'QUOTE';
   ['subtotal', 'taxes', 'total'].forEach(key => {
     byId(`wb-${key}`).value = snapshot[key] === null || snapshot[key] === undefined ? '' : snapshot[key];
@@ -702,7 +710,10 @@ if (wbConfirmAuditBtn) {
       // 2. Enviar confirmación determinista
       const normRes = await fetch(`/api/claims/${activeClaimId}/normalized`, {
         method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'X-OCR-Reviewed': byId('wb-ocr-reviewed').checked ? 'true' : 'false'
+        },
         body: JSON.stringify({
           billing_kind: byId('wb-billing-kind').value,
           reported_damage_codes: currentSnapshot.reported_damage_codes || [],

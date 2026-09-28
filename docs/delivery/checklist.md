@@ -17,7 +17,7 @@ Fuente normativa: bases Panamá §§2-3; filtro adjunto p.1. Inicial y final pid
 - [x] Flujo de cotización alternativa con Gemini real: clasificación, extracción, confirmación y auditoría; diferencia USD 80.00.
 - [x] Tarifario estándar reutilizable y base persistente nueva con migración aplicada; base antigua conservada intacta.
 - [x] Borrador de correo de entrega preparado en `docs/delivery/submission.md`.
-- [ ] Envío formal de correo realizado por el representante humano (Eduardo Valle).
+- [x] Envío formal de correo confirmado por Eduardo Valle en esta conversación; no se verificó el buzón desde la tarea.
 - [ ] Actividades de difusión en redes / video opcional (si el equipo decide realizarlas).
 
 ## Publicar cambios cuando se decida

@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parent.parent
 def main():
     source = ROOT / "docs/delivery/tools-used.json"
     data = json.loads(source.read_text())
-    output = ROOT / "docs/delivery/herramientas-ia-preparacion.pdf"
+    output = ROOT / "docs/delivery/herramientas-ia.pdf"
     styles = getSampleStyleSheet()
     styles.add(
         ParagraphStyle(

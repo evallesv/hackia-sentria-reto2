@@ -161,6 +161,10 @@
       <!-- Visualizador de Extracción Documental (Inspección) -->
       <div id="wb-extraction-viewer" class="wb-viewer" hidden>
         <p id="wb-review-notes" role="status"></p>
+        <label id="wb-ocr-review-label" hidden>
+          <input id="wb-ocr-reviewed" type="checkbox">
+          Comparé el texto OCR y todos los importes con el PDF original.
+        </label>
         <label for="wb-billing-kind">Comprobante detectado:</label>
         <select id="wb-billing-kind"><option value="QUOTE">Cotización</option><option value="INVOICE">Factura</option></select>
         <p>Revisa y corrige los datos extraídos antes de confirmar. Los importes son declarados, no calculados por la IA.</p>

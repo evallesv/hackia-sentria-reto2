@@ -61,8 +61,22 @@ El tarifario estándar persiste en el volumen privado y se administra una vez co
 
 La carga PDF sin rol solicita clasificación a Gemini, con una cita comprobable. El usuario puede corregir el rol; esto invalida la normalización anterior y obliga a extraer de nuevo. La extracción recibe texto por página, roles y el catálogo de tarifas; devuelve valores declarados como cadenas decimales, nulos y citas. No calcula dinero. El servidor valida página, documento activo, texto exacto, importes impresos y códigos del catálogo antes de persistir un candidato sin confirmar.
 
-Clasificación, extracción y revisión semántica comparten el presupuesto acotado por proceso. En producción no se degrada silenciosamente al parser simulado cuando Gemini falla. La clasificación fallida permite elegir el rol manualmente; una extracción fallida bloquea la auditoría hasta reintentar y confirmar. Los PDF escaneados/OCR permanecen pendientes.
+Clasificación, extracción y revisión semántica comparten el presupuesto acotado por proceso. En producción no se degrada silenciosamente al parser simulado cuando Gemini falla. La clasificación fallida permite elegir el rol manualmente; una extracción fallida bloquea la auditoría hasta reintentar y confirmar. Los PDF escaneados usan OCR local opcional y acotado, descrito abajo.
 
 Los contratos de `app/models.py` y los esquemas exportados se conservan. La compatibilidad del transporte requiere nuevas rutas de corrección y configuración; la interfaz y los adaptadores cambian como dependencia del flujo solicitado.
 
 La base de despliegue activa es `storage/sentria-v2.db`, inicializada con la migración Alembic `598193a64046`. La base antigua incompatible `storage/sentria.db` se conserva intacta para recuperación; no se presenta como migración de sus datos. Un fallo de migración impide arrancar, en vez de cambiar silenciosamente a `/tmp`.
+
+## OCR local, mejora posterior al envío
+
+`OCR_ENABLED=true` habilita Tesseract 5.3.0 con español e inglés, incluido en Docker Debian Bookworm. PDFium renderiza a 300 DPI las páginas con contenido y menos de 20 caracteres digitales. Se conservan sus números originales, incluidas las páginas de PDF mixtos. Una página con suficiente texto digital y una imagen adicional no se interpreta como escaneo; revisar que la extracción cubra el original.
+
+Máximo cinco páginas OCR, 12 millones de píxeles por página y presupuesto de 45 segundos para el trabajo OCR del documento; cada llamada Tesseract tiene timeout de hasta 15 segundos. Un mutex protege PDFium. Los temporales se eliminan y el proceso recibe argumentos fijos, sin shell ni credenciales de la aplicación. No es una herramienta del modelo. Pillow y pypdfium2 están bloqueados y exportados con hashes; los paquetes Tesseract e idiomas tienen versiones fijadas en Docker.
+
+El TSV conserva líneas y texto reconocido. Confianza media inferior a 75, palabras inferiores a 50 y números inferiores a 85 bloquean la extracción. Estas heurísticas no garantizan exactitud: una lectura errónea puede tener confianza alta. Gemini interpreta exclusivamente esa transcripción; sus citas deben existir en ella. Las evidencias se marcan «OCR» y conservan documento/página, sin presentar la transcripción como texto digital original.
+
+La UI requiere declarar que se compararon texto e importes con el PDF original. El endpoint de confirmación exige `X-OCR-Reviewed: true` para evidencias OCR y conserva esa marca en el snapshot confirmado. Es una declaración humana, no una prueba automática de la comparación. Un error OCR no activa una degradación silenciosa a Gemini vision o al parser simulado.
+
+Dependencias de T02: API y adaptador para consumir OCR y exigir revisión; configuración/Docker/lock para distribuir el motor; UI para cotejo; fixture y CI para comprobar el ejecutable real. No cambia `app/models.py`, contratos ni esquema SQL; no necesita otra migración.
+
+Fuentes: [Tesseract TSV](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html), [calidad OCR](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html), [PDFium y concurrencia](https://pypdfium2.readthedocs.io/en/stable/python_api.html).

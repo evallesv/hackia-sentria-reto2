@@ -22,3 +22,11 @@ jobs:
       - run: git diff --exit-code -- contracts
       - run: uv export --no-header --frozen --no-dev --no-emit-project --output-file /tmp/requirements.txt
       - run: diff requirements.txt /tmp/requirements.txt
+  ocr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t sentria-ocr .
+      - run: >-
+          docker run --rm -v "$PWD/scripts/check_ocr.py:/srv/sentria/check_ocr.py:ro"
+          sentria-ocr python check_ocr.py data/demo/ocr/cotizacion-escaneada.pdf

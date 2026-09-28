@@ -1,6 +1,7 @@
 """Servicio de extracción estructurada de documentos (PDF/XLSX) con trazabilidad (T02)."""
 
 import re
+import time
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from pathlib import Path
 
@@ -22,7 +23,9 @@ MAX_XLSX_ROWS = 1000
 MIN_TEXT_DENSITY_CHARS = 20
 
 
-def extract_pdf_pages(file_path: Path, max_pages: int = MAX_PDF_PAGES) -> list[tuple[int, str]]:
+def extract_pdf_pages(
+    file_path: Path, max_pages: int = MAX_PDF_PAGES, *, ocr_enabled: bool = False
+) -> list[tuple[int, str]]:
     """Extrae texto página por página usando pypdf; previene alucinaciones en escaneados."""
     try:
         reader = PdfReader(str(file_path))
@@ -39,17 +42,34 @@ def extract_pdf_pages(file_path: Path, max_pages: int = MAX_PDF_PAGES) -> list[t
         )
 
     pages_text: list[tuple[int, str]] = []
-    total_chars = 0
+    ocr_pages = []
 
     for idx, page in enumerate(reader.pages):
         page_num = idx + 1
         raw_text = page.extract_text() or ""
         clean_lines = [re.sub(r"[ \t]+", " ", line).strip() for line in raw_text.splitlines()]
         clean_text = "\n".join(line for line in clean_lines if line)
-        total_chars += len(clean_text)
         pages_text.append((page_num, clean_text))
+        if len(clean_text) < MIN_TEXT_DENSITY_CHARS and page.get_contents() is not None:
+            ocr_pages.append(page_num)
 
-    if total_chars < MIN_TEXT_DENSITY_CHARS:
+    if ocr_enabled and ocr_pages:
+        from app.services import ocr
+
+        if len(ocr_pages) > ocr.MAX_OCR_PAGES:
+            raise HTTPException(422, "El documento excede el límite de 5 páginas OCR")
+        deadline = time.monotonic() + 45
+        for page_num in ocr_pages:
+            pages_text[page_num - 1] = (page_num, ocr.recognize_page(file_path, page_num, deadline))
+
+    if not ocr_enabled:
+        for page_num in ocr_pages:
+            pages_text[page_num - 1] = (
+                page_num,
+                "[DOCUMENTO ESCANEADO O SIN TEXTO DIGITAL LEGIBLE - REQUIERE OCR]",
+            )
+
+    if sum(len(text) for _, text in pages_text) < MIN_TEXT_DENSITY_CHARS:
         # Documento sin texto legible / imagen escaneada: jamás inventar texto
         return [(1, "[DOCUMENTO ESCANEADO O SIN TEXTO DIGITAL LEGIBLE - REQUIERE OCR]")]
 

@@ -27,7 +27,7 @@ El sistema emite únicamente tres estados: **candidato para aprobación**, **rev
    * Incluye código fuente completo, contratos Pydantic y JSON Schemas, suite automatizada de pruebas de comportamiento, datos de prueba sintéticos y pipelines de CI/CD (GitHub Actions).
 
 3. **Registro de herramientas de IA:**
-   * Documento para adjuntar: `docs/delivery/herramientas-ia-preparacion.pdf`, con el registro de las herramientas utilizadas durante la preparación.
+   * Documento para adjuntar: `docs/delivery/herramientas-ia.pdf`, con el registro de las herramientas utilizadas durante la preparación.
 
 4. **Instrucciones para Evaluación Rápida:**
    * Acceder a [https://sentria.fly.dev](https://sentria.fly.dev). Usuario `jurado`, contraseña `Sentria-Reto2-2026!`.
@@ -60,4 +60,4 @@ Representante del equipo Sentria
 
 ---
 
-**Nota de preparación:** este documento es un borrador. Antes de enviarlo, adjuntar el PDF y comprobar que las instrucciones correspondan a la versión desplegada. El envío no se ha realizado desde este borrador.
+**Registro de envío:** Eduardo Valle confirmó en la conversación que el correo fue enviado. Este archivo conserva el borrador preparado y sus límites en ese momento; no se verificó el buzón ni el contenido del mensaje enviado. Las mejoras posteriores al envío se documentan en la arquitectura y el README.

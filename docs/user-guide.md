@@ -36,7 +36,7 @@ El analista cuenta con dos formas de operar la herramienta:
 4. **Extracción y revisión:** Pulsa «Extraer evidencia documental de archivos activos». Gemini interpreta el diseño de cada proveedor. Comprueba descripción, código de servicio, unidad, cantidades, precios, totales declarados y citas. Corrige los campos editables cuando sea necesario. Si cambias el tipo de documento, extrae nuevamente. Un dato ausente conserva su valor pendiente; no significa cero.
 5. **Confirmación y auditoría:** Pulsa «Confirmar normalización y auditar expediente en vivo». El motor calcula las diferencias con aritmética exacta y prepara una recomendación para el analista. La cotización se revisa antes de autorizar la reparación y generar la factura.
 
-Los PDF escaneados todavía requieren OCR. La calidad de extracción puede variar por proveedor y siempre exige revisión humana. En modo `mock`, la clasificación automática está deshabilitada y el parser solo reconoce los formatos sintéticos de referencia.
+Los PDF escaneados usan OCR local cuando está habilitado. Las citas indican «OCR» y la interfaz exige marcar que comparaste texto e importes con el PDF original. Números de baja confianza, documentos ilegibles o más de cinco páginas escaneadas bloquean la extracción. La calidad de extracción puede variar por proveedor y siempre exige revisión humana. En modo `mock`, la clasificación automática está deshabilitada y el parser solo reconoce los formatos sintéticos de referencia.
 
 ---
 

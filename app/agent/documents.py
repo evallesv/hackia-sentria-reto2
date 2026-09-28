@@ -202,7 +202,7 @@ class GeminiDocumentProvider:
         for document in documents:
             if document.kind == DocumentKind.TARIFF:
                 continue
-            pages = extract_pdf_pages(paths[document.id])
+            pages = extract_pdf_pages(paths[document.id], ocr_enabled=self.settings.ocr_enabled)
             if any("[DOCUMENTO ESCANEADO" in text for _, text in pages):
                 raise ProviderError("Documento sin texto digital; requiere OCR o sustitución")
             pages_by_doc[document.id] = pages
@@ -248,6 +248,23 @@ class GeminiDocumentProvider:
             if damage_codes and not any(s.document_id in source_ids for s in data.sources):
                 raise ProviderError("Daños extraídos sin cita del documento correspondiente")
         evidence = list(base.evidence)
+
+        def location(document_id, page):
+            text = dict(pages_by_doc[document_id]).get(page)
+            return f"página {page}" + (" · OCR" if getattr(text, "ocr", False) else "")
+
+        for document_id, pages in pages_by_doc.items():
+            for page, text in pages:
+                if getattr(text, "ocr", False):
+                    evidence.append(
+                        Evidence(
+                            id=f"ev_ocr_{len(evidence)}",
+                            document_id=document_id,
+                            location=location(document_id, page),
+                            text=text[:2000],
+                        )
+                    )
+
         for index, source in enumerate(data.sources):
             if source.document_id not in pages_by_doc:
                 raise ProviderError("Documento citado inexistente")
@@ -256,7 +273,7 @@ class GeminiDocumentProvider:
                 Evidence(
                     id=f"ev_source_{index}",
                     document_id=source.document_id,
-                    location=f"página {source.page}",
+                    location=location(source.document_id, source.page),
                     text=source.quote,
                 )
             )
@@ -271,7 +288,10 @@ class GeminiDocumentProvider:
             ev_id = f"ev_item_{index}"
             evidence.append(
                 Evidence(
-                    id=ev_id, document_id=bill.id, location=f"página {row.page}", text=row.quote
+                    id=ev_id,
+                    document_id=bill.id,
+                    location=location(bill.id, row.page),
+                    text=row.quote,
                 )
             )
             items.append(
@@ -299,7 +319,7 @@ class GeminiDocumentProvider:
                     Evidence(
                         id=f"ev_{key}",
                         document_id=bill.id,
-                        location=f"página {amount.page}",
+                        location=location(bill.id, amount.page),
                         text=amount.quote,
                     )
                 )
@@ -313,6 +333,14 @@ class GeminiDocumentProvider:
             evidence=evidence,
             reported_damage_codes=data.reported_damage_codes,
             inspected_damage_codes=data.inspected_damage_codes,
-            review_notes=base.review_notes + data.review_notes,
+            review_notes=base.review_notes
+            + data.review_notes
+            + (
+                ["OCR: compara texto e importes con el PDF original antes de confirmar."]
+                if any(
+                    getattr(t, "ocr", False) for pages in pages_by_doc.values() for _, t in pages
+                )
+                else []
+            ),
             **totals,
         )

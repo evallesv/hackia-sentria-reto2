@@ -101,11 +101,19 @@ def test_standard_tariff_replacement_affects_only_new_claims(client):
     assert client.get("/api/claims/CLM-BEFORE/documents").json()[0]["sha256"] == original["sha256"]
 
 
-def test_gemini_extracts_supplier_layout_and_rejects_unbacked_values(client):
+@pytest.mark.parametrize("ocr", [False, True])
+def test_gemini_extracts_supplier_layout_and_rejects_unbacked_values(client, monkeypatch, ocr):
     from app.agent.documents import GeminiDocumentProvider
     from app.agent.provider import GeminiProvider, ProviderError
     from app.models import StoredDocument
     from app.services.extraction import extract_pdf_pages
+    from app.services.ocr import PageText
+
+    if ocr:
+        monkeypatch.setattr(
+            "app.agent.documents.extract_pdf_pages",
+            lambda path, **kwargs: [(p, PageText(t)) for p, t in extract_pdf_pages(path)],
+        )
 
     claim_id = "CLM-FORMAT"
     client.post(f"/api/claims/{claim_id}/preset/B")
@@ -150,6 +158,7 @@ def test_gemini_extracts_supplier_layout_and_rejects_unbacked_values(client):
     assert snapshot.billing_kind == "QUOTE"
     assert str(snapshot.items[0].unit_price) == "55.00"
     assert next(e for e in snapshot.evidence if e.id == "ev_item_0").text == quote
+    assert any(" · OCR" in e.location for e in snapshot.evidence) is ocr
     output["items"][0]["unit_price"] = "999.00"
     with pytest.raises(ProviderError, match="respaldo"):
         provider.extract(claim_id, documents, paths)
@@ -157,6 +166,32 @@ def test_gemini_extracts_supplier_layout_and_rejects_unbacked_values(client):
     output["items"][0]["quote"] = "Cita inventada"
     with pytest.raises(ProviderError, match="inexistente"):
         provider.extract(claim_id, documents, paths)
+
+
+def test_ocr_confirmation_requires_explicit_original_document_review(client):
+    claim_id = "CLM-OCR-REVIEW"
+    snapshot = client.post(f"/api/claims/{claim_id}/preset/B").json()
+    snapshot["evidence"][0]["location"] += " · OCR"
+    client.app.state.claim_repo.save_snapshot(claim_id, snapshot, confirmed=False)
+    fields = (
+        "billing_kind",
+        "reported_damage_codes",
+        "inspected_damage_codes",
+        "items",
+        "tariffs",
+        "subtotal",
+        "taxes",
+        "total",
+    )
+    payload = {key: snapshot[key] for key in fields}
+    for item in [*payload["items"], *payload["tariffs"]]:
+        item.pop("review_reason", None)
+    route = f"/api/claims/{claim_id}/normalized"
+    assert client.put(route, json=payload).status_code == 422
+    assert client.app.state.claim_repo.get_snapshot(claim_id)[1] is False
+    assert client.put(route, json=payload, headers={"X-OCR-Reviewed": "true"}).status_code == 200
+    persisted = client.get(f"/api/claims/{claim_id}/snapshot").json()
+    assert any(" · OCR" in e["location"] for e in persisted["evidence"])
 
 
 def test_classification_requires_real_quote_and_budget_is_shared(monkeypatch):
