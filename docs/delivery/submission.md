@@ -27,10 +27,10 @@ Nuestra solución contrasta facturas y cotizaciones de talleres contra el report
 
 4. **Instrucciones para Evaluación Rápida:**
    * Acceder a [https://sentria.fly.dev](https://sentria.fly.dev).
-   * **Caso A (Sin discrepancias):** Pulsa "Auditar". El sistema valida precios contra tarifario y confirma consistencia semántica (`CANDIDATE_FOR_APPROVAL`, diferencia $0.00).
-   * **Caso B (Discrepancia tarifaria):** Pulsa "Auditar". Detecta sobrecosto en tarifa de pintura: (55 − 45) × 8 = $80.00 USD (`REVIEW_REQUIRED`).
+   * **Caso A (Sin discrepancias):** Pulsa "Auditar". El sistema valida precios contra tarifario y confirma consistencia semántica (estado: candidato para aprobación, diferencia $0.00).
+   * **Caso B (Discrepancia tarifaria):** Pulsa "Auditar". Detecta sobrecosto en tarifa de pintura: (55 − 45) × 8 = $80.00 USD (revisión requerida).
    * **Caso C (Múltiples anomalías):** Detecta duplicado de alineación, sobrecosto y reparación no respaldada ($250.00 USD de impacto).
-   * **Caso D (Tarifario ausente):** Identifica falta de información contractual requerida (`INFORMATION_REQUIRED`).
+   * **Caso D (Tarifario ausente):** Identifica falta de información contractual requerida (información requerida).
    * En cada caso se puede expandir la traza de auditoría, las citas textuales de la evidencia y descargar el reporte estructurado en JSON.
 
 ### Equipo: Sentria

@@ -131,13 +131,9 @@ function renderAuditResult(auditResult) {
       const itemLabel = finding.item_id ? ` · Ítem: ${finding.item_id}` : '';
       summary.textContent = `${friendlyTitle}${itemLabel}`;
 
-      const badge = document.createElement('span');
-      badge.className = 'finding-code-badge';
-      badge.textContent = `Regla técnica: ${finding.code}`;
-
       const p = document.createElement('p');
       p.textContent = finding.description;
-      card.append(summary, badge, p);
+      card.append(summary, p);
 
       if (finding.calculation) {
         const calc = document.createElement('pre');
@@ -191,7 +187,7 @@ function renderAuditResult(auditResult) {
 
       const codeTag = document.createElement('span');
       codeTag.className = 'trace-code-tag';
-      codeTag.textContent = `Identificador de proceso: ${step}`;
+      codeTag.textContent = `Referencia interna: ${step}`;
 
       li.append(header, desc, codeTag);
       traceContainer.append(li);

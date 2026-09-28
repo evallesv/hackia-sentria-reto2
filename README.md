@@ -28,7 +28,7 @@ Actualmente, los analistas de siniestros deben revisar manualmente cada expedien
 Para construir una herramienta confiable, auditable y segura para el negocio, establecimos tres principios rectores:
 
 1. **Copiloto asistencial (Human-in-the-Loop):**  
-   El agente de IA **nunca autoriza un pago ni rechaza una factura por su cuenta**. Su propósito es auditar exhaustivamente el expediente, detectar las inconsistencias y preparar un informe fundamentado para que el analista humano tome la decisión final en segundos. El sistema emite únicamente estados operativos de recomendación: `CANDIDATE_FOR_APPROVAL` (sin anomalías detectadas), `REVIEW_REQUIRED` (atención en tarifas o daños) o `INFORMATION_REQUIRED` (documentación faltante).
+   El agente de IA **nunca autoriza un pago ni rechaza una factura por su cuenta**. Su propósito es auditar exhaustivamente el expediente, detectar las inconsistencias y preparar un informe fundamentado para que el analista humano tome la decisión final en segundos. El sistema emite únicamente tres estados operativos de recomendación: **candidato para aprobación** (sin anomalías detectadas), **revisión requerida** (atención en tarifas o daños) o **información requerida** (documentación faltante).
 
 2. **Determinismo financiero (La IA no calcula dinero):**  
    Los modelos de lenguaje (LLMs) son excepcionales interpretando texto libre y descripciones mecánicas ambiguas, pero no son calculadoras financieras y pueden alucinar en operaciones aritméticas. Por diseño estricto, **el LLM nunca calcula dinero, sumas ni diferencias**. Los cálculos de tarifas, horas y subtotales se ejecutan mediante código determinista con aritmética `Decimal` y redondeo estándar `ROUND_HALF_UP` exacto a centavos de dólar (USD).
@@ -84,7 +84,7 @@ Accede directamente a la plataforma en vivo: **[https://sentria.fly.dev](https:/
    * Subir nuevos documentos digitales (Factura PDF, Declaración PDF, Inspección PDF y Tarifario XLSX).
    * Extraer ítems de cobro y tarifas con sus citas textuales de evidencia (página y texto original).
    * Confirmar la normalización y auditar en tiempo real sobre el expediente activo.
-3. **Dictamen y Trazabilidad:** Revisa el estado operativo (`CANDIDATE_FOR_APPROVAL`, `REVIEW_REQUIRED`, `INFORMATION_REQUIRED`), las métricas financieras (facturado, diferencia calculada y subtotal de referencia), el desglose de hallazgos con citas de evidencia y el recorrido técnico de 5 fases explicables con descarga del dictamen en JSON.
+3. **Dictamen y Trazabilidad:** Revisa el estado operativo (candidato para aprobación, revisión requerida o información requerida), las métricas financieras (facturado, diferencia calculada y subtotal de referencia), el desglose de hallazgos con citas de evidencia y el recorrido técnico de 5 fases explicables con descarga del dictamen en JSON.
 
 ### Opción 2: Ejecución Local
 Requisitos: Python 3.12 o 3.13 y [uv](https://docs.astral.sh/uv/).
