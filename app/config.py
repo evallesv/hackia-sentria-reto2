@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Literal
 
 from pydantic import Field, SecretStr
@@ -18,3 +19,7 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = Field(default=30, gt=0, le=60)
     llm_max_output_tokens: int = Field(default=3000, ge=512, le=8000)
     llm_max_calls_per_process: int = Field(default=20, ge=0, le=1000)
+
+    # Configuración impositiva (por defecto 7% ITBMS para Panamá, configurable para otros países)
+    tax_name: str = Field(default="ITBMS", max_length=50)
+    tax_rate: Decimal = Field(default=Decimal("0.07"), ge=0, le=1)
