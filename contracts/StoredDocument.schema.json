@@ -1,0 +1,74 @@
+{
+  "$defs": {
+    "DocumentKind": {
+      "enum": [
+        "INCIDENT_REPORT",
+        "WORKSHOP_REPORT",
+        "BILLING_DOCUMENT",
+        "TARIFF"
+      ],
+      "title": "DocumentKind",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "claim_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "kind": {
+      "$ref": "#/$defs/DocumentKind"
+    },
+    "mime": {
+      "pattern": "^(application/pdf|application/vnd\\.openxmlformats-officedocument\\.spreadsheetml\\.sheet)$",
+      "title": "Mime",
+      "type": "string"
+    },
+    "byte_count": {
+      "exclusiveMinimum": 0,
+      "maximum": 10485760,
+      "title": "Byte Count",
+      "type": "integer"
+    },
+    "sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Sha256",
+      "type": "string"
+    },
+    "filename": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Filename",
+      "type": "string"
+    },
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "active": {
+      "default": true,
+      "title": "Active",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "id",
+    "claim_id",
+    "kind",
+    "mime",
+    "byte_count",
+    "sha256",
+    "filename",
+    "version"
+  ],
+  "title": "StoredDocument",
+  "type": "object"
+}

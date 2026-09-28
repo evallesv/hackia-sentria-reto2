@@ -1,0 +1,66 @@
+{
+  "$defs": {
+    "ExtractionJobStatus": {
+      "enum": [
+        "PENDING",
+        "PROCESSING",
+        "COMPLETED",
+        "FAILED"
+      ],
+      "title": "ExtractionJobStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "claim_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/ExtractionJobStatus",
+      "default": "PENDING"
+    },
+    "created_at": {
+      "title": "Created At",
+      "type": "string"
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Completed At"
+    },
+    "error_message": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error Message"
+    }
+  },
+  "required": [
+    "id",
+    "claim_id",
+    "created_at"
+  ],
+  "title": "ExtractionJob",
+  "type": "object"
+}

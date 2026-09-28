@@ -53,6 +53,57 @@ class Document(Model):
     active: bool = True
 
 
+class StoredDocument(Model):
+    id: Identifier
+    claim_id: Identifier
+    kind: DocumentKind
+    mime: str = Field(
+        pattern=r"^(application/pdf|application/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet)$"
+    )
+    byte_count: int = Field(gt=0, le=10 * 1024 * 1024)
+    sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    filename: str = Field(min_length=1, max_length=200)
+    version: int = Field(ge=1)
+    active: bool = True
+
+
+class ClaimStatus(StrEnum):
+    DRAFT = "DRAFT"
+    READY_FOR_EXTRACTION = "READY_FOR_EXTRACTION"
+    AUDITED = "AUDITED"
+
+
+class Claim(Model):
+    id: Identifier
+    status: ClaimStatus = ClaimStatus.DRAFT
+    created_at: str
+    documents: list[StoredDocument] = Field(default_factory=list)
+
+
+class ExtractionJobStatus(StrEnum):
+    PENDING = "PENDING"
+    PROCESSING = "PROCESSING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+
+
+class ExtractionJob(Model):
+    id: Identifier
+    claim_id: Identifier
+    status: ExtractionJobStatus = ExtractionJobStatus.PENDING
+    created_at: str
+    completed_at: str | None = None
+    error_message: str | None = None
+
+
+class ActiveDocumentsRequest(Model):
+    active_document_ids: list[Identifier]
+
+
+class ClaimCreateRequest(Model):
+    claim_id: Identifier | None = None
+
+
 class Evidence(Model):
     id: Identifier
     document_id: Identifier
