@@ -38,11 +38,11 @@ def main():
     def p(text, style="SentriaBody"):
         story.append(Paragraph(escape(text), styles[style]))
 
-    p("SENTRIA / RETO 02", "Heading2")
+    p("EQUIPO SENTRIA / RETO 02", "Heading2")
     p("Herramientas de IA", "SentriaTitle")
     p(data["stage"])
     p("Fecha de corte: " + data["date"] + ". Documento de registro técnico en fase de desarrollo.")
-    p("Equipo", "Heading2")
+    p("Integrantes del Equipo Sentria", "Heading2")
     for member in data["team"]:
         p(member["name"] + " | " + member["linkedin"])
     story.append(Spacer(1, 5 * mm))
@@ -100,7 +100,7 @@ def main():
         canvas.setStrokeColor(colors.HexColor("#b9c9c1"))
         canvas.line(20 * mm, 17 * mm, 190 * mm, 17 * mm)
         canvas.setFont("Helvetica", 8)
-        canvas.drawString(20 * mm, 12 * mm, "Sentria | Registro de herramientas IA | 27/09/2026")
+        canvas.drawString(20 * mm, 12 * mm, "Equipo Sentria | Herramientas IA | 27/09/2026")
         canvas.drawRightString(190 * mm, 12 * mm, str(doc.page))
 
     SimpleDocTemplate(
@@ -110,7 +110,7 @@ def main():
         leftMargin=20 * mm,
         topMargin=18 * mm,
         bottomMargin=24 * mm,
-        title="Sentria - Herramientas de IA",
+        title="Equipo Sentria - Herramientas de IA",
         author="Equipo Sentria",
     ).build(story, onFirstPage=footer, onLaterPages=footer)
     print(output.relative_to(ROOT))

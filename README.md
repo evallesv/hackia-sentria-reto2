@@ -1,9 +1,9 @@
-# Sentria · Auditor agéntico de siniestros
+# Auditor agéntico de siniestros · Equipo Sentria
 
 > **🚀 Aplicación en producción:** [https://sentria.fly.dev](https://sentria.fly.dev)  
 > **Healthcheck:** [https://sentria.fly.dev/healthz](https://sentria.fly.dev/healthz) · **CI/CD:** GitHub Actions automático hacia Fly.io (Ashburn, VA)
 
-Base de implementación del **reto 2 de hackIAthon Panamá**: contrastar facturas y cotizaciones de un taller con siniestro, inspección y tarifario, con cálculos reproducibles y evidencia para un auditor humano.
+Solución del **reto 2 de hackIAthon Panamá** desarrollada por el equipo **Sentria**: contrastar facturas y cotizaciones de un taller con siniestro, inspección y tarifario, con cálculos reproducibles y evidencia para un auditor humano.
 
 **Estado:** Aplicación web funcional desplegada en producción conectada a Google Gemini (`gemini-2.5-flash-lite`). Incluye demo guiada interactiva, motor financiero determinista, casos sintéticos A-D, suite de 38 pruebas y contratos Pydantic con JSON Schemas.
 

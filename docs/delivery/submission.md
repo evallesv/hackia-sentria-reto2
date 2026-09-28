@@ -1,15 +1,15 @@
-# Entrega Final · Reto 2: Sentria
+# Entrega Final · Reto 2: Auditor Agéntico de Siniestros
 
 **Destinatario:** `hackiathon@viamatica.com`  
-**Asunto:** Reto 2 - Sentria - Eduardo Valle, Jose Muñoz y Santiago López
+**Asunto:** Reto 2 - Equipo Sentria - Eduardo Valle, Jose Muñoz y Santiago López
 
 ---
 
 Estimado comité evaluador de hackIAthon Panamá:
 
-Presentamos **Sentria**, nuestro asistente y auditor agéntico de facturación de siniestros automotrices para el **Reto 2**.
+El equipo **Sentria** presenta su solución de **Auditor Agéntico de Facturación de Siniestros Automotrices** para el **Reto 2**.
 
-Sentria contrasta facturas y cotizaciones de talleres contra el reporte del siniestro, el informe de inspección y los tarifarios pactados. Implementa una arquitectura híbrida donde los cálculos financieros y validaciones de tarifas son estrictamente deterministas (aritmética `Decimal` con redondeo `ROUND_HALF_UP`), mientras que los modelos de lenguaje (Gemini 2.5) evalúan la consistencia semántica y correspondencia de daños mediante *function calling* estructurado, impidiendo alucinaciones o modificaciones no auditadas.
+Nuestra solución contrasta facturas y cotizaciones de talleres contra el reporte del siniestro, el informe de inspección y los tarifarios pactados. Implementa una arquitectura híbrida donde los cálculos financieros y validaciones de tarifas son estrictamente deterministas (aritmética `Decimal` con redondeo `ROUND_HALF_UP`), mientras que los modelos de lenguaje (Gemini 2.5) evalúan la consistencia semántica y correspondencia de daños mediante *function calling* estructurado, impidiendo alucinaciones o modificaciones no auditadas.
 
 ### Entregables del Reto
 
@@ -33,7 +33,7 @@ Sentria contrasta facturas y cotizaciones de talleres contra el reporte del sini
    * **Caso D (Tarifario ausente):** Identifica falta de información contractual requerida (`INFORMATION_REQUIRED`).
    * En cada caso se puede expandir la traza de auditoría, las citas textuales de la evidencia y descargar el reporte estructurado en JSON.
 
-### Integrantes del Equipo
+### Equipo: Sentria
 
 * **Eduardo Valle** (Representante) | [LinkedIn](https://linkedin.com/in/evallesv)
 * **Jose Muñoz** | [LinkedIn](https://linkedin.com/in/jose-salcedo-442663293)

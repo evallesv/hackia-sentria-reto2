@@ -57,7 +57,7 @@ class RequestLimit:
 
 def create_app(settings: Settings | None = None):
     s = settings or Settings()
-    api = FastAPI(title="Sentria · Reto 2", version="0.1.0")
+    api = FastAPI(title="Auditor de siniestros · Equipo Sentria", version="0.1.0")
     api.add_middleware(RequestLimit, max_bytes=s.max_request_bytes)
     api.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
     templates = Jinja2Templates(directory=ROOT / "templates")
