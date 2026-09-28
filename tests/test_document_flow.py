@@ -140,18 +140,16 @@ def test_gemini_extracts_supplier_layout_and_rejects_unbacked_values(client):
         "reported_damage_codes": [],
         "inspected_damage_codes": [],
         "sources": [],
-        "subtotal": "1930.00",
-        "taxes": "135.10",
-        "total": "2065.10",
-        "totals_page": 1,
-        "totals_quote": total_quote,
+        "subtotal": {"value": "1930.00", "page": 1, "quote": total_quote},
+        "taxes": {"value": "135.10", "page": 1, "quote": total_quote},
+        "total": {"value": "2065.10", "page": 1, "quote": total_quote},
         "review_notes": [],
     }
     provider.generate = lambda *args: output
     snapshot = provider.extract(claim_id, documents, paths)
     assert snapshot.billing_kind == "QUOTE"
     assert str(snapshot.items[0].unit_price) == "55.00"
-    assert snapshot.evidence[-2].text == quote
+    assert next(e for e in snapshot.evidence if e.id == "ev_item_0").text == quote
     output["items"][0]["unit_price"] = "999.00"
     with pytest.raises(ProviderError, match="respaldo"):
         provider.extract(claim_id, documents, paths)
@@ -290,3 +288,36 @@ def test_failed_reextraction_blocks_previously_confirmed_audit(client):
     client.app.state.document_provider = FailedExtraction()
     assert client.post(f"/api/claims/{claim_id}/extract").status_code == 422
     assert client.post(f"/api/claims/{claim_id}/audits").status_code == 400
+
+
+def test_storage_failure_does_not_silently_switch_to_temporary_database(tmp_path, monkeypatch):
+    import app.main as main
+
+    def fail_migration(engine):
+        raise RuntimeError("Old incompatible schema")
+
+    monkeypatch.setattr(main, "run_migrations", fail_migration)
+    with pytest.raises(RuntimeError, match="base persistente"):
+        create_app(Settings(_env_file=None, upload_dir=str(tmp_path / "uploads")))
+
+
+def test_claim_and_standard_tariff_survive_application_restart(client):
+    from openpyxl import Workbook
+
+    workbook = Workbook()
+    workbook.active.append(["service_code", "unit", "allowed_rate", "currency"])
+    workbook.active.append(["PAINT", "HOUR", "41.00", "USD"])
+    stream = io.BytesIO()
+    workbook.save(stream)
+    assert (
+        client.put(
+            "/api/claims/settings/standard-tariff",
+            files={"file": ("nuevo.xlsx", stream.getvalue())},
+        ).status_code
+        == 200
+    )
+    assert client.post("/api/claims", json={"claim_id": "CLM-PERSISTENT"}).status_code == 201
+    first = client.get("/api/claims/CLM-PERSISTENT/documents").json()
+    restarted = TestClient(create_app(client.app.state.settings))
+    assert restarted.get("/api/claims/CLM-PERSISTENT/documents").json() == first
+    assert restarted.get("/api/claims/settings/standard-tariff/file").content == stream.getvalue()

@@ -12,7 +12,7 @@ Fuente normativa: bases Panamá §§2-3; filtro adjunto p.1. Inicial y final pid
 - [x] Build y ejecución local Docker Linux ARM64, usuario no root, A-D correctos.
 - [x] Despliegue en la nube (Fly.io ARM64) comprobado desde red externa con HTTPS: https://sentria.fly.dev.
 - [x] Cambios publicados en GitHub (`main`); Actions verificadas en remoto (`ci.yml` y `fly-deploy.yml`).
-- [x] URL pública HTTPS probada sin sesión, modo real y guía visibles.
+- [x] URL HTTPS protegida con credenciales del jurado; acceso sin credenciales devuelve 401 y healthcheck permanece público.
 - [x] PDF actualizado al trabajo final con ReportLab; equipo y representante completos.
 - [x] Borrador de correo de entrega preparado en `docs/delivery/submission.md`.
 - [ ] Envío formal de correo realizado por el representante humano (Eduardo Valle).
@@ -35,7 +35,7 @@ git commit -m "Prepare Sentria claims audit foundation and implementation plan"
 git push -u origin codex/mvp-foundation
 ```
 
-Revisar staged diff antes de commit: sin `.env`, expedientes reales, secretos o material ajeno. Abrir PR hacia main con pruebas y estado honesto; no afirmar que todo el MVP está terminado. Si se usa PR, esperar checks y revisión requerida del repositorio antes de merge. Verificar acceso del jurado desde sesión sin autenticación; un enlace privado sin permisos no satisface acceso público.
+Revisar staged diff antes de commit: sin `.env`, expedientes reales, secretos o material ajeno. Abrir PR hacia main con pruebas y estado honesto; no afirmar que todo el MVP está terminado. Si se usa PR, esperar checks y revisión requerida del repositorio antes de merge. Verificar acceso con las credenciales compartidas incluidas en README; el jurado debe poder iniciar sesión y evaluar la demo.
 
 ## Cierre
 

@@ -41,7 +41,7 @@ def main():
     p("EQUIPO SENTRIA / RETO 02", "Heading2")
     p("Herramientas de IA", "SentriaTitle")
     p(data["stage"])
-    p("Fecha de corte: " + data["date"] + ". Documento de registro técnico en fase de desarrollo.")
+    p("Fecha de corte: " + data["date"] + ". Documento de registro técnico de la entrega.")
     p("Integrantes del Equipo Sentria", "Heading2")
     for member in data["team"]:
         p(member["name"] + " | " + member["linkedin"])

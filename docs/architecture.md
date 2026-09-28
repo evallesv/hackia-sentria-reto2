@@ -64,3 +64,5 @@ La carga PDF sin rol solicita clasificación a Gemini, con una cita comprobable.
 Clasificación, extracción y revisión semántica comparten el presupuesto acotado por proceso. En producción no se degrada silenciosamente al parser simulado cuando Gemini falla. La clasificación fallida permite elegir el rol manualmente; una extracción fallida bloquea la auditoría hasta reintentar y confirmar. Los PDF escaneados/OCR permanecen pendientes.
 
 Los contratos de `app/models.py` y los esquemas exportados se conservan. La compatibilidad del transporte requiere nuevas rutas de corrección y configuración; la interfaz y los adaptadores cambian como dependencia del flujo solicitado.
+
+La base de despliegue activa es `storage/sentria-v2.db`, inicializada con la migración Alembic `598193a64046`. La base antigua incompatible `storage/sentria.db` se conserva intacta para recuperación; no se presenta como migración de sus datos. Un fallo de migración impide arrancar, en vez de cambiar silenciosamente a `/tmp`.

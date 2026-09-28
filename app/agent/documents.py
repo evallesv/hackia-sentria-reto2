@@ -44,6 +44,13 @@ class ExtractedLine(BaseModel):
     quote: str = Field(min_length=1, max_length=2000)
 
 
+class DeclaredAmount(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    value: str | None
+    page: int | None
+    quote: str | None
+
+
 class ExtractedData(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     billing_kind: Literal["QUOTE", "INVOICE"]
@@ -51,11 +58,9 @@ class ExtractedData(BaseModel):
     reported_damage_codes: list[str] = Field(max_length=50)
     inspected_damage_codes: list[str] = Field(max_length=50)
     sources: list[Source] = Field(max_length=100)
-    subtotal: str | None
-    taxes: str | None
-    total: str | None
-    totals_page: int | None
-    totals_quote: str | None
+    subtotal: DeclaredAmount
+    taxes: DeclaredAmount
+    total: DeclaredAmount
     review_notes: list[str] = Field(max_length=30)
 
 
@@ -216,8 +221,11 @@ class GeminiDocumentProvider:
                 "sin coincidencia "
                 "usa null. HOUR para horas, UNIT para unidades; sin unidad explícita usa null. "
                 "Usa códigos de daño consistentes entre líneas, siniestro e inspección. Incluye "
-                "sources con citas de siniestro e inspección que respalden daños. Los totals_quote "
-                "y totals_page deben respaldar subtotal, taxes y total; si faltan usa null. "
+                "sources con citas de siniestro e inspección que respalden daños. Para subtotal, "
+                "taxes y total entrega cada value, page y quote por separado. La cita de cada "
+                "importe debe incluir su propio valor impreso y etiqueta; no uses la cita del "
+                "total final para respaldar subtotal o impuestos. Si falta un importe, su value, "
+                "page y quote son null. "
                 "Cada quote de línea debe incluir descripción, cantidad, unidad, precio e importe "
                 "tal como aparecen juntos en el texto; puede abarcar varias líneas consecutivas. "
                 "Cada sources debe apuntar al documento correspondiente a los daños extraídos. "
@@ -283,18 +291,19 @@ class GeminiDocumentProvider:
                 )
             )
         totals = {}
-        if any(v is not None for v in (data.subtotal, data.taxes, data.total)):
-            grounded_quote(pages_by_doc[bill.id], data.totals_page, data.totals_quote)
-            evidence.append(
-                Evidence(
-                    id="ev_totals",
-                    document_id=bill.id,
-                    location=f"página {data.totals_page}",
-                    text=data.totals_quote,
-                )
-            )
         for key in ("subtotal", "taxes", "total"):
-            totals[key] = grounded_number(getattr(data, key), data.totals_quote or "")
+            amount = getattr(data, key)
+            if amount.value is not None:
+                grounded_quote(pages_by_doc[bill.id], amount.page, amount.quote)
+                evidence.append(
+                    Evidence(
+                        id=f"ev_{key}",
+                        document_id=bill.id,
+                        location=f"página {amount.page}",
+                        text=amount.quote,
+                    )
+                )
+            totals[key] = grounded_number(amount.value, amount.quote or "")
         return ExtractionSnapshot(
             claim_id=claim_id,
             created_at=datetime.now(UTC).isoformat(),

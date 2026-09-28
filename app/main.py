@@ -102,15 +102,10 @@ def create_app(settings: Settings | None = None):
     try:
         engine = get_engine(db_url)
         run_migrations(engine)
-    except Exception:
-        import tempfile
-
-        temp_dir = Path(tempfile.gettempdir()) / "sentria"
-        upload_storage = temp_dir / "uploads"
-        upload_storage.mkdir(parents=True, exist_ok=True)
-        db_url = f"sqlite:///{temp_dir / 'sentria.db'}"
-        engine = get_engine(db_url)
-        run_migrations(engine)
+    except Exception as exc:
+        raise RuntimeError(
+            "No se pudo inicializar la base persistente; revisa configuración y migraciones."
+        ) from exc
 
     claim_repo = SqlAlchemyClaimRepository(engine=engine, storage_dir=upload_storage)
     intake_service = IntakeService(
