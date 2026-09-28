@@ -87,7 +87,8 @@ def main():
     p("Control de calidad y seguridad", "Heading2")
     p(
         "Cálculos con precisión Decimal; evidencia trazable y referenciada; revisión y "
-        "decisión bajo criterio humano; datos de prueba sintéticos; claves del proveedor fuera de Git y acceso del jurado documentado. "
+        "decisión bajo criterio humano; datos de prueba sintéticos; claves del proveedor fuera "
+        "de Git y acceso del jurado documentado. "
         "La aplicación está empaquetada en contenedor Linux ARM64 y desplegada en producción "
         "en Fly.io con HTTPS y CI/CD automatizado."
     )
