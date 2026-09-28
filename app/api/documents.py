@@ -289,6 +289,9 @@ def confirm_normalized_claim(
     if snapshot_res:
         snap_data, _ = snapshot_res
         evidence_list = [Evidence.model_validate(e) for e in snap_data.get("evidence", [])]
+    active_ids = {d.id for d in active_docs}
+    if any(e.document_id not in active_ids for e in evidence_list):
+        raise HTTPException(422, "La evidencia cambió de versión; extrae nuevamente.")
 
     # Las correcciones conservan fuentes existentes; nunca inventan evidencia documental.
     for item in payload.items:

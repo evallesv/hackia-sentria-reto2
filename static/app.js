@@ -259,7 +259,7 @@ async function refreshClaimDocuments(claimId) {
     classificationPanel.replaceChildren();
     docs.filter(doc => doc.kind !== 'TARIFF').forEach(doc => {
       const label = document.createElement('label');
-      label.textContent = `${doc.filename} · Tipo detectado (puedes corregirlo): `;
+      label.textContent = `${doc.filename} · ${doc.active ? 'Activo' : 'Inactivo'} · Tipo (puedes corregirlo): `;
       const select = document.createElement('select');
       select.setAttribute('aria-label', `Tipo de ${doc.filename}`);
       Object.entries(roleNames).filter(([kind]) => kind !== 'TARIFF').forEach(([kind, name]) => {
@@ -282,7 +282,7 @@ async function refreshClaimDocuments(claimId) {
     });
     roles.forEach(role => {
       const roleDocs = docs.filter(d => d.kind === role);
-      const activeDoc = roleDocs.find(d => d.active) || roleDocs[0];
+      const activeDoc = roleDocs.find(d => d.active);
       const statusEl = byId(`status-${role}`);
       const fileInfoEl = byId(`fileinfo-${role}`);
 
@@ -572,6 +572,16 @@ if (claimInputEl) {
     const val = claimInputEl.value.trim();
     if (val) {
       activeClaimId = val;
+      selectedCase = null;
+      renderSnapshot({items: [], tariffs: []});
+      currentSnapshot = null;
+      lastAuditResult = null;
+      byId('result').hidden = true;
+      byId('run').hidden = true;
+      byId('input-link').hidden = true;
+      byId('wb-extraction-viewer').hidden = false;
+      byId('wb-upload-panel').hidden = false;
+      byId('progress').textContent = 'Expediente seleccionado. Revisa sus documentos y extrae los datos antes de auditar.';
       refreshClaimDocuments(activeClaimId);
     }
   });
@@ -639,6 +649,8 @@ if (wbExtractBtn) {
     statusEl.textContent = 'Gemini está extrayendo los datos y verificando las citas por página…';
     statusEl.style.color = '#14684f';
     wbExtractBtn.disabled = true;
+    currentSnapshot = null;
+    wbConfirmAuditBtn.disabled = true;
 
     try {
       const res = await fetch(`/api/claims/${activeClaimId}/extract`, {method: 'POST'});

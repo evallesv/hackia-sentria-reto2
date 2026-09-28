@@ -263,3 +263,30 @@ def test_correction_invalidates_snapshot_and_normalization_cannot_invent_evidenc
     assert client.post(f"/api/claims/{claim_id}/audits").status_code == 400
     payload["items"][0]["evidence_id"] = "INVENTADO"
     assert client.put(f"/api/claims/{claim_id}/normalized", json=payload).status_code == 422
+
+
+def test_failed_reextraction_blocks_previously_confirmed_audit(client):
+    claim_id = "CLM-REEXTRACT"
+    snapshot = client.post(f"/api/claims/{claim_id}/preset/B").json()
+    fields = [
+        "billing_kind",
+        "reported_damage_codes",
+        "inspected_damage_codes",
+        "items",
+        "tariffs",
+        "subtotal",
+        "taxes",
+        "total",
+    ]
+    payload = {key: snapshot[key] for key in fields}
+    for row in [*payload["items"], *payload["tariffs"]]:
+        row.pop("review_reason", None)
+    assert client.put(f"/api/claims/{claim_id}/normalized", json=payload).status_code == 200
+
+    class FailedExtraction:
+        def extract(self, *args):
+            raise ValueError("Invalid provider units")
+
+    client.app.state.document_provider = FailedExtraction()
+    assert client.post(f"/api/claims/{claim_id}/extract").status_code == 422
+    assert client.post(f"/api/claims/{claim_id}/audits").status_code == 400

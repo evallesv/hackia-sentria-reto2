@@ -5,6 +5,7 @@ import logging
 import re
 from datetime import UTC, datetime
 from decimal import Decimal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -35,7 +36,7 @@ class ExtractedLine(BaseModel):
     description: str = Field(min_length=1, max_length=300)
     service_code: str | None
     damage_code: str | None
-    unit: str | None
+    unit: Literal["HOUR", "UNIT"] | None
     quantity: str | None
     unit_price: str | None
     line_total: str | None
@@ -45,7 +46,7 @@ class ExtractedLine(BaseModel):
 
 class ExtractedData(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
-    billing_kind: str
+    billing_kind: Literal["QUOTE", "INVOICE"]
     items: list[ExtractedLine] = Field(max_length=100)
     reported_damage_codes: list[str] = Field(max_length=50)
     inspected_damage_codes: list[str] = Field(max_length=50)
