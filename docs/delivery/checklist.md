@@ -14,6 +14,8 @@ Fuente normativa: bases Panamá §§2-3; filtro adjunto p.1. Inicial y final pid
 - [x] Cambios publicados en GitHub (`main`); Actions verificadas en remoto (`ci.yml` y `fly-deploy.yml`).
 - [x] URL HTTPS protegida con credenciales del jurado; acceso sin credenciales devuelve 401 y healthcheck permanece público.
 - [x] PDF actualizado al trabajo final con ReportLab; equipo y representante completos.
+- [x] Flujo de cotización alternativa con Gemini real: clasificación, extracción, confirmación y auditoría; diferencia USD 80.00.
+- [x] Tarifario estándar reutilizable y base persistente nueva con migración aplicada; base antigua conservada intacta.
 - [x] Borrador de correo de entrega preparado en `docs/delivery/submission.md`.
 - [ ] Envío formal de correo realizado por el representante humano (Eduardo Valle).
 - [ ] Actividades de difusión en redes / video opcional (si el equipo decide realizarlas).

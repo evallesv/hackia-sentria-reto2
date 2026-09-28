@@ -30,7 +30,7 @@ def main():
     )
     styles.add(
         ParagraphStyle(
-            name="SentriaBody", fontName="Helvetica", fontSize=10, leading=15, spaceAfter=8
+            name="SentriaBody", fontName="Helvetica", fontSize=9.5, leading=13.2, spaceAfter=6
         )
     )
     story = []
@@ -87,12 +87,12 @@ def main():
     p("Control de calidad y seguridad", "Heading2")
     p(
         "Cálculos con precisión Decimal; evidencia trazable y referenciada; revisión y "
-        "decisión bajo criterio humano; datos de prueba sintéticos; credenciales fuera de Git. "
+        "decisión bajo criterio humano; datos de prueba sintéticos; claves del proveedor fuera de Git y acceso del jurado documentado. "
         "La aplicación está empaquetada en contenedor Linux ARM64 y desplegada en producción "
         "en Fly.io con HTTPS y CI/CD automatizado."
     )
     p(
-        "Entrega completada: commits en GitHub, modelo gemini-2.5-flash-lite validado en vivo, "
+        "Preparación técnica: commits en GitHub, modelo gemini-2.5-flash-lite validado en vivo, "
         "y enlace público operativo: https://sentria.fly.dev"
     )
 
