@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -7,260 +8,265 @@
   <link rel="stylesheet" href="/static/style.css">
   <script defer src="/static/app.js"></script>
 </head>
+
 <body>
-<header>
-  <div class="header-content">
-    <div class="brand-group">
-      <a class="brand" href="/">Sentria<span> / </span></a>
-      <span class="app-subtitle">Auditoría Agéntica de Facturación de Siniestros</span>
-    </div>
-    <div class="header-meta">
-      <span class="env-tag">{% if mode == 'mock' %}Modo simulación local{% else %}Google Gemini 2.5 Flash Activo{% endif %}</span>
-      <span class="privacy-tag">Entorno Seguro · Sin PII</span>
-    </div>
-  </div>
-</header>
-
-<main class="console-layout">
-  <!-- SECCIÓN PRINCIPAL: CONTROL DE EXPEDIENTE Y DOCUMENTOS -->
-  <section class="control-panel">
-    <div class="panel-header">
-      <div>
-        <h1>Expediente de Siniestro</h1>
-        <p class="panel-desc">Prueba guiada: contrasta de forma agéntica la factura del taller frente a la declaración del siniestro, el informe pericial y el tarifario contractual pactado.</p>
-      </div>
-      <div class="claim-badge-box">
-        <label for="claim-id-input">ID Expediente:</label>
-        <input type="text" id="claim-id-input" value="CLM-2026-DEMO-B" maxlength="32">
-        <button id="btn-new-claim" class="secondary btn-sm" type="button">Nuevo ID</button>
+  <header>
+    <div class="header-content">
+      <div class="brand-group">
+        <a class="brand" href="/">Sentria<span> / </span></a>
+        <span class="app-subtitle">Auditoría Agéntica de Facturación de Siniestros</span>
       </div>
     </div>
+  </header>
 
-    <!-- Selector de Casos de Referencia -->
-    <div class="cases-selector">
-      <span class="selector-label">Casos preparados para evaluación inmediata:</span>
-      <div class="cases">
-        {% for id, label in cases.items() %}
-        <button class="case" data-case="{{ id }}" aria-pressed="{{ 'true' if id == 'B' else 'false' }}">
-          <span class="case-letter">{{ id }}</span>
-          <div class="case-info">
-            <b>{{ label }}</b>
-            <small>Expediente DEMO-{{ id }}</small>
-          </div>
-        </button>
-        {% endfor %}
-      </div>
-    </div>
-
-    <!-- Documentos Contractuales Asociados al Expediente -->
-    <div class="documents-section">
-      <div class="section-title-row">
-        <h3>Documentación del Expediente</h3>
-        <button id="toggle-upload-btn" class="secondary btn-sm" type="button">+ Subir o reemplazar documento</button>
-      </div>
-
-      <!-- Tarjetas de los 4 roles contractuales -->
-      <div class="doc-roles-grid">
-        <div class="doc-role-card" data-role="BILLING_DOCUMENT">
-          <div class="role-header">
-            <span class="role-icon">📄</span>
-            <div>
-              <strong>Factura de cobro</strong>
-              <small>Taller · Formato PDF</small>
-            </div>
-          </div>
-          <div class="role-status badge-uploaded" id="status-BILLING_DOCUMENT">Subido · Activo</div>
-          <div class="role-file-info" id="fileinfo-BILLING_DOCUMENT">Cargando…</div>
-        </div>
-
-        <div class="doc-role-card" data-role="INCIDENT_REPORT">
-          <div class="role-header">
-            <span class="role-icon">📋</span>
-            <div>
-              <strong>Declaración de siniestro</strong>
-              <small>Asegurado · Formato PDF</small>
-            </div>
-          </div>
-          <div class="role-status badge-uploaded" id="status-INCIDENT_REPORT">Subido · Activo</div>
-          <div class="role-file-info" id="fileinfo-INCIDENT_REPORT">Cargando…</div>
-        </div>
-
-        <div class="doc-role-card" data-role="WORKSHOP_REPORT">
-          <div class="role-header">
-            <span class="role-icon">🔍</span>
-            <div>
-              <strong>Informe pericial</strong>
-              <small>Ajustador · Formato PDF</small>
-            </div>
-          </div>
-          <div class="role-status badge-uploaded" id="status-WORKSHOP_REPORT">Subido · Activo</div>
-          <div class="role-file-info" id="fileinfo-WORKSHOP_REPORT">Cargando…</div>
-        </div>
-
-        <div class="doc-role-card" data-role="TARIFF">
-          <div class="role-header">
-            <span class="role-icon">📊</span>
-            <div>
-              <strong>Tarifario de convenio</strong>
-              <small>Aseguradora · Formato XLSX</small>
-            </div>
-          </div>
-          <div class="role-status badge-uploaded" id="status-TARIFF">Subido · Activo</div>
-          <div class="role-file-info" id="fileinfo-TARIFF">Cargando…</div>
-        </div>
-      </div>
-
-      <!-- Panel colapsable de subida de archivos -->
-      <div id="wb-upload-panel" class="wb-upload-panel" hidden>
-        <h4>Subir documento digital al expediente</h4>
-        <form id="wb-upload-form">
-          <div class="form-group">
-            <label for="wb-doc-role">Rol contractual:</label>
-            <select id="wb-doc-role">
-              <option value="BILLING_DOCUMENT">Factura de cobro (PDF)</option>
-              <option value="INCIDENT_REPORT">Declaración de siniestro (PDF)</option>
-              <option value="WORKSHOP_REPORT">Informe de inspección técnica (PDF)</option>
-              <option value="TARIFF">Tarifario de convenio (XLSX / PDF)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="wb-doc-file">Archivo (.pdf o .xlsx, máx. 10 MB):</label>
-            <input type="file" id="wb-doc-file" accept=".pdf,.xlsx" required>
-          </div>
-          <button type="submit" class="secondary" id="wb-upload-btn">Subir archivo</button>
-        </form>
-        <div id="wb-upload-feedback" role="status" aria-live="polite"></div>
-      </div>
-    </div>
-
-    <!-- Barra de Acciones Principales -->
-    <div class="primary-actions-bar">
-      <button id="run" class="primary btn-lg">⚡ Auditar expediente B inmediatamente →</button>
-      <button id="toggle-data-btn" class="secondary" type="button">Inspeccionar ítems y tarifas extraídos ↓</button>
-      <a id="input-link" href="/api/demo/B" target="_blank" rel="noopener">Consultar JSON de entrada ↗</a>
-    </div>
-    <p id="progress" role="status" aria-live="polite"></p>
-
-    <!-- Visualizador de Extracción Documental (Inspección) -->
-    <div id="wb-extraction-viewer" class="wb-viewer" hidden>
-      <div class="viewer-header">
-        <h4>Evidencia y Conceptos Extraídos de los Documentos</h4>
-        <span id="wb-snapshot-meta" class="caption"></span>
-      </div>
-
-      <div class="viewer-block">
-        <h5>1. Conceptos Facturados por el Taller</h5>
-        <div class="table-responsive">
-          <table class="data-table" id="wb-items-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Descripción del Cobro</th>
-                <th>Cantidad</th>
-                <th>Precio Unit. USD</th>
-                <th>Total USD</th>
-                <th>Daño Relacionado</th>
-                <th>Cita Comprobable</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="viewer-block">
-        <h5>2. Tarifas Contractuales Pactadas</h5>
-        <div class="table-responsive">
-          <table class="data-table" id="wb-tariffs-table">
-            <thead>
-              <tr>
-                <th>Código de Servicio</th>
-                <th>Unidad</th>
-                <th>Tarifa Máx. Permitida USD</th>
-                <th>Cita en Tarifario</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="viewer-block">
-        <h5>3. Correlación de Daños Declarados vs. Peritados</h5>
-        <div class="damages-grid">
-          <div class="damage-box">
-            <strong>Daños declarados (Siniestro):</strong>
-            <ul id="wb-reported-damages"></ul>
-          </div>
-          <div class="damage-box">
-            <strong>Daños peritados (Inspección):</strong>
-            <ul id="wb-inspected-damages"></ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="wb-extract-actions">
-        <button id="wb-extract-btn" class="secondary btn-sm" type="button">⚡ Re-extraer evidencia de archivos activos</button>
-        <span id="wb-extract-status" role="status" aria-live="polite"></span>
-      </div>
-    </div>
-  </section>
-
-  <!-- RESULTADO DE AUDITORÍA (APARECE INMEDIATAMENTE AL AUDITAR) -->
-  <section id="result" hidden aria-labelledby="result-title" class="result-section">
-    <div class="section-heading">
-      <h2 id="result-title">Dictamen de Auditoría</h2>
-      <span class="result-claim-tag" id="result-claim-tag">Expediente Auditado</span>
-    </div>
-
-    <!-- Resumen Operativo y Métricas Financieras -->
-    <div class="result-summary-grid">
-      <div id="status" class="status"></div>
-      <div class="metrics">
+  <main class="console-layout">
+    <!-- SECCIÓN PRINCIPAL: CONTROL DE EXPEDIENTE Y DOCUMENTOS -->
+    <section class="control-panel">
+      <div class="panel-header">
         <div>
-          <small>Importe facturado</small>
-          <strong id="billed"></strong>
+          <h1>Expediente de Siniestro</h1>
+          <p class="panel-desc">Prueba guiada: contrasta de forma agéntica la factura del taller frente a la declaración
+            del siniestro, el informe pericial y el tarifario contractual pactado.</p>
         </div>
-        <div>
-          <small>Diferencia potencial (sin impuestos)</small>
-          <strong id="difference"></strong>
-        </div>
-        <div>
-          <small>Subtotal de referencia sugerido</small>
-          <strong id="reference"></strong>
+        <div class="claim-badge-box">
+          <label for="claim-id-input">ID Expediente:</label>
+          <input type="text" id="claim-id-input" value="CLM-2026-DEMO-B" maxlength="32">
+          <button id="btn-new-claim" class="secondary btn-sm" type="button">Nuevo ID</button>
         </div>
       </div>
+
+      <!-- Selector de Casos de Referencia -->
+      <div class="cases-selector">
+        <span class="selector-label">Casos preparados para evaluación inmediata:</span>
+        <div class="cases">
+          {% for id, label in cases.items() %}
+          <button class="case" data-case="{{ id }}" aria-pressed="{{ 'true' if id == 'B' else 'false' }}">
+            <span class="case-letter">{{ id }}</span>
+            <div class="case-info">
+              <b>{{ label }}</b>
+              <small>Expediente DEMO-{{ id }}</small>
+            </div>
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Documentos Contractuales Asociados al Expediente -->
+      <div class="documents-section">
+        <div class="section-title-row">
+          <h3>Documentación del Expediente</h3>
+          <button id="toggle-upload-btn" class="secondary btn-sm" type="button">+ Subir o reemplazar documento</button>
+        </div>
+
+        <!-- Tarjetas de los 4 roles contractuales -->
+        <div class="doc-roles-grid">
+          <div class="doc-role-card" data-role="BILLING_DOCUMENT">
+            <div class="role-header">
+              <span class="role-icon">📄</span>
+              <div>
+                <strong>Factura de cobro</strong>
+                <small>Taller · Formato PDF</small>
+              </div>
+            </div>
+            <div class="role-status badge-uploaded" id="status-BILLING_DOCUMENT">Subido · Activo</div>
+            <div class="role-file-info" id="fileinfo-BILLING_DOCUMENT">Cargando…</div>
+          </div>
+
+          <div class="doc-role-card" data-role="INCIDENT_REPORT">
+            <div class="role-header">
+              <span class="role-icon">📋</span>
+              <div>
+                <strong>Declaración de siniestro</strong>
+                <small>Asegurado · Formato PDF</small>
+              </div>
+            </div>
+            <div class="role-status badge-uploaded" id="status-INCIDENT_REPORT">Subido · Activo</div>
+            <div class="role-file-info" id="fileinfo-INCIDENT_REPORT">Cargando…</div>
+          </div>
+
+          <div class="doc-role-card" data-role="WORKSHOP_REPORT">
+            <div class="role-header">
+              <span class="role-icon">🔍</span>
+              <div>
+                <strong>Informe pericial</strong>
+                <small>Ajustador · Formato PDF</small>
+              </div>
+            </div>
+            <div class="role-status badge-uploaded" id="status-WORKSHOP_REPORT">Subido · Activo</div>
+            <div class="role-file-info" id="fileinfo-WORKSHOP_REPORT">Cargando…</div>
+          </div>
+
+          <div class="doc-role-card" data-role="TARIFF">
+            <div class="role-header">
+              <span class="role-icon">📊</span>
+              <div>
+                <strong>Tarifario de convenio</strong>
+                <small>Aseguradora · Formato XLSX</small>
+              </div>
+            </div>
+            <div class="role-status badge-uploaded" id="status-TARIFF">Subido · Activo</div>
+            <div class="role-file-info" id="fileinfo-TARIFF">Cargando…</div>
+          </div>
+        </div>
+
+        <!-- Panel colapsable de subida de archivos -->
+        <div id="wb-upload-panel" class="wb-upload-panel" hidden>
+          <h4>Subir documento digital al expediente</h4>
+          <form id="wb-upload-form">
+            <div class="form-group">
+              <label for="wb-doc-role">Rol contractual:</label>
+              <select id="wb-doc-role">
+                <option value="BILLING_DOCUMENT">Factura de cobro (PDF)</option>
+                <option value="INCIDENT_REPORT">Declaración de siniestro (PDF)</option>
+                <option value="WORKSHOP_REPORT">Informe de inspección técnica (PDF)</option>
+                <option value="TARIFF">Tarifario de convenio (XLSX / PDF)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="wb-doc-file">Archivo (.pdf o .xlsx, máx. 10 MB):</label>
+              <input type="file" id="wb-doc-file" accept=".pdf,.xlsx" required>
+            </div>
+            <button type="submit" class="secondary" id="wb-upload-btn">Subir archivo</button>
+          </form>
+          <div id="wb-upload-feedback" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <!-- Barra de Acciones Principales -->
+      <div class="primary-actions-bar">
+        <button id="run" class="primary btn-lg">⚡ Auditar expediente B inmediatamente →</button>
+        <button id="toggle-data-btn" class="secondary" type="button">Inspeccionar ítems y tarifas extraídos ↓</button>
+        <a id="input-link" href="/api/demo/B" target="_blank" rel="noopener">Consultar JSON de entrada ↗</a>
+      </div>
+      <p id="progress" role="status" aria-live="polite"></p>
+
+      <!-- Visualizador de Extracción Documental (Inspección) -->
+      <div id="wb-extraction-viewer" class="wb-viewer" hidden>
+        <div class="viewer-header">
+          <h4>Evidencia y Conceptos Extraídos de los Documentos</h4>
+          <span id="wb-snapshot-meta" class="caption"></span>
+        </div>
+
+        <div class="viewer-block">
+          <h5>1. Conceptos Facturados por el Taller</h5>
+          <div class="table-responsive">
+            <table class="data-table" id="wb-items-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Descripción del Cobro</th>
+                  <th>Cantidad</th>
+                  <th>Precio Unit. USD</th>
+                  <th>Total USD</th>
+                  <th>Daño Relacionado</th>
+                  <th>Cita Comprobable</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="viewer-block">
+          <h5>2. Tarifas Contractuales Pactadas</h5>
+          <div class="table-responsive">
+            <table class="data-table" id="wb-tariffs-table">
+              <thead>
+                <tr>
+                  <th>Código de Servicio</th>
+                  <th>Unidad</th>
+                  <th>Tarifa Máx. Permitida USD</th>
+                  <th>Cita en Tarifario</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="viewer-block">
+          <h5>3. Correlación de Daños Declarados vs. Peritados</h5>
+          <div class="damages-grid">
+            <div class="damage-box">
+              <strong>Daños declarados (Siniestro):</strong>
+              <ul id="wb-reported-damages"></ul>
+            </div>
+            <div class="damage-box">
+              <strong>Daños peritados (Inspección):</strong>
+              <ul id="wb-inspected-damages"></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="wb-extract-actions">
+          <button id="wb-extract-btn" class="secondary btn-sm" type="button">⚡ Re-extraer evidencia de archivos
+            activos</button>
+          <span id="wb-extract-status" role="status" aria-live="polite"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTADO DE AUDITORÍA (APARECE INMEDIATAMENTE AL AUDITAR) -->
+    <section id="result" hidden aria-labelledby="result-title" class="result-section">
+      <div class="section-heading">
+        <h2 id="result-title">Dictamen de Auditoría</h2>
+        <span class="result-claim-tag" id="result-claim-tag">Expediente Auditado</span>
+      </div>
+
+      <!-- Resumen Operativo y Métricas Financieras -->
+      <div class="result-summary-grid">
+        <div id="status" class="status"></div>
+        <div class="metrics">
+          <div>
+            <small>Importe facturado</small>
+            <strong id="billed"></strong>
+          </div>
+          <div>
+            <small>Diferencia potencial (sin impuestos)</small>
+            <strong id="difference"></strong>
+          </div>
+          <div>
+            <small>Subtotal de referencia sugerido</small>
+            <strong id="reference"></strong>
+          </div>
+        </div>
+      </div>
+      <p class="caption">La diferencia agrupa sobrecostos evaluados sobre las bases imponibles netas (sin impuestos)
+        pactadas en los tarifarios de convenio. El subtotal de referencia no es una autorización de pago automático; las
+        reparaciones sin respaldo requieren confirmación de la aseguradora.</p>
+
+      <!-- Hallazgos con Evidencia Documental -->
+      <div class="findings-container">
+        <h3>Observaciones del Expediente</h3>
+        <div id="findings"></div>
+      </div>
+
+      <!-- Trazabilidad del Proceso (5 fases explicables) -->
+      <details class="trace-details">
+        <summary>Ver fases del proceso de auditoría y recorrido técnico</summary>
+        <ol id="trace" class="trace-list"></ol>
+        <p id="versions" class="caption"></p>
+      </details>
+
+      <div class="result-actions">
+        <button id="download" class="secondary">Descargar reporte oficial en JSON ↗</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-team">Equipo Sentria · Eduardo Valle (Representante) / Jose Muñoz / Santiago López</div>
+    <div class="footer-links">
+      <a href="https://github.com/evallesv/hackia-sentria-reto2" target="_blank" rel="noopener">Repositorio GitHub ↗</a>
+      <span>·</span>
+      <a href="/docs" target="_blank" rel="noopener">Documentación OpenAPI / Swagger ↗</a>
+      <span>·</span>
+      <a href="https://hackiathon.dev/aviso-de-la-politica-de-tratamiento-de-datos-personales/" target="_blank"
+        rel="noopener">Tratamiento de Datos Personales ↗</a>
+      <span>·</span>
+      <span class="env-tag-subtle">{% if mode == 'mock' %}Modo simulación local{% else %}Google Gemini 2.5 Flash Activo{% endif %}</span>
     </div>
-    <p class="caption">La diferencia agrupa posibles ajustes sin duplicar impactos por línea. El subtotal de referencia no es una autorización de pago automático; las reparaciones sin respaldo requieren confirmación de la aseguradora.</p>
-
-    <!-- Hallazgos con Evidencia Documental -->
-    <div class="findings-container">
-      <h3>Observaciones del Expediente</h3>
-      <div id="findings"></div>
-    </div>
-
-    <!-- Trazabilidad del Proceso (5 fases explicables) -->
-    <details class="trace-details">
-      <summary>Ver fases del proceso de auditoría y recorrido técnico</summary>
-      <ol id="trace" class="trace-list"></ol>
-      <p id="versions" class="caption"></p>
-    </details>
-
-    <div class="result-actions">
-      <button id="download" class="secondary">Descargar reporte oficial en JSON ↗</button>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="footer-team">Equipo Sentria · Eduardo Valle (Representante) / Jose Muñoz / Santiago López</div>
-  <div class="footer-links">
-    <a href="https://github.com/evallesv/hackia-sentria-reto2" target="_blank" rel="noopener">Repositorio GitHub ↗</a>
-    <span>·</span>
-    <a href="/docs" target="_blank" rel="noopener">Documentación OpenAPI / Swagger ↗</a>
-    <span>·</span>
-    <a href="https://hackiathon.dev/aviso-de-la-politica-de-tratamiento-de-datos-personales/" target="_blank" rel="noopener">Tratamiento de Datos Personales ↗</a>
-  </div>
-</footer>
+  </footer>
 </body>
+
 </html>
